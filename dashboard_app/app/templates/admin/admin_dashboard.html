@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="mb-4 animate-fade-in">
+            <i class="bi bi-gear"></i> Admin Dashboard
+        </h1>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- System Status -->
+    <div class="col-lg-6">
+        <div class="card animate-slide-up">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="bi bi-server"></i> System Status</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <tr>
+                        <td><strong>Cache Status:</strong></td>
+                        <td>
+                            {% if cache_time %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-warning">Not Loaded</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Last Updated:</strong></td>
+                        <td>{{ cache_time if cache_time else 'Never' }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total Products:</strong></td>
+                        <td>{{ stats.total_products }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total Suppliers:</strong></td>
+                        <td>{{ stats.total_suppliers }}</td>
+                    </tr>
+                </table>
+                
+                <button class="btn btn-primary" id="refreshDataBtn">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh Data
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="col-lg-6">
+        <div class="card animate-slide-up" style="animation-delay: 0.1s">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-3">
+                    <a href="{{ url_for('dashboard.overview') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-house"></i> View Main Dashboard
+                    </a>
+                    <a href="{{ url_for('dashboard.products') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-box"></i> Manage Products
+                    </a>
+                    <a href="{{ url_for('dashboard.suppliers') }}" class="btn btn-outline-success">
+                        <i class="bi bi-building"></i> Manage Suppliers
+                    </a>
+                    <button class="btn btn-outline-info" onclick="window.location.reload()">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh Page
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Overview -->
+<div class="row g-4 mt-2">
+    <div class="col-12">
+        <div class="card animate-fade-in" style="animation-delay: 0.2s">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="bi bi-graph-up"></i> Key Metrics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="metric-box">
+                            <h6>Avg Product Price</h6>
+                            <h3>₹{{ "%.0f"|format(stats.avg_product_price) }}</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-box">
+                            <h6>Avg Supplier Price</h6>
+                            <h3>₹{{ "%.0f"|format(stats.avg_supplier_price) }}</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-box">
+                            <h6>Avg Product Rating</h6>
+                            <h3>{{ "%.1f"|format(stats.avg_product_rating) }} ⭐</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-box">
+                            <h6>Total Reviews</h6>
+                            <h3>{{ "{:,}".format(stats.total_reviews) }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-info mt-4">
+    <i class="bi bi-info-circle"></i>
+    <strong>Note:</strong> This admin panel allows you to monitor the dashboard system. 
+    Future updates will include data upload, user management, and custom report generation.
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('refreshDataBtn').addEventListener('click', function() {
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Refreshing...';
+        
+        fetch('/admin/refresh-data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ ' + data.message);
+                window.location.reload();
+            } else {
+                alert('❌ Error: ' + data.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Refresh Data';
+            }
+        })
+        .catch(error => {
+            alert('❌ Error: ' + error);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Refresh Data';
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}Suppliers - Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="mb-4 animate-fade-in">
+            <i class="bi bi-building"></i> Suppliers Dashboard
+        </h1>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card animate-slide-up">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-funnel"></i> Filters</h5>
+            </div>
+            <div class="card-body">
+                <form id="supplierFilterForm">
+                    <div class="row g-3">
+                        <div class="col-md-2">
+                            <label class="form-label">Min Price</label>
+                            <input type="number" class="form-control filter-input" name="price_min" 
+                                   placeholder="Min ₹" value="{{ active_filters.get('price_min', '') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Max Price</label>
+                            <input type="number" class="form-control filter-input" name="price_max" 
+                                   placeholder="Max ₹" value="{{ active_filters.get('price_max', '') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Min Rating</label>
+                            <select class="form-select filter-input" name="rating_min">
+                                <option value="">All</option>
+                                <option value="1">1+</option>
+                                <option value="2">2+</option>
+                                <option value="3">3+</option>
+                                <option value="4">4+</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Location</label>
+                            <select class="form-select filter-input" name="location">
+                                <option value="">All</option>
+                                {% for loc in filter_options.locations %}
+                                <option value="{{ loc }}">{{ loc }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Product</label>
+                            <select class="form-select filter-input" name="product">
+                                <option value="">All</option>
+                                {% for prod in filter_options.products %}
+                                <option value="{{ prod }}">{{ prod[:30] }}...</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Search</label>
+                            <input type="text" class="form-control filter-input" name="search" 
+                                   placeholder="Search...">
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <button type="button" class="btn btn-success" id="applyFilters">
+                                <i class="bi bi-check-circle"></i> Apply Filters
+                            </button>
+                            <button type="button" class="btn btn-secondary" id="resetFilters">
+                                <i class="bi bi-x-circle"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-5">
+        <div class="card chart-card">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-geo-alt"></i> Suppliers by Location</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="supplierLocationChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card chart-card">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-layers"></i> Supplier Rounds</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="supplierRoundChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card chart-card">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-scatter"></i> Price vs Rating</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="supplierScatterChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results -->
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="alert alert-success">
+            <i class="bi bi-info-circle"></i> 
+            Showing <strong id="supplierCount">{{ suppliers|length }}</strong> suppliers
+        </div>
+    </div>
+</div>
+
+<!-- Suppliers Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="suppliersTable">
+                        <thead>
+                            <tr>
+                                <th>Round</th>
+                                <th>Supplier Name</th>
+                                <th>Product</th>
+                                <th>Location</th>
+                                <th>Price</th>
+                                <th>Rating</th>
+                                <th>Reviews</th>
+                                <th>Contact</th>
+                                <th>Link</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for supplier in suppliers %}
+                            <tr class="animate-fade-in">
+                                <td><span class="badge bg-primary">{{ supplier['Supplier Round'] }}</span></td>
+                                <td><strong>{{ supplier['Supplier Name'] }}</strong></td>
+                                <td><small>{{ supplier['Product Searched'][:30] }}...</small></td>
+                                <td><i class="bi bi-geo-alt"></i> {{ supplier.Location }}</td>
+                                <td>₹{{ "%.0f"|format(supplier.Price) }}</td>
+                                <td>
+                                    <span class="badge bg-warning text-dark">
+                                        {{ "%.1f"|format(supplier.Rating) }} <i class="bi bi-star-fill"></i>
+                                    </span>
+                                </td>
+                                <td>{{ supplier.Reviews }}</td>
+                                <td><small>{{ supplier['Contact Phone'] }}</small></td>
+                                <td>
+                                    <a href="{{ supplier['IndiaMART Link'] }}" target="_blank" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/filters.js') }}"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+    let supplierCharts = {};
+    
+    function loadSupplierCharts() {
+        const formData = new FormData(document.getElementById('supplierFilterForm'));
+        const params = new URLSearchParams(formData);
+        
+        fetch(`/api/charts/suppliers?${params}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('supplierCount').textContent = data.count;
+                
+                if (supplierCharts.location) supplierCharts.location.destroy();
+                supplierCharts.location = createBarChart('supplierLocationChart', 
+                    data.location.labels, data.location.values, 'Suppliers', '#28a745');
+                
+                if (supplierCharts.round) supplierCharts.round.destroy();
+                supplierCharts.round = createPieChart('supplierRoundChart', 
+                    data.rounds.labels, data.rounds.values, 'Rounds');
+                
+                if (supplierCharts.scatter) supplierCharts.scatter.destroy();
+                supplierCharts.scatter = createScatterChart('supplierScatterChart',
+                    data.scatter.prices, data.scatter.ratings, data.scatter.labels);
+            });
+    }
+    
+    document.getElementById('applyFilters').addEventListener('click', function() {
+        const formData = new FormData(document.getElementById('supplierFilterForm'));
+        const params = new URLSearchParams(formData);
+        window.location.href = `/suppliers?${params}`;
+    });
+    
+    document.getElementById('resetFilters').addEventListener('click', function() {
+        window.location.href = '/suppliers';
+    });
+    
+    document.addEventListener('DOMContentLoaded', loadSupplierCharts);
+</script>
+{% endblock %}

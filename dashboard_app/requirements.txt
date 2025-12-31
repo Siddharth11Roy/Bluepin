@@ -1,0 +1,6 @@
+Flask
+pandas
+numpy
+Werkzeug
+Jinja2
+openpyxl

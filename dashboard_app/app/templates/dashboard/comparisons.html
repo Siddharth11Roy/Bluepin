@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Comparisons - Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="mb-4 animate-fade-in">
+            <i class="bi bi-bar-chart"></i> Comparison Dashboard
+        </h1>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Product Comparison -->
+    <div class="col-lg-6">
+        <div class="card animate-slide-up">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-box-seam"></i> Compare Products</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Select Products (up to 4)</label>
+                    <select class="form-select" id="productSelect" multiple size="6">
+                        {% for product in product_list %}
+                        <option value="{{ product }}">{{ product }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button class="btn btn-primary" id="compareProducts">
+                    <i class="bi bi-arrows-angle-contract"></i> Compare Products
+                </button>
+            </div>
+        </div>
+        
+        <div class="card mt-4" id="productComparisonResult" style="display: none;">
+            <div class="card-header bg-white">
+                <h6 class="mb-0">Product Comparison Results</h6>
+            </div>
+            <div class="card-body" id="productComparisonBody"></div>
+        </div>
+    </div>
+    
+    <!-- Supplier Comparison -->
+    <div class="col-lg-6">
+        <div class="card animate-slide-up">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-building"></i> Compare Suppliers</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Select Suppliers (up to 4)</label>
+                    <select class="form-select" id="supplierSelect" multiple size="6">
+                        {% for supplier in supplier_list %}
+                        <option value="{{ supplier }}">{{ supplier }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button class="btn btn-success" id="compareSuppliers">
+                    <i class="bi bi-arrows-angle-contract"></i> Compare Suppliers
+                </button>
+            </div>
+        </div>
+        
+        <div class="card mt-4" id="supplierComparisonResult" style="display: none;">
+            <div class="card-header bg-white">
+                <h6 class="mb-0">Supplier Comparison Results</h6>
+            </div>
+            <div class="card-body" id="supplierComparisonBody"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Comparison Chart -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card" id="comparisonChartCard" style="display: none;">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-graph-up"></i> Visual Comparison</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="comparisonChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+    let comparisonChart = null;
+    
+    document.getElementById('compareProducts').addEventListener('click', function() {
+        const selected = Array.from(document.getElementById('productSelect').selectedOptions)
+            .map(opt => opt.value).slice(0, 4);
+        
+        if (selected.length < 2) {
+            alert('Please select at least 2 products');
+            return;
+        }
+        
+        const params = new URLSearchParams();
+        selected.forEach(id => params.append('ids[]', id));
+        
+        fetch(`/api/compare-products?${params}`)
+            .then(response => response.json())
+            .then(data => {
+                let html = '<div class="table-responsive"><table class="table table-bordered">';
+                html += '<thead><tr><th>Metric</th>';
+                data.forEach(p => html += `<th>${p['Product Identifier']}</th>`);
+                html += '</tr></thead><tbody>';
+                
+                html += '<tr><td><strong>Price</strong></td>';
+                data.forEach(p => html += `<td>₹${p.Price.toFixed(0)} ${p.is_cheapest ? '🏆' : ''}</td>`);
+                html += '</tr>';
+                
+                html += '<tr><td><strong>Rating</strong></td>';
+                data.forEach(p => html += `<td>${p.Ratings.toFixed(1)} ⭐ ${p.is_highest_rated ? '🏆' : ''}</td>`);
+                html += '</tr>';
+                
+                html += '<tr><td><strong>Reviews</strong></td>';
+                data.forEach(p => html += `<td>${p.Review} ${p.is_most_reviewed ? '🏆' : ''}</td>`);
+                html += '</tr>';
+                
+                html += '</tbody></table></div>';
+                document.getElementById('productComparisonBody').innerHTML = html;
+                document.getElementById('productComparisonResult').style.display = 'block';
+                
+                // Chart
+                const labels = data.map(p => p['Product Identifier'].slice(0, 20));
+                const prices = data.map(p => p.Price);
+                const ratings = data.map(p => p.Ratings * 100);
+                
+                if (comparisonChart) comparisonChart.destroy();
+                const ctx = document.getElementById('comparisonChart');
+                comparisonChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Price (₹)',
+                                data: prices,
+                                backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                            },
+                            {
+                                label: 'Rating (×100)',
+                                data: ratings,
+                                backgroundColor: 'rgba(255, 206, 86, 0.6)'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+                document.getElementById('comparisonChartCard').style.display = 'block';
+            });
+    });
+    
+    document.getElementById('compareSuppliers').addEventListener('click', function() {
+        const selected = Array.from(document.getElementById('supplierSelect').selectedOptions)
+            .map(opt => opt.value).slice(0, 4);
+        
+        if (selected.length < 2) {
+            alert('Please select at least 2 suppliers');
+            return;
+        }
+        
+        const params = new URLSearchParams();
+        selected.forEach(name => params.append('names[]', name));
+        
+        fetch(`/api/compare-suppliers?${params}`)
+            .then(response => response.json())
+            .then(data => {
+                let html = '<div class="table-responsive"><table class="table table-bordered">';
+                html += '<thead><tr><th>Metric</th>';
+                data.forEach(s => html += `<th>${s.name}</th>`);
+                html += '</tr></thead><tbody>';
+                
+                html += '<tr><td><strong>Avg Price</strong></td>';
+                data.forEach(s => html += `<td>₹${s.avg_price.toFixed(0)} ${s.is_cheapest ? '🏆' : ''}</td>`);
+                html += '</tr>';
+                
+                html += '<tr><td><strong>Rating</strong></td>';
+                data.forEach(s => html += `<td>${s.avg_rating.toFixed(1)} ⭐ ${s.is_highest_rated ? '🏆' : ''}</td>`);
+                html += '</tr>';
+                
+                html += '<tr><td><strong>Total Reviews</strong></td>';
+                data.forEach(s => html += `<td>${s.total_reviews} ${s.is_most_reviewed ? '🏆' : ''}</td>`);
+                html += '</tr>';
+                
+                html += '<tr><td><strong>Location</strong></td>';
+                data.forEach(s => html += `<td>${s.location}</td>`);
+                html += '</tr>';
+                
+                html += '</tbody></table></div>';
+                document.getElementById('supplierComparisonBody').innerHTML = html;
+                document.getElementById('supplierComparisonResult').style.display = 'block';
+            });
+    });
+</script>
+{% endblock %}
