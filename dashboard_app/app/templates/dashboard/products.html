@@ -123,9 +123,13 @@
     {% for product in products %}
     <div class="col-md-6 col-lg-4 col-xl-3 product-item">
         <div class="card product-card-detailed h-100 animate-fade-in">
-            <img src="{{ product.Image }}" class="card-img-top product-image-large" alt="{{ product.Title }}">
+            <a href="{{ url_for('dashboard.product_detail', product_id=product['Product Identifier']) }}">
+                <img src="{{ product.Image }}" class="card-img-top product-image-large" alt="{{ product.Title }}">
+            </a>
             <div class="card-body">
-                <h6 class="card-title" title="{{ product.Title }}">{{ product.Title[:60] }}...</h6>
+                <a href="{{ url_for('dashboard.product_detail', product_id=product['Product Identifier']) }}" class="text-decoration-none text-dark">
+                    <h6 class="card-title" title="{{ product.Title }}">{{ product.Title[:60] }}...</h6>
+                </a>
                 <div class="mb-2">
                     <span class="badge bg-success fs-6">₹{{ "%.0f"|format(product.Price) }}</span>
                     <span class="badge bg-warning text-dark ms-2">
@@ -135,15 +139,23 @@
                 <p class="card-text small text-muted mb-2">
                     <i class="bi bi-chat-left-text"></i> {{ product.Review }} reviews
                 </p>
-                {% if product.Monthly_Sales %}
+                {% if product['Monthly Sales'] %}
                 <p class="card-text small text-success mb-2">
                     <i class="bi bi-graph-up"></i> {{ product['Monthly Sales'] }}
                 </p>
                 {% endif %}
                 <div class="d-grid gap-2">
-                    <button class="btn btn-sm btn-primary view-suppliers" 
-                            data-product="{{ product['Product Identifier'] }}">
-                        <i class="bi bi-building"></i> View Suppliers
+                    <a href="{{ url_for('dashboard.product_detail', product_id=product['Product Identifier']) }}" 
+                       class="btn btn-sm btn-primary">
+                        <i class="bi bi-eye"></i> View Details
+                    </a>
+                    <button class="btn btn-sm btn-outline-secondary add-to-comparison" 
+                            data-product-id="{{ product['Product Identifier'] }}"
+                            data-product-title="{{ product.Title }}"
+                            data-product-price="{{ product.Price }}"
+                            data-product-image="{{ product.Image }}"
+                            data-product-rating="{{ product.Ratings }}">
+                        <i class="bi bi-plus-circle"></i> Compare
                     </button>
                 </div>
             </div>

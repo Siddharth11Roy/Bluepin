@@ -130,19 +130,21 @@
                 <div class="row g-3">
                     {% for product in top_products %}
                     <div class="col-md-4 col-lg-2">
-                        <div class="product-card">
-                            <img src="{{ product.Image }}" alt="{{ product.Title }}" class="product-image">
-                            <div class="product-info">
-                                <h6 class="product-title" title="{{ product.Title }}">{{ product.Title[:50] }}...</h6>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="badge bg-success">₹{{ "%.0f"|format(product.Price) }}</span>
-                                    <span class="badge bg-warning text-dark">
-                                        <i class="bi bi-star-fill"></i> {{ "%.1f"|format(product.Ratings) }}
-                                    </span>
+                        <a href="{{ url_for('dashboard.product_detail', product_id=product['Product Identifier']) }}" class="text-decoration-none">
+                            <div class="product-card">
+                                <img src="{{ product.Image }}" alt="{{ product.Title }}" class="product-image">
+                                <div class="product-info">
+                                    <h6 class="product-title" title="{{ product.Title }}">{{ product.Title[:50] }}...</h6>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-success">₹{{ "%.0f"|format(product.Price) }}</span>
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="bi bi-star-fill"></i> {{ "%.1f"|format(product.Ratings) }}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">{{ product.Review }} reviews</small>
                                 </div>
-                                <small class="text-muted">{{ product.Review }} reviews</small>
                             </div>
-                        </div>
+                        </a>
                     </div>
                     {% endfor %}
                 </div>
@@ -210,3 +212,5 @@
     });
 </script>
 {% endblock %}
+
+

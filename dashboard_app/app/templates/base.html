@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,56 +20,126 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('dashboard.overview') }}">
-                <i class="bi bi-graph-up-arrow"></i> Analytics Dashboard
+    <!-- Enhanced Floating Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-glass floating-nav" id="mainNav">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand brand-logo" href="{{ url_for('dashboard.overview') }}">
+                <i class="bi bi-graph-up-arrow brand-icon"></i> 
+                <span class="brand-text">Analytics Pro</span>
             </a>
+            
+            <!-- Search Bar (Desktop) -->
+            <div class="search-container d-none d-lg-block mx-auto">
+                <div class="search-wrapper">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" class="form-control global-search" id="globalSearch" 
+                           placeholder="Search products, suppliers... (Ctrl+K)" autocomplete="off">
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+            </div>
+            
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <!-- Mobile Search -->
+                <div class="d-lg-none my-3">
+                    <div class="search-wrapper-mobile">
+                        <i class="bi bi-search search-icon"></i>
+                        <input type="text" class="form-control global-search" 
+                               placeholder="Search..." autocomplete="off">
+                    </div>
+                </div>
+                
+                <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item">
                         <a class="nav-link {% if active_page == 'overview' %}active{% endif %}" 
                            href="{{ url_for('dashboard.overview') }}">
-                            <i class="bi bi-house-door"></i> Overview
+                            <i class="bi bi-house-door"></i> <span class="nav-text">Overview</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if active_page == 'products' %}active{% endif %}" 
                            href="{{ url_for('dashboard.products') }}">
-                            <i class="bi bi-box-seam"></i> Products
+                            <i class="bi bi-box-seam"></i> <span class="nav-text">Products</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if active_page == 'suppliers' %}active{% endif %}" 
                            href="{{ url_for('dashboard.suppliers') }}">
-                            <i class="bi bi-building"></i> Suppliers
+                            <i class="bi bi-building"></i> <span class="nav-text">Suppliers</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if active_page == 'comparisons' %}active{% endif %}" 
                            href="{{ url_for('dashboard.comparisons') }}">
-                            <i class="bi bi-bar-chart"></i> Comparisons
+                            <i class="bi bi-bar-chart"></i> <span class="nav-text">Compare</span>
                         </a>
                     </li>
+                    
+                    <!-- Comparison Cart Badge -->
+                    <li class="nav-item">
+                        <button class="nav-link btn-link position-relative" id="comparisonCartBtn" style="border: none; background: none;">
+                            <i class="bi bi-collection"></i>
+                            <span class="badge bg-danger cart-badge" id="comparisonCount" style="display: none;">0</span>
+                        </button>
+                    </li>
+                    
+                    <!-- Dark Mode Toggle -->
+                    <li class="nav-item">
+                        <button class="nav-link btn-link theme-toggle" id="themeToggle" title="Toggle Dark Mode">
+                            <i class="bi bi-moon-fill theme-icon"></i>
+                        </button>
+                    </li>
+                    
+                    <!-- Admin -->
                     <li class="nav-item">
                         <a class="nav-link {% if active_page == 'admin' %}active{% endif %}" 
                            href="{{ url_for('admin.admin_dashboard') }}">
-                            <i class="bi bi-gear"></i> Admin
+                            <i class="bi bi-gear"></i>
                         </a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
+    
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress" id="scrollProgress"></div>
 
     <!-- Main Content -->
-    <main class="container-fluid py-4">
+    <main class="container-fluid py-4 main-content">
         {% block content %}{% endblock %}
     </main>
+    
+    <!-- Floating Comparison Bar -->
+    <div class="floating-comparison-bar" id="comparisonBar" style="display: none;">
+        <div class="container-fluid">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-collection me-2"></i>
+                    <span><strong id="comparisonBarCount">0</strong> items selected for comparison</span>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-light" id="viewComparison">
+                        <i class="bi bi-eye"></i> Compare Now
+                    </button>
+                    <button class="btn btn-sm btn-outline-light" id="clearComparison">
+                        <i class="bi bi-x"></i> Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" title="Back to top">
+        <i class="bi bi-arrow-up"></i>
+    </button>
 
     <!-- Footer -->
     <footer class="bg-light text-center py-3 mt-5">
@@ -87,9 +157,21 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     
     <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/search.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/comparison.js') }}"></script>
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
     <script src="{{ url_for('static', filename='js/ajax.js') }}"></script>
     
     {% block extra_js %}{% endblock %}
+    
+    <script>
+        // Initialize global features
+        document.addEventListener('DOMContentLoaded', function() {
+            initScrollProgress();
+            initBackToTop();
+            initNavbarScroll();
+        });
+    </script>
 </body>
 </html>

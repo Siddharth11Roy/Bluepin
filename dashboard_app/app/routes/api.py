@@ -219,4 +219,48 @@ def get_supplier_charts():
         'count': len(filtered)
     })
 
+@bp.route('/product-detail/<product_id>')
+def get_product_detail(product_id):
+    """Get detailed product information"""
+    product = DataLoader.get_product_by_identifier(product_id)
+    if not product:
+        return jsonify({'error': 'Product not found'}), 404
+    
+    suppliers = DataLoader.get_suppliers_for_product(product_id)
+    comparison = Comparisons.product_vs_suppliers(product_id)
+    
+    return jsonify({
+        'product': product,
+        'suppliers': suppliers.to_dict('records') if not suppliers.empty else [],
+        'comparison': comparison
+    })
+
+@bp.route('/search')
+def search():
+    """Global search endpoint"""
+    query = request.args.get('q', '').lower()
+    
+    if len(query) < 2:
+        return jsonify({'results': []})
+    
+    products = DataLoader.load_products()
+    suppliers = DataLoader.load_suppliers()
+    
+    # Search products
+    product_results = products[
+        products['Title'].str.lower().str.contains(query, na=False) |
+        products['Product Identifier'].str.lower().str.contains(query, na=False)
+    ].head(5)
+    
+    # Search suppliers
+    supplier_results = suppliers[
+        suppliers['Supplier Name'].str.lower().str.contains(query, na=False) |
+        suppliers['Location'].str.lower().str.contains(query, na=False)
+    ].head(5)
+    
+    return jsonify({
+        'products': product_results[['Product Identifier', 'Title', 'Price', 'Ratings', 'Image']].to_dict('records'),
+        'suppliers': supplier_results[['Supplier Name', 'Location', 'Rating', 'Price']].to_dict('records')
+    })
+
 import pandas as pd

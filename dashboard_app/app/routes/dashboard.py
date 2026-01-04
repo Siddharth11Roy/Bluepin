@@ -93,3 +93,32 @@ def comparisons():
                          product_list=product_list,
                          supplier_list=supplier_list,
                          active_page='comparisons')
+
+@bp.route('/product/<product_id>')
+def product_detail(product_id):
+    """Detailed product view"""
+    product = DataLoader.get_product_by_identifier(product_id)
+    
+    if not product:
+        return render_template('errors/404.html'), 404
+    
+    # Get suppliers for this product
+    suppliers = DataLoader.get_suppliers_for_product(product_id)
+    
+    # Get comparison data
+    comparison = Comparisons.product_vs_suppliers(product_id)
+    
+    # Get similar products (same category)
+    all_products = DataLoader.load_products()
+    category = product.get('Category', '')
+    similar = all_products[
+        (all_products['Category'] == category) & 
+        (all_products['Product Identifier'] != product_id)
+    ].head(4).to_dict('records')
+    
+    return render_template('dashboard/product_detail.html',
+                         product=product,
+                         suppliers=suppliers.to_dict('records') if not suppliers.empty else [],
+                         comparison=comparison,
+                         similar_products=similar,
+                         active_page='products')
