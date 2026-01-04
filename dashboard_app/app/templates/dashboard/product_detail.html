@@ -28,6 +28,11 @@
             
             <!-- Quick Actions -->
             <div class="d-grid gap-2 mt-3">
+                <a href="{{ product.Image.split('images/I/')[0] if 'amazon' in product.Image else '#' }}" 
+                   target="_blank" 
+                   class="btn btn-primary">
+                    <i class="bi bi-cart"></i> View on Amazon
+                </a>
                 <button class="btn btn-outline-primary add-to-comparison" 
                         data-product-id="{{ product['Product Identifier'] }}"
                         data-product-title="{{ product.Title }}"
@@ -79,7 +84,7 @@
                         <div class="col-6 col-md-3">
                             <div class="stat-box">
                                 <div class="stat-icon"><i class="bi bi-graph-up"></i></div>
-                                <div class="stat-value">{{ product['Monthly Sales'] if product['Monthly Sales'] else 'N/A' }}</div>
+                                <div class="stat-value">{% if product['Monthly Sales'] and product['Monthly Sales']|string|trim %}{{ product['Monthly Sales'] }}{% else %}NA{% endif %}</div>
                                 <div class="stat-label">Monthly Sales</div>
                             </div>
                         </div>
@@ -117,7 +122,7 @@
                         </tr>
                         <tr>
                             <th>Category:</th>
-                            <td>{{ product.Category if product.Category else 'General' }}</td>
+                            <td>{% if product.Category and product.Category|string|trim %}{{ product.Category }}{% else %}NA{% endif %}</td>
                         </tr>
                         <tr>
                             <th>Price Range:</th>
@@ -179,22 +184,26 @@
                                 <tbody>
                                     {% for supplier in suppliers %}
                                     <tr>
-                                        <td><span class="badge bg-primary">{{ supplier['Supplier Round'] }}</span></td>
-                                        <td><strong>{{ supplier['Supplier Name'] }}</strong></td>
-                                        <td><i class="bi bi-geo-alt"></i> {{ supplier.Location }}</td>
+                                        <td><span class="badge bg-primary">{% if supplier['Supplier Round'] and supplier['Supplier Round']|string|trim %}{{ supplier['Supplier Round'] }}{% else %}NA{% endif %}</span></td>
+                                        <td><strong>{% if supplier['Supplier Name'] and supplier['Supplier Name']|string|trim %}{{ supplier['Supplier Name'] }}{% else %}NA{% endif %}</strong></td>
+                                        <td><i class="bi bi-geo-alt"></i> {% if supplier.Location and supplier.Location|string|trim %}{{ supplier.Location }}{% else %}NA{% endif %}</td>
                                         <td>
-                                            <strong>₹{{ "%.0f"|format(supplier.Price) }}</strong>
-                                            {% if supplier.Price == comparison['price_comparison']['min_supplier_price'] %}
+                                            <strong>{% if supplier.Price %}₹{{ "%.0f"|format(supplier.Price) }}{% else %}NA{% endif %}</strong>
+                                            {% if supplier.Price and supplier.Price == comparison['price_comparison']['min_supplier_price'] %}
                                                 <span class="badge bg-success ms-1">Best Price</span>
                                             {% endif %}
                                         </td>
-                                        <td><span class="badge bg-warning text-dark">{{ "%.1f"|format(supplier.Rating) }} ⭐</span></td>
-                                        <td>{{ supplier.Reviews }}</td>
-                                        <td><small>{{ supplier['Contact Phone'] }}</small></td>
+                                        <td><span class="badge bg-warning text-dark">{% if supplier.Rating %}{{ "%.1f"|format(supplier.Rating) }} ⭐{% else %}NA{% endif %}</span></td>
+                                        <td>{% if supplier.Reviews and supplier.Reviews|string|trim %}{{ supplier.Reviews }}{% else %}NA{% endif %}</td>
+                                        <td><small>{% if supplier['Contact Phone'] and supplier['Contact Phone']|string|trim %}{{ supplier['Contact Phone'] }}{% else %}NA{% endif %}</small></td>
                                         <td>
+                                            {% if supplier['IndiaMART Link'] and supplier['IndiaMART Link']|string|trim %}
                                             <a href="{{ supplier['IndiaMART Link'] }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                                 <i class="bi bi-box-arrow-up-right"></i>
                                             </a>
+                                            {% else %}
+                                            <span class="text-muted">NA</span>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                     {% endfor %}
