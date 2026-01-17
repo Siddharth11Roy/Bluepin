@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+
+{% block title %}Suppliers - Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Hero Header Section -->
+    <div class="page-hero mb-5" data-aos="fade-down">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="hero-content">
+                    <h1 class="display-4 fw-bold mb-3">
+                        <i class="bi bi-building gradient-icon"></i> Supplier Network
+                    </h1>
+                    <p class="lead text-muted mb-0">Connect with verified suppliers across regions</p>
+                </div>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <div class="hero-stats">
+                    <div class="stat-badge">
+                        <span class="stat-number counter" data-target="{{ suppliers|length }}">0</span>
+                        <span class="stat-label">Suppliers Available</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Smart Filters Section -->
+    <div class="filter-section mb-5" data-aos="fade-up" data-aos-delay="100">
+        <div class="filter-card">
+            <div class="filter-header">
+                <h5 class="filter-title">
+                    <i class="bi bi-sliders"></i> Smart Filters
+                </h5>
+                <button class="btn btn-sm btn-ghost" id="toggleFilters">
+                    <i class="bi bi-chevron-up"></i>
+                </button>
+            </div>
+            <div class="filter-body" id="filterCollapse">
+                <form id="supplierFilterForm">
+                    <div class="row g-3">
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <label class="filter-label">Min Price</label>
+                            <div class="input-group input-group-modern">
+                                <span class="input-group-text"><i class="bi bi-currency-rupee"></i></span>
+                                <input type="number" class="form-control" name="price_min" 
+                                       placeholder="Min" value="{{ active_filters.get('price_min', '') }}">
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <label class="filter-label">Max Price</label>
+                            <div class="input-group input-group-modern">
+                                <span class="input-group-text"><i class="bi bi-currency-rupee"></i></span>
+                                <input type="number" class="form-control" name="price_max" 
+                                       placeholder="Max" value="{{ active_filters.get('price_max', '') }}">
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <label class="filter-label">Min Rating</label>
+                            <select class="form-select form-select-modern" name="rating_min">
+                                <option value="">All Ratings</option>
+                                <option value="1">⭐ 1+</option>
+                                <option value="2">⭐ 2+</option>
+                                <option value="3">⭐ 3+</option>
+                                <option value="4">⭐ 4+</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <label class="filter-label">Location</label>
+                            <select class="form-select form-select-modern" name="location">
+                                <option value="">All Locations</option>
+                                {% for loc in filter_options.locations %}
+                                <option value="{{ loc }}">{{ loc }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <label class="filter-label">Product</label>
+                            <select class="form-select form-select-modern" name="product">
+                                <option value="">All Products</option>
+                                {% for prod in filter_options.products %}
+                                <option value="{{ prod }}">{{ prod[:30] }}...</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <label class="filter-label">Search</label>
+                            <div class="input-group input-group-modern">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                <input type="text" class="form-control" name="search" 
+                                       placeholder="Search...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="filter-actions mt-4">
+                        <button type="button" class="btn btn-success btn-action" id="applyFilters">
+                            <i class="bi bi-check-circle"></i> Apply Filters
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-action" id="resetFilters">
+                            <i class="bi bi-arrow-counterclockwise"></i> Reset All
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Dashboard -->
+    <div class="analytics-grid mb-5" data-aos="fade-up" data-aos-delay="200">
+        <div class="row g-4">
+            <div class="col-lg-5">
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <div class="insight-icon insight-icon-success">
+                            <i class="bi bi-geo-alt-fill"></i>
+                        </div>
+                        <h6 class="insight-title">Supplier Distribution</h6>
+                    </div>
+                    <div class="insight-body">
+                        <canvas id="supplierLocationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <div class="insight-icon insight-icon-primary">
+                            <i class="bi bi-layers-fill"></i>
+                        </div>
+                        <h6 class="insight-title">Supplier Rounds</h6>
+                    </div>
+                    <div class="insight-body">
+                        <canvas id="supplierRoundChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <div class="insight-icon insight-icon-warning">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <h6 class="insight-title">Price Analysis</h6>
+                    </div>
+                    <div class="insight-body">
+                        <canvas id="supplierScatterChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Header -->
+    <div class="results-header mb-4" data-aos="fade-up" data-aos-delay="300">
+        <div class="results-info">
+            <span class="results-count">
+                <strong id="supplierCount">{{ suppliers|length }}</strong> Suppliers Found
+            </span>
+        </div>
+        <div class="results-actions">
+            <button class="btn btn-sm btn-ghost" id="exportBtn">
+                <i class="bi bi-download"></i> Export
+            </button>
+        </div>
+    </div>
+
+    <!-- Suppliers Showcase -->
+    <div class="suppliers-showcase" data-aos="fade-up" data-aos-delay="400">
+        <div class="supplier-grid">
+            {% for supplier in suppliers %}
+            <div class="supplier-card-modern" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 30 }}">
+                <div class="supplier-header">
+                    <div class="supplier-avatar">
+                        <i class="bi bi-building-fill"></i>
+                    </div>
+                    <div class="supplier-title-group">
+                        <h5 class="supplier-name">{{ supplier['Supplier Name'] }}</h5>
+                        <span class="supplier-round-badge">Round {{ supplier['Supplier Round'] }}</span>
+                    </div>
+                    <div class="supplier-rating-badge">
+                        <i class="bi bi-star-fill"></i>
+                        <span>{{ "%.1f"|format(supplier.Rating) }}</span>
+                    </div>
+                </div>
+                
+                <div class="supplier-body">
+                    <div class="supplier-product">
+                        <i class="bi bi-box"></i>
+                        <span class="text-truncate">{{ supplier['Product Searched'][:40] }}...</span>
+                    </div>
+                    
+                    <div class="supplier-info-grid">
+                        <div class="supplier-info-item">
+                            <i class="bi bi-geo-alt-fill text-primary"></i>
+                            <span>{{ supplier.Location }}</span>
+                        </div>
+                        <div class="supplier-info-item">
+                            <i class="bi bi-telephone-fill text-success"></i>
+                            <span>{{ supplier['Contact Phone'] }}</span>
+                        </div>
+                        <div class="supplier-info-item">
+                            <i class="bi bi-chat-left-text-fill text-info"></i>
+                            <span>{{ supplier.Reviews }} reviews</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="supplier-footer">
+                    <div class="supplier-price">
+                        <span class="price-label">Price</span>
+                        <span class="price-value">₹{{ "%.0f"|format(supplier.Price) }}</span>
+                    </div>
+                    <a href="{{ supplier['IndiaMART Link'] }}" target="_blank" class="btn btn-supplier-action">
+                        View Details <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/filters.js') }}"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/product_supplier.js') }}"></script>
+<script>
+    let supplierCharts = {};
+    
+    // Initialize counters
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate counters
+        const counters = document.querySelectorAll('.counter');
+        counters.forEach(counter => {
+            const target = +counter.getAttribute('data-target');
+            const increment = target / 50;
+            let current = 0;
+            
+            const updateCounter = () => {
+                if (current < target) {
+                    current += increment;
+                    counter.textContent = Math.ceil(current);
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    counter.textContent = target;
+                }
+            };
+            updateCounter();
+        });
+        
+        // Load charts
+        loadSupplierCharts();
+        
+        // Toggle filters
+        const toggleBtn = document.getElementById('toggleFilters');
+        const filterCollapse = document.getElementById('filterCollapse');
+        toggleBtn.addEventListener('click', function() {
+            filterCollapse.classList.toggle('collapsed');
+            const icon = this.querySelector('i');
+            icon.classList.toggle('bi-chevron-up');
+            icon.classList.toggle('bi-chevron-down');
+        });
+    });
+    
+    function loadSupplierCharts() {
+        const formData = new FormData(document.getElementById('supplierFilterForm'));
+        const params = new URLSearchParams(formData);
+        
+        fetch(`/api/charts/suppliers?${params}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('supplierCount').textContent = data.count;
+                
+                if (supplierCharts.location) supplierCharts.location.destroy();
+                supplierCharts.location = createBarChart('supplierLocationChart', 
+                    data.location.labels, data.location.values, 'Suppliers', '#10b981');
+                
+                if (supplierCharts.round) supplierCharts.round.destroy();
+                supplierCharts.round = createPieChart('supplierRoundChart', 
+                    data.rounds.labels, data.rounds.values, 'Rounds');
+                
+                if (supplierCharts.scatter) supplierCharts.scatter.destroy();
+                supplierCharts.scatter = createScatterChart('supplierScatterChart',
+                    data.scatter.prices, data.scatter.ratings, data.scatter.labels);
+            });
+    }
+    
+    document.getElementById('applyFilters').addEventListener('click', function() {
+        const formData = new FormData(document.getElementById('supplierFilterForm'));
+        const params = new URLSearchParams(formData);
+        window.location.href = `/suppliers?${params}`;
+    });
+    
+    document.getElementById('resetFilters').addEventListener('click', function() {
+        window.location.href = '/suppliers';
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,352 @@
+{% extends "base.html" %}
+
+{% block title %}Products - Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Hero Header Section -->
+    <div class="page-hero mb-5" data-aos="fade-down">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="hero-content">
+                    <h1 class="display-4 fw-bold mb-3">
+                        <i class="bi bi-box-seam gradient-icon"></i> Discover Products
+                    </h1>
+                    <p class="lead text-muted mb-0">Explore our curated collection of premium products</p>
+                </div>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <div class="hero-stats">
+                    <div class="stat-badge">
+                        <span class="stat-number counter" data-target="{{ products|length }}">0</span>
+                        <span class="stat-label">Products Available</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Smart Filters Section -->
+    <div class="filter-section mb-5" data-aos="fade-up" data-aos-delay="100">
+        <div class="filter-card">
+            <div class="filter-header">
+                <h5 class="filter-title">
+                    <i class="bi bi-sliders"></i> Smart Filters
+                </h5>
+                <button class="btn btn-sm btn-ghost" id="toggleFilters">
+                    <i class="bi bi-chevron-up"></i>
+                </button>
+            </div>
+            <div class="filter-body" id="filterCollapse">
+                <form id="productFilterForm">
+                    <div class="row g-3">
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <label class="filter-label">Min Price</label>
+                            <div class="input-group input-group-modern">
+                                <span class="input-group-text"><i class="bi bi-currency-rupee"></i></span>
+                                <input type="number" class="form-control" name="price_min" 
+                                       placeholder="Min" value="{{ active_filters.get('price_min', '') }}">
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <label class="filter-label">Max Price</label>
+                            <div class="input-group input-group-modern">
+                                <span class="input-group-text"><i class="bi bi-currency-rupee"></i></span>
+                                <input type="number" class="form-control" name="price_max" 
+                                       placeholder="Max" value="{{ active_filters.get('price_max', '') }}">
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <label class="filter-label">Min Rating</label>
+                            <select class="form-select form-select-modern" name="rating_min">
+                                <option value="">All Ratings</option>
+                                <option value="1" {% if active_filters.get('rating_min') == '1' %}selected{% endif %}>⭐ 1+</option>
+                                <option value="2" {% if active_filters.get('rating_min') == '2' %}selected{% endif %}>⭐ 2+</option>
+                                <option value="3" {% if active_filters.get('rating_min') == '3' %}selected{% endif %}>⭐ 3+</option>
+                                <option value="4" {% if active_filters.get('rating_min') == '4' %}selected{% endif %}>⭐ 4+</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-sm-6">
+                            <label class="filter-label">Category</label>
+                            <select class="form-select form-select-modern" name="category">
+                                <option value="">All Categories</option>
+                                {% for cat in filter_options.categories %}
+                                <option value="{{ cat }}" {% if active_filters.get('category') == cat %}selected{% endif %}>
+                                    {{ cat }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-sm-6">
+                            <label class="filter-label">Search Products</label>
+                            <div class="input-group input-group-modern">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                <input type="text" class="form-control" name="search" 
+                                       placeholder="Search by name..." value="{{ active_filters.get('search', '') }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="filter-actions mt-4">
+                        <button type="button" class="btn btn-primary btn-action" id="applyFilters">
+                            <i class="bi bi-check-circle"></i> Apply Filters
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-action" id="resetFilters">
+                            <i class="bi bi-arrow-counterclockwise"></i> Reset All
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Dashboard -->
+    <div class="analytics-grid mb-5" data-aos="fade-up" data-aos-delay="200">
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <div class="insight-icon insight-icon-primary">
+                            <i class="bi bi-pie-chart-fill"></i>
+                        </div>
+                        <h6 class="insight-title">Category Mix</h6>
+                    </div>
+                    <div class="insight-body">
+                        <canvas id="productCategoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <div class="insight-icon insight-icon-info">
+                            <i class="bi bi-bar-chart-fill"></i>
+                        </div>
+                        <h6 class="insight-title">Review Analytics</h6>
+                    </div>
+                    <div class="insight-body">
+                        <canvas id="productReviewChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <div class="insight-icon insight-icon-warning">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <h6 class="insight-title">Value Matrix</h6>
+                    </div>
+                    <div class="insight-body">
+                        <canvas id="productScatterChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Header -->
+    <div class="results-header mb-4" data-aos="fade-up" data-aos-delay="300">
+        <div class="results-info">
+            <span class="results-count">
+                <strong id="productCount">{{ products|length }}</strong> Products Found
+            </span>
+        </div>
+        <div class="results-actions">
+            <button class="btn btn-sm btn-ghost" id="gridView" data-view="grid">
+                <i class="bi bi-grid-3x3"></i>
+            </button>
+            <button class="btn btn-sm btn-ghost active" id="listView" data-view="list">
+                <i class="bi bi-list-ul"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Products Showcase -->
+    <div class="products-showcase" id="productsGrid">
+        <div class="row g-4">
+            {% for product in products %}
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 product-item" data-aos="zoom-in" data-aos-delay="{{ loop.index0 * 50 }}">
+                <div class="product-card-modern">
+                    <div class="product-image-wrapper">
+                        <a href="{{ url_for('dashboard.product_detail', product_id=product['Product Identifier']) }}" class="product-image-link">
+                            <img src="{{ product.Image }}" class="product-image" alt="{{ product.Title }}">
+                            <div class="product-overlay">
+                                <span class="overlay-icon"><i class="bi bi-eye"></i></span>
+                            </div>
+                        </a>
+                        <div class="product-badges">
+                            {% if product.Ratings >= 4.5 %}
+                            <span class="product-badge badge-featured">⭐ Top Rated</span>
+                            {% endif %}
+                            {% if product['Monthly Sales'] %}
+                            <span class="product-badge badge-trending">🔥 Trending</span>
+                            {% endif %}
+                        </div>
+                        <button class="btn-wishlist add-to-comparison" 
+                                data-product-id="{{ product['Product Identifier'] }}"
+                                data-product-title="{{ product.Title }}"
+                                data-product-price="{{ product.Price }}"
+                                data-product-image="{{ product.Image }}"
+                                data-product-rating="{{ product.Ratings }}">
+                            <i class="bi bi-plus-circle"></i>
+                        </button>
+                    </div>
+                    <div class="product-info">
+                        <a href="{{ url_for('dashboard.product_detail', product_id=product['Product Identifier']) }}" class="product-title-link">
+                            <h6 class="product-title" title="{{ product.Title }}">{{ product.Title[:55] }}...</h6>
+                        </a>
+                        <div class="product-meta">
+                            <div class="product-rating">
+                                <i class="bi bi-star-fill rating-icon"></i>
+                                <span class="rating-value">{{ "%.1f"|format(product.Ratings) }}</span>
+                                <span class="rating-count">({{ product.Review }})</span>
+                            </div>
+                            {% if product['Monthly Sales'] %}
+                            <div class="product-sales">
+                                <i class="bi bi-graph-up-arrow"></i> {{ product['Monthly Sales'] }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="product-footer">
+                            <div class="product-price">
+                                <span class="price-value">₹{{ "%.0f"|format(product.Price) }}</span>
+                            </div>
+                            <a href="{{ url_for('dashboard.product_detail', product_id=product['Product Identifier']) }}" 
+                               class="btn btn-product-action">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Suppliers Modal -->
+<div class="modal fade" id="suppliersModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Suppliers for <span id="modalProductName"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="suppliersModalBody">
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/filters.js') }}"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/product_supplier.js') }}"></script>
+<script>
+    let productCharts = {};
+    
+    // Load product charts
+    function loadProductCharts() {
+        const formData = new FormData(document.getElementById('productFilterForm'));
+        const params = new URLSearchParams(formData);
+        
+        fetch(`/api/charts/products?${params}`)
+            .then(response => response.json())
+            .then(data => {
+                // Update count
+                document.getElementById('productCount').textContent = data.count;
+                
+                // Category chart
+                if (productCharts.category) productCharts.category.destroy();
+                productCharts.category = createPieChart('productCategoryChart', 
+                    data.category.labels, data.category.values, 'Categories');
+                
+                // Review chart
+                if (productCharts.review) productCharts.review.destroy();
+                productCharts.review = createBarChart('productReviewChart', 
+                    data.reviews.labels, data.reviews.values, 'Reviews', '#36a2eb');
+                
+                // Scatter chart
+                if (productCharts.scatter) productCharts.scatter.destroy();
+                productCharts.scatter = createScatterChart('productScatterChart',
+                    data.scatter.prices, data.scatter.ratings, data.scatter.labels);
+            });
+    }
+    
+    // Apply filters
+    document.getElementById('applyFilters').addEventListener('click', function() {
+        const formData = new FormData(document.getElementById('productFilterForm'));
+        const params = new URLSearchParams(formData);
+        window.location.href = `/products?${params}`;
+    });
+    
+    // Reset filters
+    document.getElementById('resetFilters').addEventListener('click', function() {
+        window.location.href = '/products';
+    });
+    
+    // View suppliers
+    document.querySelectorAll('.view-suppliers').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const productId = this.dataset.product;
+            document.getElementById('modalProductName').textContent = productId;
+            
+            fetch(`/api/product-vs-suppliers/${encodeURIComponent(productId)}`)
+                .then(response => response.json())
+                .then(data => {
+                    let html = `
+                        <div class="alert alert-info">
+                            <h6>Price Comparison</h6>
+                            <p>Product Price: ₹${data.price_comparison.product_price.toFixed(0)} | 
+                               Avg Supplier: ₹${data.price_comparison.avg_supplier_price.toFixed(0)} | 
+                               Potential Savings: ${data.price_comparison.potential_savings.toFixed(1)}%</p>
+                        </div>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Round</th>
+                                    <th>Supplier</th>
+                                    <th>Location</th>
+                                    <th>Price</th>
+                                    <th>Rating</th>
+                                    <th>Reviews</th>
+                                    <th>Contact</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    
+                    data.suppliers.forEach(s => {
+                        html += `
+                            <tr>
+                                <td>${s['Supplier Round']}</td>
+                                <td>${s['Supplier Name']}</td>
+                                <td>${s.Location}</td>
+                                <td>₹${s.Price.toFixed(0)}</td>
+                                <td><span class="badge bg-warning text-dark">${s.Rating.toFixed(1)} ⭐</span></td>
+                                <td>${s.Reviews}</td>
+                                <td><small>${s['Contact Phone']}</small></td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += '</tbody></table>';
+                    document.getElementById('suppliersModalBody').innerHTML = html;
+                });
+            
+            new bootstrap.Modal(document.getElementById('suppliersModal')).show();
+        });
+    });
+    
+    // Initial load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadProductCharts();
+    });
+</script>
+{% endblock %}

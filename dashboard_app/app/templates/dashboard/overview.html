@@ -1,197 +1,309 @@
 {% extends "base.html" %}
 
-{% block title %}Overview - Dashboard{% endblock %}
+{% block title %}Dashboard Overview{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <h1 class="mb-4 animate-fade-in">
-            <i class="bi bi-speedometer2"></i> Dashboard Overview
-        </h1>
-    </div>
-</div>
-
-<!-- KPI Cards -->
-<div class="row g-4 mb-4">
-    <div class="col-md-3">
-        <div class="card stat-card bg-primary text-white animate-slide-up" style="animation-delay: 0.1s">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-subtitle mb-2">Total Products</h6>
-                        <h2 class="card-title mb-0 counter" data-target="{{ stats.total_products }}">0</h2>
-                    </div>
-                    <i class="bi bi-box-seam display-4 opacity-50"></i>
+<div class="dashboard-container">
+    <!-- Header Section -->
+    <div class="row mb-4" data-aos="fade-down">
+        <div class="col-12">
+            <div class="page-header">
+                <div>
+                    <h1 class="display-5 fw-bold mb-2">
+                        <i class="bi bi-speedometer2 text-primary"></i> Dashboard Overview
+                    </h1>
+                    <p class="text-muted lead mb-0">Real-time analytics and insights</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline-primary btn-icon-text" id="refreshData">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                    </button>
+                    <button class="btn btn-primary btn-icon-text">
+                        <i class="bi bi-download"></i> Export
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-    
-    <div class="col-md-3">
-        <div class="card stat-card bg-success text-white animate-slide-up" style="animation-delay: 0.2s">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-subtitle mb-2">Total Suppliers</h6>
-                        <h2 class="card-title mb-0 counter" data-target="{{ stats.total_suppliers }}">0</h2>
+
+    <!-- KPI Metrics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+            <div class="metric-card metric-card-primary">
+                <div class="metric-icon">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+                <div class="metric-content">
+                    <h6 class="metric-label">Total Products</h6>
+                    <h2 class="metric-value counter" data-target="{{ stats.total_products }}">0</h2>
+                    <div class="metric-trend trend-up">
+                        <i class="bi bi-arrow-up"></i> 12.5% vs last month
                     </div>
-                    <i class="bi bi-building display-4 opacity-50"></i>
+                </div>
+                <div class="metric-sparkline">
+                    <canvas id="sparkline1" height="50"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="metric-card metric-card-success">
+                <div class="metric-icon">
+                    <i class="bi bi-building"></i>
+                </div>
+                <div class="metric-content">
+                    <h6 class="metric-label">Total Suppliers</h6>
+                    <h2 class="metric-value counter" data-target="{{ stats.total_suppliers }}">0</h2>
+                    <div class="metric-trend trend-up">
+                        <i class="bi bi-arrow-up"></i> 8.3% vs last month
+                    </div>
+                </div>
+                <div class="metric-sparkline">
+                    <canvas id="sparkline2" height="50"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+            <div class="metric-card metric-card-warning">
+                <div class="metric-icon">
+                    <i class="bi bi-currency-rupee"></i>
+                </div>
+                <div class="metric-content">
+                    <h6 class="metric-label">Avg Product Price</h6>
+                    <h2 class="metric-value">₹{{ "%.0f"|format(stats.avg_product_price) }}</h2>
+                    <div class="metric-trend trend-down">
+                        <i class="bi bi-arrow-down"></i> 3.2% vs last month
+                    </div>
+                </div>
+                <div class="metric-sparkline">
+                    <canvas id="sparkline3" height="50"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+            <div class="metric-card metric-card-info">
+                <div class="metric-icon">
+                    <i class="bi bi-star-fill"></i>
+                </div>
+                <div class="metric-content">
+                    <h6 class="metric-label">Average Rating</h6>
+                    <h2 class="metric-value">{{ "%.1f"|format(stats.avg_product_rating) }}</h2>
+                    <div class="metric-trend trend-up">
+                        <i class="bi bi-arrow-up"></i> 0.5 vs last month
+                    </div>
+                </div>
+                <div class="metric-sparkline">
+                    <canvas id="sparkline4" height="50"></canvas>
                 </div>
             </div>
         </div>
     </div>
-    
-    <div class="col-md-3">
-        <div class="card stat-card bg-warning text-white animate-slide-up" style="animation-delay: 0.3s">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
+
+    <!-- Charts Section -->
+    <div class="row g-4 mb-4">
+        <!-- 3D Bar Chart -->
+        <div class="col-xl-8" data-aos="fade-right">
+            <div class="chart-card">
+                <div class="chart-header">
                     <div>
-                        <h6 class="card-subtitle mb-2">Avg Product Price</h6>
-                        <h2 class="card-title mb-0">₹{{ "%.0f"|format(stats.avg_product_price) }}</h2>
+                        <h5 class="chart-title">
+                            <i class="bi bi-bar-chart-fill text-primary"></i> Price Distribution Analysis
+                        </h5>
+                        <p class="chart-subtitle">Product pricing trends across categories</p>
                     </div>
-                    <i class="bi bi-currency-rupee display-4 opacity-50"></i>
+                    <div class="chart-controls">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-secondary active">Week</button>
+                            <button type="button" class="btn btn-outline-secondary">Month</button>
+                            <button type="button" class="btn btn-outline-secondary">Year</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <canvas id="priceDistChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 3D Doughnut Chart -->
+        <div class="col-xl-4" data-aos="fade-left">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h5 class="chart-title">
+                            <i class="bi bi-pie-chart-fill text-success"></i> Rating Distribution
+                        </h5>
+                        <p class="chart-subtitle">Customer satisfaction metrics</p>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <canvas id="ratingDistChart" height="300"></canvas>
                 </div>
             </div>
         </div>
     </div>
-    
-    <div class="col-md-3">
-        <div class="card stat-card bg-info text-white animate-slide-up" style="animation-delay: 0.4s">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
+
+    <!-- Location & Category Charts -->
+    <div class="row g-4 mb-4">
+        <!-- Suppliers by Location -->
+        <div class="col-xl-8" data-aos="fade-up">
+            <div class="chart-card">
+                <div class="chart-header">
                     <div>
-                        <h6 class="card-subtitle mb-2">Avg Rating</h6>
-                        <h2 class="card-title mb-0">{{ "%.1f"|format(stats.avg_product_rating) }} <i class="bi bi-star-fill"></i></h2>
+                        <h5 class="chart-title">
+                            <i class="bi bi-geo-alt-fill text-danger"></i> Suppliers by Location
+                        </h5>
+                        <p class="chart-subtitle">Geographic distribution of suppliers</p>
                     </div>
-                    <i class="bi bi-star display-4 opacity-50"></i>
+                    <div class="chart-controls">
+                        <select class="form-select form-select-sm" style="width: 150px;">
+                            <option>All Regions</option>
+                            <option>North</option>
+                            <option>South</option>
+                            <option>East</option>
+                            <option>West</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <canvas id="locationChart" height="280"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Product Categories -->
+        <div class="col-xl-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h5 class="chart-title">
+                            <i class="bi bi-tags-fill text-warning"></i> Top Categories
+                        </h5>
+                        <p class="chart-subtitle">Most popular product categories</p>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <canvas id="categoryChart" height="280"></canvas>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Charts Row -->
-<div class="row g-4 mb-4">
-    <div class="col-lg-6">
-        <div class="card chart-card animate-fade-in" style="animation-delay: 0.5s">
-            <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Price Distribution</h5>
-            </div>
-            <div class="card-body">
-                <canvas id="priceDistChart"></canvas>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-lg-6">
-        <div class="card chart-card animate-fade-in" style="animation-delay: 0.6s">
-            <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Rating Distribution</h5>
-            </div>
-            <div class="card-body">
-                <canvas id="ratingDistChart"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row g-4 mb-4">
-    <div class="col-lg-8">
-        <div class="card chart-card animate-fade-in" style="animation-delay: 0.7s">
-            <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="bi bi-geo-alt"></i> Suppliers by Location</h5>
-            </div>
-            <div class="card-body">
-                <canvas id="locationChart"></canvas>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-lg-4">
-        <div class="card animate-fade-in" style="animation-delay: 0.8s">
-            <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="bi bi-tags"></i> Categories</h5>
-            </div>
-            <div class="card-body">
-                <canvas id="categoryChart"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Top Products Section -->
-<div class="row g-4 mb-4">
-    <div class="col-12">
-        <div class="card animate-fade-in" style="animation-delay: 0.9s">
-            <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="bi bi-trophy"></i> Top Rated Products</h5>
-            </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    {% for product in top_products %}
-                    <div class="col-md-4 col-lg-2">
-                        <a href="{{ url_for('dashboard.product_detail', product_id=product['Product Identifier']) }}" class="text-decoration-none">
-                            <div class="product-card">
-                                <img src="{{ product.Image }}" alt="{{ product.Title }}" class="product-image">
-                                <div class="product-info">
-                                    <h6 class="product-title" title="{{ product.Title }}">{{ product.Title[:50] }}...</h6>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span class="badge bg-success">₹{{ "%.0f"|format(product.Price) }}</span>
-                                        <span class="badge bg-warning text-dark">
+    <!-- Top Products Section -->
+    <div class="row g-4 mb-4" data-aos="fade-up">
+        <div class="col-12">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h5 class="chart-title">
+                            <i class="bi bi-trophy-fill text-warning"></i> Top Rated Products
+                        </h5>
+                        <p class="chart-subtitle">Best performing products this month</p>
+                    </div>
+                    <a href="{{ url_for('dashboard.products') }}" class="btn btn-sm btn-outline-primary">
+                        View All <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="chart-body">
+                    <div class="product-grid">
+                        {% for product in top_products %}
+                        <div class="product-item" data-aos="zoom-in" data-aos-delay="{{ loop.index * 50 }}">
+                            <a href="{{ url_for('dashboard.product_detail', product_id=product['Product Identifier']) }}" class="product-link">
+                                <div class="product-image-wrapper">
+                                    <img src="{{ product.Image }}" alt="{{ product.Title }}" class="product-img">
+                                    <div class="product-overlay">
+                                        <span class="view-details">View Details</span>
+                                    </div>
+                                </div>
+                                <div class="product-details">
+                                    <h6 class="product-name" title="{{ product.Title }}">{{ product.Title[:40] }}{% if product.Title|length > 40 %}...{% endif %}</h6>
+                                    <div class="product-meta">
+                                        <span class="product-price">₹{{ "%.0f"|format(product.Price) }}</span>
+                                        <span class="product-rating">
                                             <i class="bi bi-star-fill"></i> {{ "%.1f"|format(product.Ratings) }}
                                         </span>
                                     </div>
-                                    <small class="text-muted">{{ product.Review }} reviews</small>
+                                    <div class="product-reviews">{{ product.Review }} reviews</div>
                                 </div>
-                            </div>
-                        </a>
+                            </a>
+                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Top Suppliers Section -->
-<div class="row g-4 mb-4">
-    <div class="col-12">
-        <div class="card animate-fade-in" style="animation-delay: 1.0s">
-            <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="bi bi-award"></i> Top Suppliers</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Rank</th>
-                                <th>Supplier</th>
-                                <th>Location</th>
-                                <th>Avg Price</th>
-                                <th>Rating</th>
-                                <th>Reviews</th>
-                                <th>Contact</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for supplier in top_suppliers %}
-                            <tr>
-                                <td><span class="badge bg-primary">{{ loop.index }}</span></td>
-                                <td><strong>{{ supplier['Supplier Name'] }}</strong></td>
-                                <td><i class="bi bi-geo-alt"></i> {{ supplier.Location }}</td>
-                                <td>₹{{ "%.0f"|format(supplier.Price) }}</td>
-                                <td>
-                                    <span class="badge bg-warning text-dark">
-                                        <i class="bi bi-star-fill"></i> {{ "%.1f"|format(supplier.Rating) }}
-                                    </span>
-                                </td>
-                                <td>{{ supplier.Reviews }}</td>
-                                <td><small>{{ supplier['Contact Phone'] }}</small></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+    <!-- Top Suppliers Table -->
+    <div class="row g-4 mb-4" data-aos="fade-up">
+        <div class="col-12">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h5 class="chart-title">
+                            <i class="bi bi-award-fill text-primary"></i> Top Suppliers
+                        </h5>
+                        <p class="chart-subtitle">Leading suppliers by performance</p>
+                    </div>
+                    <a href="{{ url_for('dashboard.suppliers') }}" class="btn btn-sm btn-outline-primary">
+                        View All <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="chart-body p-0">
+                    <div class="table-responsive">
+                        <table class="table modern-table">
+                            <thead>
+                                <tr>
+                                    <th width="80">Rank</th>
+                                    <th>Supplier Name</th>
+                                    <th>Location</th>
+                                    <th>Avg Price</th>
+                                    <th>Rating</th>
+                                    <th>Reviews</th>
+                                    <th>Contact</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for supplier in top_suppliers %}
+                                <tr class="table-row-hover">
+                                    <td>
+                                        <span class="rank-badge rank-{{ loop.index }}">
+                                            {% if loop.index == 1 %}
+                                                <i class="bi bi-trophy-fill"></i>
+                                            {% elif loop.index == 2 %}
+                                                <i class="bi bi-award-fill"></i>
+                                            {% elif loop.index == 3 %}
+                                                <i class="bi bi-gem"></i>
+                                            {% else %}
+                                                {{ loop.index }}
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="supplier-info">
+                                            <strong>{{ supplier['Supplier Name'] }}</strong>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="location-badge">
+                                            <i class="bi bi-geo-alt-fill"></i> {{ supplier.Location }}
+                                        </span>
+                                    </td>
+                                    <td><strong class="text-success">₹{{ "%.0f"|format(supplier.Price) }}</strong></td>
+                                    <td>
+                                        <span class="rating-badge">
+                                            <i class="bi bi-star-fill"></i> {{ "%.1f"|format(supplier.Rating) }}
+                                        </span>
+                                    </td>
+                                    <td><span class="text-muted">{{ supplier.Reviews }}</span></td>
+                                    <td><code class="contact-code">{{ supplier['Contact Phone'] }}</code></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -202,15 +314,25 @@
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
 <script>
-    // Initialize charts on page load
+    // Initialize charts and animations on page load
     document.addEventListener('DOMContentLoaded', function() {
         // Counter animation
         animateCounters();
         
-        // Load chart data
+        // Load chart data with 3D effects
         loadOverviewCharts();
+        
+        // Create sparklines
+        createSparklines();
+        
+        // Refresh data button
+        document.getElementById('refreshData')?.addEventListener('click', function() {
+            this.classList.add('rotating');
+            setTimeout(() => {
+                this.classList.remove('rotating');
+                location.reload();
+            }, 1000);
+        });
     });
 </script>
 {% endblock %}
-
-

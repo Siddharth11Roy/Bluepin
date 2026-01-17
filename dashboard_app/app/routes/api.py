@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+import pandas as pd
 from app.services.data_loader import DataLoader
 from app.services.aggregations import Aggregations
 from app.services.filters import Filters

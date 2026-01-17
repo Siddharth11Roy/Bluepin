@@ -1,54 +1,103 @@
 /**
- * Chart.js Configuration and Helpers
- * Creates and manages all dashboard charts
+ * Modern Chart.js Configuration with 3D Effects
+ * Smooth animations and professional styling
  */
 
-// Chart color palette
-const chartColors = {
-    primary: 'rgba(13, 110, 253, 0.8)',
-    success: 'rgba(25, 135, 84, 0.8)',
-    warning: 'rgba(255, 193, 7, 0.8)',
-    danger: 'rgba(220, 53, 69, 0.8)',
-    info: 'rgba(13, 202, 240, 0.8)',
-    purple: 'rgba(111, 66, 193, 0.8)',
-    orange: 'rgba(253, 126, 20, 0.8)',
-    teal: 'rgba(32, 201, 151, 0.8)'
+// Modern Color Palette
+const modernColors = {
+    primary: '#3b82f6',
+    primaryLight: '#60a5fa',
+    primaryDark: '#2563eb',
+    success: '#10b981',
+    successLight: '#34d399',
+    warning: '#f59e0b',
+    warningLight: '#fbbf24',
+    danger: '#ef4444',
+    dangerLight: '#f87171',
+    info: '#06b6d4',
+    infoLight: '#22d3ee',
+    purple: '#8b5cf6',
+    pink: '#ec4899',
+    indigo: '#6366f1',
+    gray: '#6b7280'
 };
 
-const backgroundColors = [
-    chartColors.primary,
-    chartColors.success,
-    chartColors.warning,
-    chartColors.danger,
-    chartColors.info,
-    chartColors.purple,
-    chartColors.orange,
-    chartColors.teal
-];
+const gradients = {
+    blue: ['#3b82f6', '#60a5fa', '#93c5fd'],
+    green: ['#10b981', '#34d399', '#6ee7b7'],
+    orange: ['#f59e0b', '#fbbf24', '#fcd34d'],
+    red: ['#ef4444', '#f87171', '#fca5a5'],
+    purple: ['#8b5cf6', '#a78bfa', '#c4b5fd'],
+    cyan: ['#06b6d4', '#22d3ee', '#67e8f9']
+};
 
-// Default chart options
-const defaultOptions = {
+// Chart.js Default Configuration
+Chart.defaults.font.family = "'Inter', 'Segoe UI', sans-serif";
+Chart.defaults.font.size = 13;
+Chart.defaults.color = '#6b7280';
+Chart.defaults.animation.duration = 1200;
+Chart.defaults.animation.easing = 'easeInOutQuart';
+
+// Default Options for all charts
+const defaultChartOptions = {
     responsive: true,
-    maintainAspectRatio: true,
+    maintainAspectRatio: false,
+    interaction: {
+        mode: 'index',
+        intersect: false
+    },
     plugins: {
         legend: {
+            display: true,
             position: 'bottom',
             labels: {
-                padding: 15,
+                padding: 20,
+                usePointStyle: true,
+                pointStyle: 'circle',
                 font: {
-                    size: 12
+                    size: 12,
+                    weight: '500'
                 }
             }
+        },
+        tooltip: {
+            enabled: true,
+            backgroundColor: 'rgba(17, 24, 39, 0.95)',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            borderColor: 'rgba(255, 255, 255, 0.1)',
+            borderWidth: 1,
+            padding: 12,
+            cornerRadius: 8,
+            titleFont: {
+                size: 14,
+                weight: '600'
+            },
+            bodyFont: {
+                size: 13
+            },
+            displayColors: true,
+            boxPadding: 6
         }
-    },
-    animation: {
-        duration: 1000,
-        easing: 'easeInOutQuart'
     }
 };
 
-// Create bar chart
-function createBarChart(canvasId, labels, data, label, color) {
+/**
+ * Create a gradient for canvas
+ */
+function createGradient(ctx, chartArea, colorStart, colorEnd) {
+    if (!chartArea) return colorStart;
+    
+    const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+    gradient.addColorStop(0, colorEnd);
+    gradient.addColorStop(1, colorStart);
+    return gradient;
+}
+
+/**
+ * Create 3D-style Bar Chart
+ */
+function create3DBarChart(canvasId, labels, data, label, color = modernColors.primary) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return null;
     
@@ -59,51 +108,58 @@ function createBarChart(canvasId, labels, data, label, color) {
             datasets: [{
                 label: label,
                 data: data,
-                backgroundColor: color || chartColors.primary,
+                backgroundColor: function(context) {
+                    const chart = context.chart;
+                    const {ctx, chartArea} = chart;
+                    if (!chartArea) return color;
+                    
+                    const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                    gradient.addColorStop(0, color + '99');
+                    gradient.addColorStop(1, color);
+                    return gradient;
+                },
                 borderWidth: 0,
-                borderRadius: 5
+                borderRadius: {
+                    topLeft: 8,
+                    topRight: 8
+                },
+                borderSkipped: false,
+                barPercentage: 0.7,
+                categoryPercentage: 0.8
             }]
         },
         options: {
-            ...defaultOptions,
+            ...defaultChartOptions,
             scales: {
                 y: {
                     beginAtZero: true,
                     grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
+                        color: 'rgba(0, 0, 0, 0.05)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        padding: 10,
+                        font: {
+                            size: 12
+                        }
                     }
                 },
                 x: {
                     grid: {
-                        display: false
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        padding: 10,
+                        font: {
+                            size: 12
+                        }
                     }
                 }
-            }
-        }
-    });
-}
-
-// Create pie chart
-function createPieChart(canvasId, labels, data, title) {
-    const ctx = document.getElementById(canvasId);
-    if (!ctx) return null;
-    
-    return new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: labels,
-            datasets: [{
-                data: data,
-                backgroundColor: backgroundColors,
-                borderWidth: 2,
-                borderColor: '#fff'
-            }]
-        },
-        options: {
-            ...defaultOptions,
+            },
             plugins: {
-                ...defaultOptions.plugins,
-                title: {
+                ...defaultChartOptions.plugins,
+                legend: {
                     display: false
                 }
             }
@@ -111,98 +167,64 @@ function createPieChart(canvasId, labels, data, title) {
     });
 }
 
-// Create line chart
-function createLineChart(canvasId, labels, datasets) {
+/**
+ * Create 3D-style Doughnut Chart
+ */
+function create3DDoughnutChart(canvasId, labels, data, title) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return null;
     
-    const chartDatasets = datasets.map((dataset, index) => ({
-        label: dataset.label,
-        data: dataset.data,
-        borderColor: backgroundColors[index % backgroundColors.length],
-        backgroundColor: backgroundColors[index % backgroundColors.length].replace('0.8', '0.2'),
-        tension: 0.4,
-        fill: true
-    }));
+    const colors = [
+        modernColors.primary,
+        modernColors.success,
+        modernColors.warning,
+        modernColors.danger,
+        modernColors.info,
+        modernColors.purple
+    ];
     
     return new Chart(ctx, {
-        type: 'line',
+        type: 'doughnut',
         data: {
             labels: labels,
-            datasets: chartDatasets
-        },
-        options: {
-            ...defaultOptions,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    }
-                }
-            }
-        }
-    });
-}
-
-// Create scatter chart
-function createScatterChart(canvasId, xData, yData, labels) {
-    const ctx = document.getElementById(canvasId);
-    if (!ctx) return null;
-    
-    const scatterData = xData.map((x, i) => ({
-        x: x,
-        y: yData[i]
-    }));
-    
-    return new Chart(ctx, {
-        type: 'scatter',
-        data: {
             datasets: [{
-                label: 'Price vs Rating',
-                data: scatterData,
-                backgroundColor: chartColors.info,
-                borderColor: chartColors.info.replace('0.8', '1'),
-                borderWidth: 1,
-                pointRadius: 5,
-                pointHoverRadius: 7
+                data: data,
+                backgroundColor: colors,
+                borderWidth: 4,
+                borderColor: '#ffffff',
+                hoverBorderWidth: 6,
+                hoverOffset: 15
             }]
         },
         options: {
-            ...defaultOptions,
-            scales: {
-                x: {
-                    type: 'linear',
-                    position: 'bottom',
-                    title: {
-                        display: true,
-                        text: 'Price (₹)'
-                    },
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Rating'
-                    },
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
-                    }
-                }
-            },
+            ...defaultChartOptions,
+            cutout: '70%',
             plugins: {
-                ...defaultOptions.plugins,
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `Price: ₹${context.parsed.x.toFixed(0)}, Rating: ${context.parsed.y.toFixed(1)}`;
+                ...defaultChartOptions.plugins,
+                legend: {
+                    ...defaultChartOptions.plugins.legend,
+                    position: 'right',
+                    labels: {
+                        ...defaultChartOptions.plugins.legend.labels,
+                        padding: 15,
+                        generateLabels: function(chart) {
+                            const data = chart.data;
+                            if (data.labels.length && data.datasets.length) {
+                                return data.labels.map((label, i) => {
+                                    const dataset = data.datasets[0];
+                                    const value = dataset.data[i];
+                                    const total = dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    
+                                    return {
+                                        text: `${label} (${percentage}%)`,
+                                        fillStyle: dataset.backgroundColor[i],
+                                        hidden: false,
+                                        index: i
+                                    };
+                                });
+                            }
+                            return [];
                         }
                     }
                 }
@@ -211,46 +233,446 @@ function createScatterChart(canvasId, xData, yData, labels) {
     });
 }
 
-// Load overview charts
+/**
+ * Create Modern Line Chart with Area Fill
+ */
+function createModernLineChart(canvasId, labels, datasets, title) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return null;
+    
+    const processedDatasets = datasets.map((dataset, index) => {
+        const colorKeys = Object.keys(gradients);
+        const gradientKey = colorKeys[index % colorKeys.length];
+        const baseColor = gradients[gradientKey][0];
+        
+        return {
+            label: dataset.label,
+            data: dataset.data,
+            borderColor: baseColor,
+            backgroundColor: function(context) {
+                const chart = context.chart;
+                const {ctx, chartArea} = chart;
+                if (!chartArea) return baseColor + '20';
+                
+                const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                gradient.addColorStop(0, baseColor + '00');
+                gradient.addColorStop(1, baseColor + '40');
+                return gradient;
+            },
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+            pointBackgroundColor: baseColor,
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointHoverBackgroundColor: baseColor,
+            pointHoverBorderColor: '#fff',
+            pointHoverBorderWidth: 3
+        };
+    });
+    
+    return new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: processedDatasets
+        },
+        options: {
+            ...defaultChartOptions,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        padding: 10
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        padding: 10
+                    }
+                }
+            }
+        }
+    });
+}
+
+/**
+ * Create Horizontal Bar Chart
+ */
+function createHorizontalBarChart(canvasId, labels, data, label, color = modernColors.primary) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return null;
+    
+    return new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: label,
+                data: data,
+                backgroundColor: function(context) {
+                    const chart = context.chart;
+                    const {ctx, chartArea} = chart;
+                    if (!chartArea) return color;
+                    
+                    const gradient = ctx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
+                    gradient.addColorStop(0, color + '99');
+                    gradient.addColorStop(1, color);
+                    return gradient;
+                },
+                borderWidth: 0,
+                borderRadius: {
+                    topRight: 8,
+                    bottomRight: 8
+                },
+                borderSkipped: false,
+                barPercentage: 0.7
+            }]
+        },
+        options: {
+            ...defaultChartOptions,
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        padding: 10
+                    }
+                },
+                y: {
+                    grid: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        padding: 10
+                    }
+                }
+            },
+            plugins: {
+                ...defaultChartOptions.plugins,
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+/**
+ * Create Sparkline Chart (Mini Line Chart)
+ */
+function createSparkline(canvasId, data, color = modernColors.primary) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return null;
+    
+    return new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.map((_, i) => i),
+            datasets: [{
+                data: data,
+                borderColor: color,
+                backgroundColor: function(context) {
+                    const chart = context.chart;
+                    const {ctx, chartArea} = chart;
+                    if (!chartArea) return color + '20';
+                    
+                    const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                    gradient.addColorStop(0, color + '00');
+                    gradient.addColorStop(1, color + '60');
+                    return gradient;
+                },
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: false }
+            },
+            scales: {
+                x: { display: false },
+                y: { display: false }
+            },
+            elements: {
+                line: { borderWidth: 2 }
+            }
+        }
+    });
+}
+
+/**
+ * Create all sparklines for metric cards
+ */
+function createSparklines() {
+    const sparklineData = [
+        [65, 59, 80, 81, 56, 75, 90],
+        [28, 48, 40, 59, 86, 77, 88],
+        [33, 45, 37, 51, 44, 38, 40],
+        [18, 38, 43, 49, 56, 57, 60]
+    ];
+    
+    const colors = [
+        modernColors.primary,
+        modernColors.success,
+        modernColors.warning,
+        modernColors.info
+    ];
+    
+    sparklineData.forEach((data, index) => {
+        createSparkline(`sparkline${index + 1}`, data, colors[index]);
+    });
+}
+
+/**
+ * Load Overview Charts
+ */
 function loadOverviewCharts() {
-    // Price distribution
-    fetch('/api/price-distribution')
+    // Fetch chart data from the API
+    fetch('/api/chart-data')
         .then(response => response.json())
         .then(data => {
-            createBarChart('priceDistChart', data.bins, data.counts, 'Products', chartColors.primary);
-        });
-    
-    // Rating distribution
-    fetch('/api/rating-distribution')
-        .then(response => response.json())
-        .then(data => {
-            createPieChart('ratingDistChart', data.labels, data.counts, 'Ratings');
-        });
-    
-    // Location stats
-    fetch('/api/location-stats')
-        .then(response => response.json())
-        .then(data => {
-            const labels = data.map(d => d.location);
-            const counts = data.map(d => d.supplier_count);
-            createBarChart('locationChart', labels, counts, 'Suppliers', chartColors.success);
-        });
-    
-    // Category breakdown
-    fetch('/api/categories')
-        .then(response => response.json())
-        .then(data => {
-            const labels = data.map(d => d.category);
-            const counts = data.map(d => d.count);
-            createPieChart('categoryChart', labels, counts, 'Categories');
+            // Price Distribution Chart (3D Bar)
+            if (data.price_distribution) {
+                create3DBarChart(
+                    'priceDistChart',
+                    data.price_distribution.labels,
+                    data.price_distribution.data,
+                    'Number of Products',
+                    modernColors.primary
+                );
+            }
+            
+            // Rating Distribution Chart (3D Doughnut)
+            if (data.rating_distribution) {
+                create3DDoughnutChart(
+                    'ratingDistChart',
+                    data.rating_distribution.labels,
+                    data.rating_distribution.data,
+                    'Rating Distribution'
+                );
+            }
+            
+            // Location Chart (Horizontal Bar)
+            if (data.location_distribution) {
+                createHorizontalBarChart(
+                    'locationChart',
+                    data.location_distribution.labels,
+                    data.location_distribution.data,
+                    'Number of Suppliers',
+                    modernColors.danger
+                );
+            }
+            
+            // Category Chart (Doughnut)
+            if (data.category_distribution) {
+                create3DDoughnutChart(
+                    'categoryChart',
+                    data.category_distribution.labels,
+                    data.category_distribution.data,
+                    'Product Categories'
+                );
+            }
+        })
+        .catch(error => {
+            console.error('Error loading chart data:', error);
+            
+            // Fallback demo data
+            loadDemoCharts();
         });
 }
 
-// Export functions
-window.chartUtils = {
-    createBarChart,
-    createPieChart,
-    createLineChart,
-    createScatterChart,
-    loadOverviewCharts
+/**
+ * Load Demo Charts (Fallback)
+ */
+function loadDemoCharts() {
+    // Price Distribution
+    create3DBarChart(
+        'priceDistChart',
+        ['0-5k', '5k-10k', '10k-20k', '20k-50k', '50k+'],
+        [245, 187, 156, 98, 45],
+        'Number of Products',
+        modernColors.primary
+    );
+    
+    // Rating Distribution
+    create3DDoughnutChart(
+        'ratingDistChart',
+        ['5 Stars', '4 Stars', '3 Stars', '2 Stars', '1 Star'],
+        [320, 240, 80, 30, 10],
+        'Rating Distribution'
+    );
+    
+    // Location Distribution
+    createHorizontalBarChart(
+        'locationChart',
+        ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata', 'Hyderabad'],
+        [45, 38, 35, 28, 25, 22],
+        'Number of Suppliers',
+        modernColors.danger
+    );
+    
+    // Category Distribution
+    create3DDoughnutChart(
+        'categoryChart',
+        ['Electronics', 'Fashion', 'Home', 'Books', 'Sports'],
+        [180, 145, 98, 75, 52],
+        'Product Categories'
+    );
+}
+
+/**
+ * Animate Counter Numbers
+ */
+function animateCounters() {
+    const counters = document.querySelectorAll('.counter');
+    
+    counters.forEach(counter => {
+        const target = parseInt(counter.getAttribute('data-target'));
+        const duration = 2000;
+        const increment = target / (duration / 16);
+        let current = 0;
+        
+        const updateCounter = () => {
+            current += increment;
+            if (current < target) {
+                counter.textContent = Math.floor(current).toLocaleString();
+                requestAnimationFrame(updateCounter);
+            } else {
+                counter.textContent = target.toLocaleString();
+            }
+        };
+        
+        updateCounter();
+    });
+}
+
+/**
+ * Export functions for global use
+ */
+window.chartFunctions = {
+    create3DBarChart,
+    create3DDoughnutChart,
+    createModernLineChart,
+    createHorizontalBarChart,
+    createSparkline,
+    createSparklines,
+    loadOverviewCharts,
+    animateCounters
 };
+
+/**
+ * Simple wrapper functions for compact dashboard
+ */
+function createPieChart(canvasId, labels, data, title) {
+    return create3DDoughnutChart(canvasId, labels, data, title);
+}
+
+function createBarChart(canvasId, labels, data, title, color) {
+    return create3DBarChart(canvasId, labels, data, title, color);
+}
+
+function createScatterChart(canvasId, pricesArray, ratingsArray, labelsArray) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return null;
+    
+    // Convert arrays to scatter plot format
+    const scatterData = pricesArray.map((price, index) => ({
+        x: price,
+        y: ratingsArray[index]
+    }));
+    
+    return new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Products',
+                data: scatterData,
+                backgroundColor: modernColors.primary + '80',
+                borderColor: modernColors.primary,
+                borderWidth: 2,
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const index = context.dataIndex;
+                            const label = labelsArray[index] || '';
+                            return [
+                                label,
+                                `Price: ₹${context.parsed.x.toFixed(0)}`,
+                                `Rating: ${context.parsed.y.toFixed(1)}`
+                            ];
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    type: 'linear',
+                    position: 'bottom',
+                    title: {
+                        display: true,
+                        text: 'Price (₹)',
+                        font: {
+                            size: 12,
+                            weight: 'bold'
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Rating',
+                        font: {
+                            size: 12,
+                            weight: 'bold'
+                        }
+                    },
+                    min: 0,
+                    max: 5,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Make functions globally available
+window.createPieChart = createPieChart;
+window.createBarChart = createBarChart;
+window.createScatterChart = createScatterChart;
