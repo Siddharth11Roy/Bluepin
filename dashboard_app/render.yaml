@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: dashboard-app
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn "app:create_app()"
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: 3.9
