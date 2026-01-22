@@ -148,11 +148,15 @@ def get_product_charts():
     # Replace NaN values with 0
     filtered = filtered.fillna(0)
     
-    # Price vs Rating scatter
-    scatter_data = {
-        'prices': filtered['Price'].replace([float('inf'), float('-inf')], 0).tolist(),
-        'ratings': filtered['Ratings'].replace([float('inf'), float('-inf')], 0).tolist(),
-        'labels': filtered['Title'].str[:30].tolist()
+    # Rating distribution
+    rating_bins = [0, 1, 2, 3, 4, 5]
+    rating_labels = ['0-1★', '1-2★', '2-3★', '3-4★', '4-5★']
+    filtered['Rating_Bin'] = pd.cut(filtered['Ratings'], bins=rating_bins, labels=rating_labels, include_lowest=True)
+    rating_dist = filtered['Rating_Bin'].value_counts().sort_index()
+    
+    rating_data = {
+        'labels': rating_dist.index.tolist(),
+        'values': rating_dist.values.tolist()
     }
     
     # Category distribution
@@ -174,7 +178,7 @@ def get_product_charts():
     }
     
     return jsonify({
-        'scatter': scatter_data,
+        'ratings': rating_data,
         'category': category_data,
         'reviews': review_data,
         'count': len(filtered)

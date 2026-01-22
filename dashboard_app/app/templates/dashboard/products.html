@@ -125,17 +125,17 @@
             <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
                 <div class="metric-card metric-card-warning">
                     <div class="metric-icon">
-                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-currency-rupee"></i>
                     </div>
                     <div class="metric-content">
-                        <h6 class="metric-label">Avg Rating</h6>
-                        <h2 class="metric-value">{{ "%.1f"|format(products|map(attribute='Ratings')|sum / products|length if products|length > 0 else 0) }}</h2>
+                        <h6 class="metric-label">Total Sales (₹)</h6>
+                        <h2 class="metric-value">{{ "{:,}".format((products|map(attribute='Price')|map('int')|sum)) }}</h2>
                         <div class="metric-trend trend-up">
-                            <i class="bi bi-arrow-up"></i> 0.3 vs last month
+                            <i class="bi bi-arrow-up"></i> 12.5% vs last month
                         </div>
                     </div>
                     <div class="metric-sparkline">
-                        <canvas id="sparklineRating" height="50"></canvas>
+                        <canvas id="sparklineSalesTotal" height="50"></canvas>
                     </div>
                 </div>
             </div>
@@ -181,10 +181,10 @@
 
             <div class="chart-compact-card">
                 <div class="chart-compact-header">
-                    <h6><i class="bi bi-graph-up"></i> Price vs Rating</h6>
+                    <h6><i class="bi bi-star-fill"></i> Ratings Distribution</h6>
                 </div>
                 <div class="chart-compact-body">
-                    <canvas id="productScatterChart" height="200"></canvas>
+                    <canvas id="productRatingsChart" height="200"></canvas>
                 </div>
             </div>
         </div>
@@ -372,11 +372,14 @@
                     console.warn('No review data available');
                 }
                 
-                // Scatter chart
-                if (productCharts.scatter) productCharts.scatter.destroy();
-                if (data.scatter && data.scatter.prices && data.scatter.prices.length > 0) {
-                    productCharts.scatter = createScatterChart('productScatterChart',
-                        data.scatter.prices, data.scatter.ratings, data.scatter.labels);
+                // Ratings distribution chart
+                if (productCharts.ratings) productCharts.ratings.destroy();
+                if (data.ratings && data.ratings.labels && data.ratings.labels.length > 0) {
+                    console.log('Creating ratings bar chart');
+                    productCharts.ratings = createBarChart('productRatingsChart', 
+                        data.ratings.labels, data.ratings.values, 'Products', '#f59e0b');
+                } else {
+                    console.warn('No ratings data available');
                 }
             })
             .catch(error => {
