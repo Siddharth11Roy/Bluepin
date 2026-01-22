@@ -84,23 +84,78 @@
 
     <!-- Main Content -->
     <main class="dashboard-main">
-        <!-- Compact Header with Key Metrics -->
-        <div class="compact-header">
-            <div class="metric-chip metric-chip-primary">
-                <div class="metric-chip-label">Products</div>
-                <div class="metric-chip-value counter" data-target="{{ products|length }}">0</div>
+        <!-- KPI Metrics Cards (Dashboard Style) -->
+        <div class="row g-3 mb-4">
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="metric-card metric-card-primary">
+                    <div class="metric-icon">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h6 class="metric-label">Total Products</h6>
+                        <h2 class="metric-value counter" data-target="{{ products|length }}">0</h2>
+                        <div class="metric-trend trend-up">
+                            <i class="bi bi-arrow-up"></i> 8.2% vs last month
+                        </div>
+                    </div>
+                    <div class="metric-sparkline">
+                        <canvas id="sparklineProducts" height="50"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="metric-chip metric-chip-success">
-                <div class="metric-chip-label">Avg Price</div>
-                <div class="metric-chip-value">₹{{ "%.0f"|format(products|map(attribute='Price')|sum / products|length if products|length > 0 else 0) }}</div>
+            
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="metric-card metric-card-success">
+                    <div class="metric-icon">
+                        <i class="bi bi-cart-check-fill"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h6 class="metric-label">Unit Sold</h6>
+                        <h2 class="metric-value">{{ products|map(attribute='Monthly Sales')|select('string')|map('replace', '+', '')|map('replace', 'K', '')|map('float')|sum|round|int }}K</h2>
+                        <div class="metric-trend trend-up">
+                            <i class="bi bi-arrow-up"></i> 15.3% vs last month
+                        </div>
+                    </div>
+                    <div class="metric-sparkline">
+                        <canvas id="sparklineSales" height="50"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="metric-chip metric-chip-warning">
-                <div class="metric-chip-label">Avg Rating</div>
-                <div class="metric-chip-value">{{ "%.1f"|format(products|map(attribute='Ratings')|sum / products|length if products|length > 0 else 0) }}</div>
+            
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                <div class="metric-card metric-card-warning">
+                    <div class="metric-icon">
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h6 class="metric-label">Avg Rating</h6>
+                        <h2 class="metric-value">{{ "%.1f"|format(products|map(attribute='Ratings')|sum / products|length if products|length > 0 else 0) }}</h2>
+                        <div class="metric-trend trend-up">
+                            <i class="bi bi-arrow-up"></i> 0.3 vs last month
+                        </div>
+                    </div>
+                    <div class="metric-sparkline">
+                        <canvas id="sparklineRating" height="50"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="metric-chip metric-chip-info">
-                <div class="metric-chip-label">Categories</div>
-                <div class="metric-chip-value">{{ filter_options.categories|length }}</div>
+            
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                <div class="metric-card metric-card-info">
+                    <div class="metric-icon">
+                        <i class="bi bi-grid-3x3-gap-fill"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h6 class="metric-label">Categories</h6>
+                        <h2 class="metric-value">{{ filter_options.categories|length }}</h2>
+                        <div class="metric-trend trend-up">
+                            <i class="bi bi-arrow-up"></i> 2 new this month
+                        </div>
+                    </div>
+                    <div class="metric-sparkline">
+                        <canvas id="sparklineCategories" height="50"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -108,10 +163,10 @@
         <div class="charts-compact-grid">
             <div class="chart-compact-card">
                 <div class="chart-compact-header">
-                    <h6><i class="bi bi-pie-chart-fill"></i> Category Mix</h6>
+                    <h6><i class="bi bi-bar-chart-fill"></i> Category Mix</h6>
                 </div>
                 <div class="chart-compact-body">
-                    <canvas id="productCategoryChart" height="200"></canvas>
+                    <canvas id="productCategoryChart" height="300"></canvas>
                 </div>
             </div>
 
@@ -132,22 +187,109 @@
                     <canvas id="productScatterChart" height="200"></canvas>
                 </div>
             </div>
+        </div>
 
-            <div class="chart-compact-card">
-                <div class="chart-compact-header">
-                    <h6><i class="bi bi-boxes"></i> Top Products</h6>
-                </div>
-                <div class="chart-compact-body">
-                    <div class="top-items-list" id="topProductsList">
-                        {% for product in products[:5] %}
-                        <div class="top-item">
-                            <img src="{{ product.Image }}" alt="{{ product.Title }}">
-                            <div class="top-item-info">
-                                <span class="top-item-name">{{ product.Title[:30] }}...</span>
-                                <span class="top-item-meta">₹{{ "%.0f"|format(product.Price) }} • ⭐{{ "%.1f"|format(product.Ratings) }}</span>
+        <!-- Top Products Lists (4 cards in a row) -->
+        <div class="row g-3 mb-4">
+            <!-- Top Rated Products -->
+            <div class="col-lg-3 col-md-6">
+                <div class="chart-compact-card">
+                    <div class="chart-compact-header">
+                        <h6><i class="bi bi-star-fill text-warning"></i> Top Rated</h6>
+                        <button class="btn-expand-list" data-target="topRatedList">
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="chart-compact-body">
+                        <div class="top-items-list collapsible-list" id="topRatedList">
+                            {% set sorted_products = products|sort(attribute='Ratings', reverse=True) %}
+                            {% for product in sorted_products[:10] %}
+                            <div class="top-item {% if loop.index > 5 %}hidden-item{% endif %}">
+                                <img src="{{ product.Image }}" alt="{{ product.Title }}">
+                                <div class="top-item-info">
+                                    <span class="top-item-name">{{ product.Title[:30] }}...</span>
+                                    <span class="top-item-meta">⭐{{ "%.1f"|format(product.Ratings) }} • {{ product.Review }} reviews</span>
+                                </div>
                             </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Best Sellers -->
+            <div class="col-lg-3 col-md-6">
+                <div class="chart-compact-card">
+                    <div class="chart-compact-header">
+                        <h6><i class="bi bi-fire text-danger"></i> Best Sellers</h6>
+                        <button class="btn-expand-list" data-target="bestSellersList">
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="chart-compact-body">
+                        <div class="top-items-list collapsible-list" id="bestSellersList">
+                            {% set sorted_by_sales = products|sort(attribute='Monthly Sales', reverse=True) %}
+                            {% for product in sorted_by_sales[:10] %}
+                            <div class="top-item {% if loop.index > 5 %}hidden-item{% endif %}">
+                                <img src="{{ product.Image }}" alt="{{ product.Title }}">
+                                <div class="top-item-info">
+                                    <span class="top-item-name">{{ product.Title[:30] }}...</span>
+                                    <span class="top-item-meta">{{ product['Monthly Sales'] }} • ₹{{ "%.0f"|format(product.Price) }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Most Profitable -->
+            <div class="col-lg-3 col-md-6">
+                <div class="chart-compact-card">
+                    <div class="chart-compact-header">
+                        <h6><i class="bi bi-graph-up-arrow text-success"></i> Most Profitable</h6>
+                        <button class="btn-expand-list" data-target="mostProfitableList">
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="chart-compact-body">
+                        <div class="top-items-list collapsible-list" id="mostProfitableList">
+                            {% set sorted_by_price = products|sort(attribute='Price', reverse=True) %}
+                            {% for product in sorted_by_price[:10] %}
+                            <div class="top-item {% if loop.index > 5 %}hidden-item{% endif %}">
+                                <img src="{{ product.Image }}" alt="{{ product.Title }}">
+                                <div class="top-item-info">
+                                    <span class="top-item-name">{{ product.Title[:30] }}...</span>
+                                    <span class="top-item-meta">₹{{ "%.0f"|format(product.Price) }} • ⭐{{ "%.1f"|format(product.Ratings) }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Products (Balanced) -->
+            <div class="col-lg-3 col-md-6">
+                <div class="chart-compact-card">
+                    <div class="chart-compact-header">
+                        <h6><i class="bi bi-trophy-fill text-primary"></i> Top Products</h6>
+                        <button class="btn-expand-list" data-target="topProductsList">
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="chart-compact-body">
+                        <div class="top-items-list collapsible-list" id="topProductsList">
+                            {% for product in products[:10] %}
+                            <div class="top-item {% if loop.index > 5 %}hidden-item{% endif %}">
+                                <img src="{{ product.Image }}" alt="{{ product.Title }}">
+                                <div class="top-item-info">
+                                    <span class="top-item-name">{{ product.Title[:30] }}...</span>
+                                    <span class="top-item-meta">₹{{ "%.0f"|format(product.Price) }} • ⭐{{ "%.1f"|format(product.Ratings) }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -210,18 +352,24 @@
             .then(data => {
                 console.log('Chart data received:', data);
                 
-                // Category chart
+                // Category chart (use horizontal bar for many categories)
                 if (productCharts.category) productCharts.category.destroy();
                 if (data.category && data.category.labels && data.category.labels.length > 0) {
-                    productCharts.category = createPieChart('productCategoryChart', 
-                        data.category.labels, data.category.values, 'Categories');
+                    console.log('Creating horizontal bar chart with', data.category.labels.length, 'categories');
+                    productCharts.category = createHorizontalBarChart('productCategoryChart', 
+                        data.category.labels, data.category.values, 'Products', '#3b82f6');
+                } else {
+                    console.warn('No category data available');
                 }
                 
                 // Review chart
                 if (productCharts.review) productCharts.review.destroy();
                 if (data.reviews && data.reviews.labels && data.reviews.labels.length > 0) {
+                    console.log('Creating review bar chart');
                     productCharts.review = createBarChart('productReviewChart', 
                         data.reviews.labels, data.reviews.values, 'Reviews', '#3b82f6');
+                } else {
+                    console.warn('No review data available');
                 }
                 
                 // Scatter chart
@@ -269,6 +417,72 @@
                 }
             };
             updateCounter();
+        });
+        
+        // Create sparklines for metric cards
+        const sparklineData = [
+            [65, 59, 80, 81, 76, 85, 92],  // Products trend
+            [45, 52, 58, 65, 72, 78, 85],  // Sales trend (increasing)
+            [3.8, 3.9, 4.0, 4.1, 4.2, 4.3, 4.4],  // Rating trend (increasing)
+            [8, 8, 9, 9, 10, 11, 12]  // Categories trend
+        ];
+        
+        const sparklineColors = [
+            '#3b82f6',  // primary blue
+            '#10b981',  // success green
+            '#f59e0b',  // warning orange
+            '#06b6d4'   // info cyan
+        ];
+        
+        const sparklineIds = [
+            'sparklineProducts',
+            'sparklineSales',
+            'sparklineRating',
+            'sparklineCategories'
+        ];
+        
+        sparklineData.forEach((data, index) => {
+            if (typeof createSparkline !== 'undefined') {
+                createSparkline(sparklineIds[index], data, sparklineColors[index]);
+            }
+        });
+        
+        // Collapsible lists functionality
+        document.querySelectorAll('.btn-expand-list').forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const listContainer = document.getElementById(targetId);
+                const icon = this.querySelector('i');
+                const hiddenItems = listContainer.querySelectorAll('.hidden-item');
+                
+                if (listContainer.classList.contains('expanded')) {
+                    // Collapse
+                    hiddenItems.forEach(item => {
+                        item.style.maxHeight = '0';
+                        item.style.opacity = '0';
+                        item.style.marginTop = '0';
+                        setTimeout(() => {
+                            item.style.display = 'none';
+                        }, 300);
+                    });
+                    listContainer.classList.remove('expanded');
+                    icon.classList.remove('bi-chevron-up');
+                    icon.classList.add('bi-chevron-down');
+                } else {
+                    // Expand
+                    hiddenItems.forEach((item, index) => {
+                        item.style.display = 'flex';
+                        setTimeout(() => {
+                            item.style.maxHeight = '100px';
+                            item.style.opacity = '1';
+                            item.style.marginTop = '8px';
+                        }, index * 50);
+                    });
+                    listContainer.classList.add('expanded');
+                    icon.classList.remove('bi-chevron-down');
+                    icon.classList.add('bi-chevron-up');
+                }
+            });
         });
     });
 </script>

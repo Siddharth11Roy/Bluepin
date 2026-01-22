@@ -63,20 +63,40 @@ class Filters:
         products = DataLoader.load_products()
         suppliers = DataLoader.load_suppliers()
         
+        # Handle empty dataframes
+        if products.empty:
+            return {
+                'categories': [],
+                'locations': sorted(suppliers['Location'].unique().tolist()) if not suppliers.empty else [],
+                'products': [],
+                'price_range': {
+                    'product_min': 0,
+                    'product_max': 0,
+                    'supplier_min': float(suppliers['Price'].min()) if not suppliers.empty else 0,
+                    'supplier_max': float(suppliers['Price'].max()) if not suppliers.empty else 0
+                },
+                'rating_range': {
+                    'product_min': 0,
+                    'product_max': 5,
+                    'supplier_min': float(suppliers['Rating'].min()) if not suppliers.empty else 0,
+                    'supplier_max': float(suppliers['Rating'].max()) if not suppliers.empty else 5
+                }
+            }
+        
         return {
             'categories': sorted(products['Category'].unique().tolist()),
-            'locations': sorted(suppliers['Location'].unique().tolist()),
+            'locations': sorted(suppliers['Location'].unique().tolist()) if not suppliers.empty else [],
             'products': sorted(products['Product Identifier'].unique().tolist()),
             'price_range': {
                 'product_min': float(products['Price'].min()),
                 'product_max': float(products['Price'].max()),
-                'supplier_min': float(suppliers['Price'].min()),
-                'supplier_max': float(suppliers['Price'].max())
+                'supplier_min': float(suppliers['Price'].min()) if not suppliers.empty else 0,
+                'supplier_max': float(suppliers['Price'].max()) if not suppliers.empty else 0
             },
             'rating_range': {
                 'product_min': float(products['Ratings'].min()),
                 'product_max': float(products['Ratings'].max()),
-                'supplier_min': float(suppliers['Rating'].min()),
-                'supplier_max': float(suppliers['Rating'].max())
+                'supplier_min': float(suppliers['Rating'].min()) if not suppliers.empty else 0,
+                'supplier_max': float(suppliers['Rating'].max()) if not suppliers.empty else 5
             }
         }

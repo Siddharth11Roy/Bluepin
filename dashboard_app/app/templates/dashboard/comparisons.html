@@ -11,62 +11,124 @@
     </div>
 </div>
 
-<div class="row g-4">
-    <!-- Product Comparison -->
-    <div class="col-lg-6">
-        <div class="card animate-slide-up">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="bi bi-box-seam"></i> Compare Products</h5>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label">Select Products (up to 4)</label>
-                    <select class="form-select" id="productSelect" multiple size="6">
-                        {% for product in product_list %}
-                        <option value="{{ product }}">{{ product }}</option>
-                        {% endfor %}
-                    </select>
+<!-- Tab Navigation -->
+<ul class="nav nav-tabs mb-4" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="wishlist-tab" data-bs-toggle="tab" data-bs-target="#wishlist" type="button" role="tab">
+            <i class="bi bi-heart-fill"></i> Wishlist
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="products-tab" data-bs-toggle="tab" data-bs-target="#products" type="button" role="tab">
+            <i class="bi bi-box-seam"></i> Products
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="suppliers-tab" data-bs-toggle="tab" data-bs-target="#suppliers" type="button" role="tab">
+            <i class="bi bi-building"></i> Suppliers
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content">
+    <!-- Wishlist Tab -->
+    <div class="tab-pane fade show active" id="wishlist" role="tabpanel">
+        <div class="row">
+            <div class="col-12">
+                <div class="card animate-slide-up">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0"><i class="bi bi-heart-fill"></i> My Wishlist</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="wishlistItems">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Your wishlist is empty. Add products from the Products page to start comparing!
+                            </div>
+                        </div>
+                        <button class="btn btn-danger mt-3" id="compareWishlist" style="display: none;">
+                            <i class="bi bi-arrows-angle-contract"></i> Compare Wishlist Items
+                        </button>
+                    </div>
                 </div>
-                <button class="btn btn-primary" id="compareProducts">
-                    <i class="bi bi-arrows-angle-contract"></i> Compare Products
-                </button>
+                
+                <div class="card mt-4" id="wishlistComparisonResult" style="display: none;">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0">Wishlist Comparison Results</h6>
+                    </div>
+                    <div class="card-body" id="wishlistComparisonBody"></div>
+                </div>
             </div>
-        </div>
-        
-        <div class="card mt-4" id="productComparisonResult" style="display: none;">
-            <div class="card-header bg-white">
-                <h6 class="mb-0">Product Comparison Results</h6>
-            </div>
-            <div class="card-body" id="productComparisonBody"></div>
         </div>
     </div>
     
-    <!-- Supplier Comparison -->
-    <div class="col-lg-6">
-        <div class="card animate-slide-up">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0"><i class="bi bi-building"></i> Compare Suppliers</h5>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label">Select Suppliers (up to 4)</label>
-                    <select class="form-select" id="supplierSelect" multiple size="6">
-                        {% for supplier in supplier_list %}
-                        <option value="{{ supplier }}">{{ supplier }}</option>
-                        {% endfor %}
-                    </select>
+    <!-- Products Tab -->
+    <div class="tab-pane fade" id="products" role="tabpanel">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card animate-slide-up">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-box-seam"></i> Compare Products</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Select Products (up to 4)</label>
+                            <select class="form-select" id="productSelect" multiple size="6">
+                                {% for product in product_list %}
+                                <option value="{{ product }}">{{ product }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" id="compareProducts">
+                            <i class="bi bi-arrows-angle-contract"></i> Compare Products
+                        </button>
+                    </div>
                 </div>
-                <button class="btn btn-success" id="compareSuppliers">
-                    <i class="bi bi-arrows-angle-contract"></i> Compare Suppliers
-                </button>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card mt-4 mt-lg-0" id="productComparisonResult" style="display: none;">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0">Product Comparison Results</h6>
+                    </div>
+                    <div class="card-body" id="productComparisonBody"></div>
+                </div>
             </div>
         </div>
-        
-        <div class="card mt-4" id="supplierComparisonResult" style="display: none;">
-            <div class="card-header bg-white">
-                <h6 class="mb-0">Supplier Comparison Results</h6>
+    </div>
+    
+    <!-- Suppliers Tab -->
+    <div class="tab-pane fade" id="suppliers" role="tabpanel">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card animate-slide-up">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="bi bi-building"></i> Compare Suppliers</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Select Suppliers (up to 4)</label>
+                            <select class="form-select" id="supplierSelect" multiple size="6">
+                                {% for supplier in supplier_list %}
+                                <option value="{{ supplier }}">{{ supplier }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button class="btn btn-success" id="compareSuppliers">
+                            <i class="bi bi-arrows-angle-contract"></i> Compare Suppliers
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="card-body" id="supplierComparisonBody"></div>
+            
+            <div class="col-lg-6">
+                <div class="card mt-4 mt-lg-0" id="supplierComparisonResult" style="display: none;">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0">Supplier Comparison Results</h6>
+                    </div>
+                    <div class="card-body" id="supplierComparisonBody"></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -90,6 +152,91 @@
 <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
 <script>
     let comparisonChart = null;
+    
+    // Initialize wishlist from localStorage
+    function loadWishlist() {
+        const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+        const container = document.getElementById('wishlistItems');
+        const compareBtn = document.getElementById('compareWishlist');
+        
+        if (wishlist.length === 0) {
+            container.innerHTML = '<div class="alert alert-info"><i class="bi bi-info-circle"></i> Your wishlist is empty. Add products from the Products page to start comparing!</div>';
+            compareBtn.style.display = 'none';
+        } else {
+            let html = '<div class="row g-3">';
+            wishlist.forEach(item => {
+                html += `
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <img src="${item.image || 'https://via.placeholder.com/150'}" class="card-img-top" alt="${item.title}">
+                            <div class="card-body">
+                                <h6 class="card-title">${item.title.substring(0, 50)}...</h6>
+                                <p class="text-primary fw-bold">₹${parseFloat(item.price).toFixed(0)}</p>
+                                <p class="text-warning">⭐ ${parseFloat(item.rating).toFixed(1)}</p>
+                                <button class="btn btn-sm btn-danger w-100" onclick="removeFromWishlist('${item.id}')">
+                                    <i class="bi bi-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+            compareBtn.style.display = 'block';
+        }
+    }
+    
+    function removeFromWishlist(productId) {
+        let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+        wishlist = wishlist.filter(item => item.id !== productId);
+        localStorage.setItem('wishlist', JSON.stringify(wishlist));
+        loadWishlist();
+    }
+    
+    // Compare wishlist items
+    document.getElementById('compareWishlist').addEventListener('click', function() {
+        const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+        if (wishlist.length < 2) {
+            alert('Please add at least 2 items to your wishlist to compare');
+            return;
+        }
+        
+        const params = new URLSearchParams();
+        wishlist.forEach(item => params.append('ids[]', item.id));
+        
+        fetch(`/api/compare-products?${params}`)
+            .then(response => response.json())
+            .then(data => {
+                let html = '<div class="table-responsive"><table class="table table-bordered">';
+                html += '<thead><tr><th>Metric</th>';
+                data.forEach(p => html += `<th>${p['Product Identifier']}</th>`);
+                html += '</tr></thead><tbody>';
+                
+                html += '<tr><td><strong>Price</strong></td>';
+                data.forEach(p => html += `<td>₹${p.Price.toFixed(0)} ${p.is_cheapest ? '🏆' : ''}</td>`);
+                html += '</tr>';
+                
+                html += '<tr><td><strong>Rating</strong></td>';
+                data.forEach(p => html += `<td>${p.Ratings.toFixed(1)} ⭐ ${p.is_highest_rated ? '🏆' : ''}</td>`);
+                html += '</tr>';
+                
+                html += '<tr><td><strong>Reviews</strong></td>';
+                data.forEach(p => html += `<td>${p.Review} ${p.is_most_reviewed ? '🏆' : ''}</td>`);
+                html += '</tr>';
+                
+                html += '</tbody></table></div>';
+                document.getElementById('wishlistComparisonBody').innerHTML = html;
+                document.getElementById('wishlistComparisonResult').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error comparing wishlist:', error);
+                alert('Error comparing wishlist items');
+            });
+    });
+    
+    // Load wishlist on page load
+    document.addEventListener('DOMContentLoaded', loadWishlist);
     
     document.getElementById('compareProducts').addEventListener('click', function() {
         const selected = Array.from(document.getElementById('productSelect').selectedOptions)

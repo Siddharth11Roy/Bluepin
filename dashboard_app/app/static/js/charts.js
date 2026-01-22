@@ -429,14 +429,16 @@ function createSparklines() {
         [65, 59, 80, 81, 56, 75, 90],
         [28, 48, 40, 59, 86, 77, 88],
         [33, 45, 37, 51, 44, 38, 40],
-        [18, 38, 43, 49, 56, 57, 60]
+        [18, 38, 43, 49, 56, 57, 60],
+        [45, 52, 58, 68, 75, 82, 95]  // Units sold trend
     ];
     
     const colors = [
         modernColors.primary,
         modernColors.success,
         modernColors.warning,
-        modernColors.info
+        modernColors.info,
+        modernColors.purple
     ];
     
     sparklineData.forEach((data, index) => {
@@ -676,3 +678,4 @@ function createScatterChart(canvasId, pricesArray, ratingsArray, labelsArray) {
 window.createPieChart = createPieChart;
 window.createBarChart = createBarChart;
 window.createScatterChart = createScatterChart;
+window.createHorizontalBarChart = createHorizontalBarChart;

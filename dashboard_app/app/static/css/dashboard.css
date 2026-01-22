@@ -1105,6 +1105,55 @@ h1, h2, h3, h4, h5, h6 {
     background-clip: text;
 }
 
+/* Hover lift effect for cards */
+.hover-lift {
+    transition: all var(--transition-base);
+}
+
+.hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+}
+
+/* Tab styling improvements */
+.nav-tabs .nav-link {
+    color: var(--text-secondary);
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 1rem 1.5rem;
+    font-weight: 500;
+    transition: all var(--transition-base);
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--primary);
+    border-bottom-color: var(--primary-light);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--primary);
+    background: transparent;
+    border-bottom-color: var(--primary);
+}
+
+/* Product card small improvements */
+.product-card-small {
+    transition: all var(--transition-base);
+    border: 1px solid var(--border-color);
+}
+
+.product-card-small:hover {
+    border-color: var(--primary);
+}
+
+.product-card-small .card-img-top {
+    transition: transform var(--transition-base);
+}
+
+.product-card-small:hover .card-img-top {
+    transform: scale(1.05);
+}
+
 /* ================= RESPONSIVE ================= */
 @media (max-width: 992px) {
     .search-container {
@@ -2312,6 +2361,9 @@ textarea:focus {
     padding: 0.875rem 1rem;
     background: var(--gray-50);
     border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 [data-theme="dark"] .chart-compact-header {
@@ -2328,6 +2380,34 @@ textarea:focus {
     gap: 0.5rem;
 }
 
+/* Expand/Collapse Button */
+.btn-expand-list {
+    background: transparent;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    border-radius: 4px;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-expand-list:hover {
+    background: var(--gray-100);
+    color: var(--primary);
+}
+
+[data-theme="dark"] .btn-expand-list:hover {
+    background: var(--bg-secondary);
+}
+
+.btn-expand-list i {
+    font-size: 1rem;
+    transition: transform var(--transition-smooth);
+}
+
 .chart-compact-body {
     padding: 1rem;
     position: relative;
@@ -2341,6 +2421,10 @@ textarea:focus {
     gap: 0.75rem;
 }
 
+.collapsible-list {
+    overflow: hidden;
+}
+
 .top-item {
     display: flex;
     align-items: center;
@@ -2348,7 +2432,15 @@ textarea:focus {
     padding: 0.5rem;
     border-radius: 8px;
     background: var(--gray-50);
-    transition: background var(--transition-fast);
+    transition: all var(--transition-smooth);
+}
+
+.top-item.hidden-item {
+    display: none;
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
+    overflow: hidden;
 }
 
 [data-theme="dark"] .top-item {
@@ -2357,6 +2449,7 @@ textarea:focus {
 
 .top-item:hover {
     background: var(--gray-100);
+    transform: translateX(4px);
 }
 
 [data-theme="dark"] .top-item:hover {

@@ -89,23 +89,78 @@
 
     <!-- Main Content -->
     <main class="dashboard-main">
-        <!-- Compact Header with Key Metrics -->
-        <div class="compact-header">
-            <div class="metric-chip metric-chip-success">
-                <div class="metric-chip-label">Suppliers</div>
-                <div class="metric-chip-value counter" data-target="{{ suppliers|length }}">0</div>
+        <!-- KPI Metrics Cards (Dashboard Style) -->
+        <div class="row g-3 mb-4">
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="metric-card metric-card-success">
+                    <div class="metric-icon">
+                        <i class="bi bi-building"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h6 class="metric-label">Total Suppliers</h6>
+                        <h2 class="metric-value counter" data-target="{{ suppliers|length }}">0</h2>
+                        <div class="metric-trend trend-up">
+                            <i class="bi bi-arrow-up"></i> 5.8% vs last month
+                        </div>
+                    </div>
+                    <div class="metric-sparkline">
+                        <canvas id="sparklineSuppliers" height="50"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="metric-chip metric-chip-primary">
-                <div class="metric-chip-label">Avg Price</div>
-                <div class="metric-chip-value">₹{{ "%.0f"|format(suppliers|map(attribute='Price')|sum / suppliers|length if suppliers|length > 0 else 0) }}</div>
+            
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="metric-card metric-card-primary">
+                    <div class="metric-icon">
+                        <i class="bi bi-currency-rupee"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h6 class="metric-label">Avg Price</h6>
+                        <h2 class="metric-value">₹{{ "%.0f"|format(suppliers|map(attribute='Price')|sum / suppliers|length if suppliers|length > 0 else 0) }}</h2>
+                        <div class="metric-trend trend-down">
+                            <i class="bi bi-arrow-down"></i> 3.1% vs last month
+                        </div>
+                    </div>
+                    <div class="metric-sparkline">
+                        <canvas id="sparklineSupplierPrice" height="50"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="metric-chip metric-chip-warning">
-                <div class="metric-chip-label">Avg Rating</div>
-                <div class="metric-chip-value">{{ "%.1f"|format(suppliers|map(attribute='Rating')|sum / suppliers|length if suppliers|length > 0 else 0) }}</div>
+            
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                <div class="metric-card metric-card-warning">
+                    <div class="metric-icon">
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h6 class="metric-label">Avg Rating</h6>
+                        <h2 class="metric-value">{{ "%.1f"|format(suppliers|map(attribute='Rating')|sum / suppliers|length if suppliers|length > 0 else 0) }}</h2>
+                        <div class="metric-trend trend-up">
+                            <i class="bi bi-arrow-up"></i> 0.4 vs last month
+                        </div>
+                    </div>
+                    <div class="metric-sparkline">
+                        <canvas id="sparklineSupplierRating" height="50"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="metric-chip metric-chip-info">
-                <div class="metric-chip-label">Locations</div>
-                <div class="metric-chip-value">{{ filter_options.locations|length }}</div>
+            
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                <div class="metric-card metric-card-info">
+                    <div class="metric-icon">
+                        <i class="bi bi-geo-alt-fill"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h6 class="metric-label">Locations</h6>
+                        <h2 class="metric-value">{{ filter_options.locations|length }}</h2>
+                        <div class="metric-trend trend-up">
+                            <i class="bi bi-arrow-up"></i> 3 new this month
+                        </div>
+                    </div>
+                    <div class="metric-sparkline">
+                        <canvas id="sparklineLocations" height="50"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -262,6 +317,34 @@
                 }
             };
             updateCounter();
+        });
+        
+        // Create sparklines for metric cards
+        const sparklineData = [
+            [45, 48, 52, 55, 58, 62, 65],  // Suppliers trend
+            [180, 175, 170, 165, 162, 160, 158],  // Price trend (decreasing)
+            [3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.1],  // Rating trend (increasing)
+            [12, 13, 13, 14, 15, 16, 18]  // Locations trend
+        ];
+        
+        const sparklineColors = [
+            '#10b981',  // success green
+            '#3b82f6',  // primary blue
+            '#f59e0b',  // warning orange
+            '#06b6d4'   // info cyan
+        ];
+        
+        const sparklineIds = [
+            'sparklineSuppliers',
+            'sparklineSupplierPrice',
+            'sparklineSupplierRating',
+            'sparklineLocations'
+        ];
+        
+        sparklineData.forEach((data, index) => {
+            if (typeof createSparkline !== 'undefined') {
+                createSparkline(sparklineIds[index], data, sparklineColors[index]);
+            }
         });
     });
 </script>

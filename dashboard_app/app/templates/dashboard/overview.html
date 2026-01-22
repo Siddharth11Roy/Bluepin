@@ -67,13 +67,13 @@
         <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
             <div class="metric-card metric-card-warning">
                 <div class="metric-icon">
-                    <i class="bi bi-currency-rupee"></i>
+                    <i class="bi bi-cash-stack"></i>
                 </div>
                 <div class="metric-content">
-                    <h6 class="metric-label">Avg Product Price</h6>
-                    <h2 class="metric-value">₹{{ "%.0f"|format(stats.avg_product_price) }}</h2>
-                    <div class="metric-trend trend-down">
-                        <i class="bi bi-arrow-down"></i> 3.2% vs last month
+                    <h6 class="metric-label">Net Sales</h6>
+                    <h2 class="metric-value">₹{{ "%.0f"|format(stats.avg_product_price * stats.total_products) }}</h2>
+                    <div class="metric-trend trend-up">
+                        <i class="bi bi-arrow-up"></i> 12.8% vs last month
                     </div>
                 </div>
                 <div class="metric-sparkline">
@@ -83,15 +83,15 @@
         </div>
         
         <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
-            <div class="metric-card metric-card-info">
+            <div class="metric-card metric-card-purple" style="--card-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                 <div class="metric-icon">
-                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-box2-heart-fill"></i>
                 </div>
                 <div class="metric-content">
-                    <h6 class="metric-label">Average Rating</h6>
-                    <h2 class="metric-value">{{ "%.1f"|format(stats.avg_product_rating) }}</h2>
+                    <h6 class="metric-label">Units Sold</h6>
+                    <h2 class="metric-value counter" data-target="{{ stats.total_reviews }}">0</h2>
                     <div class="metric-trend trend-up">
-                        <i class="bi bi-arrow-up"></i> 0.5 vs last month
+                        <i class="bi bi-arrow-up"></i> 18.3% vs last month
                     </div>
                 </div>
                 <div class="metric-sparkline">

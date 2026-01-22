@@ -252,27 +252,46 @@
                 
                 <!-- Similar Products Tab -->
                 <div class="tab-pane fade" id="similarTab">
+                    <div class="mb-3">
+                        <h5><i class="bi bi-collection"></i> Recommended Similar Products</h5>
+                        <p class="text-muted">Based on category, price range, and ratings</p>
+                    </div>
                     {% if similar_products %}
                         <div class="row g-4">
                             {% for similar in similar_products %}
-                            <div class="col-md-3">
-                                <div class="card product-card-small h-100">
-                                    <img src="{{ similar.Image }}" class="card-img-top" alt="{{ similar.Title }}">
-                                    <div class="card-body">
-                                        <h6 class="card-title">{{ similar.Title[:50] }}...</h6>
-                                        <div class="d-flex justify-content-between">
+                            <div class="col-lg-3 col-md-4 col-sm-6">
+                                <div class="card product-card-small h-100 shadow-sm hover-lift">
+                                    <img src="{{ similar.Image }}" class="card-img-top" alt="{{ similar.Title }}" style="height: 200px; object-fit: contain; padding: 1rem;">
+                                    <div class="card-body d-flex flex-column">
+                                        <h6 class="card-title mb-2" style="min-height: 40px;">{{ similar.Title[:60] }}{% if similar.Title|length > 60 %}...{% endif %}</h6>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="badge bg-success">₹{{ "%.0f"|format(similar.Price) }}</span>
                                             <span class="badge bg-warning text-dark">{{ "%.1f"|format(similar.Ratings) }} ⭐</span>
                                         </div>
-                                        <a href="{{ url_for('dashboard.product_detail', product_id=similar['Product Identifier']) }}" 
-                                           class="btn btn-sm btn-primary mt-2 w-100">View Details</a>
+                                        <small class="text-muted mb-2">{{ "{:,}".format(similar.Review) }} reviews</small>
+                                        <div class="mt-auto">
+                                            <a href="{{ url_for('dashboard.product_detail', product_id=similar['Product Identifier']) }}" 
+                                               class="btn btn-sm btn-primary w-100 mb-1">
+                                                <i class="bi bi-eye"></i> View Details
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-danger w-100 add-to-wishlist" 
+                                                    data-product-id="{{ similar['Product Identifier'] }}"
+                                                    data-product-title="{{ similar.Title }}"
+                                                    data-product-price="{{ similar.Price }}"
+                                                    data-product-image="{{ similar.Image }}"
+                                                    data-product-rating="{{ similar.Ratings }}">
+                                                <i class="bi bi-heart"></i> Add to Wishlist
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             {% endfor %}
                         </div>
                     {% else %}
-                        <div class="alert alert-info">No similar products found.</div>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> No similar products found at the moment. Check back later for recommendations!
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -284,6 +303,41 @@
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
 <script>
+    // Add to wishlist functionality
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.add-to-wishlist')) {
+            const btn = e.target.closest('.add-to-wishlist');
+            const product = {
+                id: btn.dataset.productId,
+                title: btn.dataset.productTitle,
+                price: btn.dataset.productPrice,
+                image: btn.dataset.productImage,
+                rating: btn.dataset.productRating
+            };
+            
+            let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+            
+            // Check if already in wishlist
+            if (wishlist.some(item => item.id === product.id)) {
+                alert('This product is already in your wishlist!');
+                return;
+            }
+            
+            wishlist.push(product);
+            localStorage.setItem('wishlist', JSON.stringify(wishlist));
+            
+            // Visual feedback
+            btn.innerHTML = '<i class="bi bi-heart-fill"></i> Added!';
+            btn.classList.remove('btn-outline-danger');
+            btn.classList.add('btn-danger');
+            setTimeout(() => {
+                btn.innerHTML = '<i class="bi bi-heart"></i> Add to Wishlist';
+                btn.classList.remove('btn-danger');
+                btn.classList.add('btn-outline-danger');
+            }, 2000);
+        }
+    });
+    
     document.addEventListener('DOMContentLoaded', function() {
         // Image zoom effect
         const mainImage = document.getElementById('productMainImage');

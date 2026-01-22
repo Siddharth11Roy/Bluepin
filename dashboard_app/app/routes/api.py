@@ -145,10 +145,13 @@ def get_product_charts():
         category=category
     )
     
+    # Replace NaN values with 0
+    filtered = filtered.fillna(0)
+    
     # Price vs Rating scatter
     scatter_data = {
-        'prices': filtered['Price'].tolist(),
-        'ratings': filtered['Ratings'].tolist(),
+        'prices': filtered['Price'].replace([float('inf'), float('-inf')], 0).tolist(),
+        'ratings': filtered['Ratings'].replace([float('inf'), float('-inf')], 0).tolist(),
         'labels': filtered['Title'].str[:30].tolist()
     }
     
@@ -192,6 +195,9 @@ def get_supplier_charts():
         location=location
     )
     
+    # Replace NaN values with 0
+    filtered = filtered.fillna(0)
+    
     # Location distribution
     location_dist = filtered['Location'].value_counts().head(10)
     location_data = {
@@ -201,8 +207,8 @@ def get_supplier_charts():
     
     # Price vs Rating scatter
     scatter_data = {
-        'prices': filtered['Price'].tolist(),
-        'ratings': filtered['Rating'].tolist(),
+        'prices': filtered['Price'].replace([float('inf'), float('-inf')], 0).tolist(),
+        'ratings': filtered['Rating'].replace([float('inf'), float('-inf')], 0).tolist(),
         'labels': filtered['Supplier Name'].tolist()
     }
     
