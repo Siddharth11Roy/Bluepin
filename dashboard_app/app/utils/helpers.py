@@ -12,10 +12,15 @@ def format_currency(amount):
         return "₹0"
 
 def format_number(num):
-    """Format number with commas"""
+    """Format number with commas or as millions/thousands"""
     try:
-        num = int(num)
-        return f"{num:,}"
+        num = float(num)
+        if num >= 1000000:
+            return f"{num/1000000:.1f}M"
+        elif num >= 1000:
+            return f"{num/1000:.1f}K"
+        else:
+            return f"{int(num):,}"
     except (ValueError, TypeError):
         return "0"
 

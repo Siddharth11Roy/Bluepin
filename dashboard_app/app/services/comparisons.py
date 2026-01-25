@@ -14,18 +14,20 @@ class Comparisons:
         products = DataLoader.load_products()
         compared = products[products['Product Identifier'].isin(product_identifiers)]
         
+        # Replace NaN values with None before converting to dict
+        compared = compared.replace({np.nan: None, np.inf: None, -np.inf: None})
         result = compared.to_dict('records')
         
         # Add comparison metrics
         if len(result) > 1:
-            prices = [p['Price'] for p in result]
-            ratings = [p['Ratings'] for p in result]
-            reviews = [p['Review'] for p in result]
+            prices = [p['Price'] for p in result if p['Price'] is not None]
+            ratings = [p['Ratings'] for p in result if p['Ratings'] is not None]
+            reviews = [p['Review'] for p in result if p['Review'] is not None]
             
             for i, product in enumerate(result):
-                product['is_cheapest'] = product['Price'] == min(prices)
-                product['is_highest_rated'] = product['Ratings'] == max(ratings)
-                product['is_most_reviewed'] = product['Review'] == max(reviews)
+                product['is_cheapest'] = product['Price'] == min(prices) if prices and product['Price'] is not None else False
+                product['is_highest_rated'] = product['Ratings'] == max(ratings) if ratings and product['Ratings'] is not None else False
+                product['is_most_reviewed'] = product['Review'] == max(reviews) if reviews and product['Review'] is not None else False
         
         return result
     
@@ -51,18 +53,20 @@ class Comparisons:
         agg.columns = ['name', 'avg_price', 'avg_rating', 'total_reviews', 
                        'location', 'phone', 'product_count']
         
+        # Replace NaN values with None before converting to dict
+        agg = agg.replace({np.nan: None, np.inf: None, -np.inf: None})
         result = agg.to_dict('records')
         
         # Add comparison metrics
         if len(result) > 1:
-            prices = [s['avg_price'] for s in result]
-            ratings = [s['avg_rating'] for s in result]
-            reviews = [s['total_reviews'] for s in result]
+            prices = [s['avg_price'] for s in result if s['avg_price'] is not None]
+            ratings = [s['avg_rating'] for s in result if s['avg_rating'] is not None]
+            reviews = [s['total_reviews'] for s in result if s['total_reviews'] is not None]
             
             for supplier in result:
-                supplier['is_cheapest'] = supplier['avg_price'] == min(prices)
-                supplier['is_highest_rated'] = supplier['avg_rating'] == max(ratings)
-                supplier['is_most_reviewed'] = supplier['total_reviews'] == max(reviews)
+                supplier['is_cheapest'] = supplier['avg_price'] == min(prices) if prices and supplier['avg_price'] is not None else False
+                supplier['is_highest_rated'] = supplier['avg_rating'] == max(ratings) if ratings and supplier['avg_rating'] is not None else False
+                supplier['is_most_reviewed'] = supplier['total_reviews'] == max(reviews) if reviews and supplier['total_reviews'] is not None else False
         
         return result
     
@@ -75,33 +79,43 @@ class Comparisons:
         if product is None or suppliers.empty:
             return None
         
-        # Calculate price comparison
-        product_price = product['Price']
-        supplier_prices = suppliers['Price'].tolist()
-        avg_supplier_price = np.mean(supplier_prices)
-        min_supplier_price = np.min(supplier_prices)
-        max_supplier_price = np.max(supplier_prices)
+        # Replace NaN values in suppliers dataframe
+        suppliers = suppliers.replace({np.nan: None, np.inf: None, -np.inf: None})
         
-        savings = ((product_price - min_supplier_price) / product_price * 100) if min_supplier_price < product_price else 0
+        # Calculate price comparison
+        product_price = product['Price'] if pd.notna(product['Price']) else 0
+        supplier_prices = [p for p in suppliers['Price'].tolist() if p is not None]
+        
+        if supplier_prices:
+            avg_supplier_price = np.mean(supplier_prices)
+            min_supplier_price = np.min(supplier_prices)
+            max_supplier_price = np.max(supplier_prices)
+            savings = ((product_price - min_supplier_price) / product_price * 100) if product_price > 0 and min_supplier_price < product_price else 0
+        else:
+            avg_supplier_price = 0
+            min_supplier_price = 0
+            max_supplier_price = 0
+            savings = 0
         
         # Calculate rating comparison
-        product_rating = product['Ratings']
-        avg_supplier_rating = suppliers['Rating'].mean()
+        product_rating = product['Ratings'] if pd.notna(product['Ratings']) else 0
+        supplier_ratings = [r for r in suppliers['Rating'].tolist() if r is not None]
+        avg_supplier_rating = np.mean(supplier_ratings) if supplier_ratings else 0
         
         return {
             'product': product,
             'suppliers': suppliers.to_dict('records'),
             'price_comparison': {
-                'product_price': float(product_price),
-                'avg_supplier_price': float(avg_supplier_price),
-                'min_supplier_price': float(min_supplier_price),
-                'max_supplier_price': float(max_supplier_price),
-                'potential_savings': float(savings)
+                'product_price': float(product_price) if product_price else 0,
+                'avg_supplier_price': float(avg_supplier_price) if avg_supplier_price else 0,
+                'min_supplier_price': float(min_supplier_price) if min_supplier_price else 0,
+                'max_supplier_price': float(max_supplier_price) if max_supplier_price else 0,
+                'potential_savings': float(savings) if savings else 0
             },
             'rating_comparison': {
-                'product_rating': float(product_rating),
-                'avg_supplier_rating': float(avg_supplier_rating),
-                'rating_diff': float(product_rating - avg_supplier_rating)
+                'product_rating': float(product_rating) if product_rating else 0,
+                'avg_supplier_rating': float(avg_supplier_rating) if avg_supplier_rating else 0,
+                'rating_diff': float(product_rating - avg_supplier_rating) if (product_rating and avg_supplier_rating) else 0
             },
             'supplier_count': len(suppliers)
         }

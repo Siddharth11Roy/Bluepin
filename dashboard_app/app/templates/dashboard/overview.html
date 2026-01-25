@@ -35,7 +35,7 @@
                 </div>
                 <div class="metric-content">
                     <h6 class="metric-label">Total Products</h6>
-                    <h2 class="metric-value counter" data-target="{{ stats.total_products }}">0</h2>
+                    <h2 class="metric-value">{{ stats.total_products|format_number }}</h2>
                     <div class="metric-trend trend-up">
                         <i class="bi bi-arrow-up"></i> 12.5% vs last month
                     </div>
@@ -53,7 +53,7 @@
                 </div>
                 <div class="metric-content">
                     <h6 class="metric-label">Total Suppliers</h6>
-                    <h2 class="metric-value counter" data-target="{{ stats.total_suppliers }}">0</h2>
+                    <h2 class="metric-value">{{ stats.total_suppliers|format_number }}</h2>
                     <div class="metric-trend trend-up">
                         <i class="bi bi-arrow-up"></i> 8.3% vs last month
                     </div>
@@ -70,8 +70,8 @@
                     <i class="bi bi-cash-stack"></i>
                 </div>
                 <div class="metric-content">
-                    <h6 class="metric-label">Net Sales</h6>
-                    <h2 class="metric-value">₹{{ "%.0f"|format(stats.avg_product_price * stats.total_products) }}</h2>
+                    <h6 class="metric-label">Total Sales</h6>
+                    <h2 class="metric-value">₹{{ "%.1f"|format(stats.total_sales_millions) }}M</h2>
                     <div class="metric-trend trend-up">
                         <i class="bi bi-arrow-up"></i> 12.8% vs last month
                     </div>
@@ -198,9 +198,9 @@
                 <div class="chart-header">
                     <div>
                         <h5 class="chart-title">
-                            <i class="bi bi-trophy-fill text-warning"></i> Top Rated Products
+                            <i class="bi bi-currency-dollar text-success"></i> Most Profitable Products
                         </h5>
-                        <p class="chart-subtitle">Best performing products this month</p>
+                        <p class="chart-subtitle">Highest margin products this month</p>
                     </div>
                     <a href="{{ url_for('dashboard.products') }}" class="btn btn-sm btn-outline-primary">
                         View All <i class="bi bi-arrow-right"></i>
@@ -259,7 +259,6 @@
                                     <th width="80">Rank</th>
                                     <th>Supplier Name</th>
                                     <th>Location</th>
-                                    <th>Avg Price</th>
                                     <th>Rating</th>
                                     <th>Reviews</th>
                                     <th>Contact</th>
@@ -291,7 +290,6 @@
                                             <i class="bi bi-geo-alt-fill"></i> {{ supplier.Location }}
                                         </span>
                                     </td>
-                                    <td><strong class="text-success">₹{{ "%.0f"|format(supplier.Price) }}</strong></td>
                                     <td>
                                         <span class="rating-badge">
                                             <i class="bi bi-star-fill"></i> {{ "%.1f"|format(supplier.Rating) }}

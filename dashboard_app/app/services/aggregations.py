@@ -11,20 +11,22 @@ class Aggregations:
         products = DataLoader.load_products()
         suppliers = DataLoader.load_suppliers()
         
+        # Calculate total sales in millions
+        total_sales = products['Price'].sum()
+        total_sales_millions = total_sales / 1000000
+        
         stats = {
             'total_products': len(products),
             'total_suppliers': len(suppliers['Supplier Name'].unique()),
-            'avg_product_price': float(products['Price'].mean()),
-            'avg_supplier_price': float(suppliers['Price'].mean()),
             'avg_product_rating': float(products['Ratings'].mean()),
             'avg_supplier_rating': float(suppliers['Rating'].mean()),
             'total_reviews': int(products['Review'].sum()),
             'total_supplier_reviews': int(suppliers['Reviews'].sum()),
+            'total_sales_millions': float(total_sales_millions),
             'price_range': {
                 'min': float(products['Price'].min()),
                 'max': float(products['Price'].max())
-            },
-            'savings_potential': float((suppliers['Price'].mean() / products['Price'].mean() - 1) * 100)
+            }
         }
         
         return stats
