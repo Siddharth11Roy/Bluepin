@@ -2,6 +2,12 @@
 
 {% block title %}Comparisons - Dashboard{% endblock %}
 
+{% block extra_css %}
+<!-- Select2 CSS for searchable dropdowns -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+{% endblock %}
+
 {% block content %}
 <div class="row mb-4">
     <div class="col-12">
@@ -73,11 +79,12 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label class="form-label">Select Products (up to 4)</label>
-                            <select class="form-select" id="productSelect" multiple size="6">
+                            <select class="form-select select2-products" id="productSelect" multiple>
                                 {% for product in product_list %}
                                 <option value="{{ product }}">{{ product }}</option>
                                 {% endfor %}
                             </select>
+                            <small class="text-muted">Type to search products</small>
                         </div>
                         <button class="btn btn-primary" id="compareProducts">
                             <i class="bi bi-arrows-angle-contract"></i> Compare Products
@@ -108,11 +115,12 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label class="form-label">Select Suppliers (up to 4)</label>
-                            <select class="form-select" id="supplierSelect" multiple size="6">
+                            <select class="form-select select2-suppliers" id="supplierSelect" multiple>
                                 {% for supplier in supplier_list %}
                                 <option value="{{ supplier }}">{{ supplier }}</option>
                                 {% endfor %}
                             </select>
+                            <small class="text-muted">Type to search suppliers</small>
                         </div>
                         <button class="btn btn-success" id="compareSuppliers">
                             <i class="bi bi-arrows-angle-contract"></i> Compare Suppliers
@@ -149,89 +157,137 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Select2 JS for searchable dropdowns -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
 <script>
     let comparisonChart = null;
     
-    // Initialize wishlist from localStorage
-    function loadWishlist() {
-        const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
-        const container = document.getElementById('wishlistItems');
-        const compareBtn = document.getElementById('compareWishlist');
+    // Initialize Select2 for searchable dropdowns
+    $(document).ready(function() {
+        $('.select2-products').select2({
+            theme: 'bootstrap-5',
+            placeholder: 'Search and select products...',
+            allowClear: true,
+            maximumSelectionLength: 4
+        });
         
-        if (wishlist.length === 0) {
-            container.innerHTML = '<div class="alert alert-info"><i class="bi bi-info-circle"></i> Your wishlist is empty. Add products from the Products page to start comparing!</div>';
-            compareBtn.style.display = 'none';
-        } else {
-            let html = '<div class="row g-3">';
-            wishlist.forEach(item => {
-                html += `
-                    <div class="col-md-4">
-                        <div class="card h-100">
-                            <img src="${item.image || 'https://via.placeholder.com/150'}" class="card-img-top" alt="${item.title}">
-                            <div class="card-body">
-                                <h6 class="card-title">${item.title.substring(0, 50)}...</h6>
-                                <p class="text-primary fw-bold">₹${parseFloat(item.price).toFixed(0)}</p>
-                                <p class="text-warning">⭐ ${parseFloat(item.rating).toFixed(1)}</p>
-                                <button class="btn btn-sm btn-danger w-100" onclick="removeFromWishlist('${item.id}')">
-                                    <i class="bi bi-trash"></i> Remove
-                                </button>
+        $('.select2-suppliers').select2({
+            theme: 'bootstrap-5',
+            placeholder: 'Search and select suppliers...',
+            allowClear: true,
+            maximumSelectionLength: 4
+        });
+    });
+    
+    // Load wishlist from database
+    function loadWishlist() {
+        fetch('/api/wishlist')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('wishlistItems');
+                const compareBtn = document.getElementById('compareWishlist');
+                
+                if (data.items.length === 0) {
+                    container.innerHTML = '<div class="alert alert-info"><i class="bi bi-info-circle"></i> Your wishlist is empty. Add products from the Products page to start comparing!</div>';
+                    compareBtn.style.display = 'none';
+                } else {
+                    let html = '<div class="row g-3">';
+                    data.items.forEach(item => {
+                        html += `
+                            <div class="col-md-4">
+                                <div class="card h-100 wishlist-card">
+                                    <img src="${item.product_image || 'https://via.placeholder.com/150'}" class="card-img-top" alt="${item.product_title}" style="height: 200px; object-fit: cover;">
+                                    <div class="card-body">
+                                        <h6 class="card-title">${item.product_title.substring(0, 50)}...</h6>
+                                        <p class="text-primary fw-bold mb-1">₹${parseFloat(item.product_price || 0).toFixed(0)}</p>
+                                        <p class="text-warning mb-2">⭐ ${parseFloat(item.product_rating || 0).toFixed(1)}</p>
+                                        <button class="btn btn-sm btn-danger w-100" onclick="removeFromWishlist(${item.id})">
+                                            <i class="bi bi-trash"></i> Remove
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                `;
+                        `;
+                    });
+                    html += '</div>';
+                    container.innerHTML = html;
+                    compareBtn.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading wishlist:', error);
+                document.getElementById('wishlistItems').innerHTML = 
+                    '<div class="alert alert-danger"><i class="bi bi-exclamation-circle"></i> Error loading wishlist. Please try again.</div>';
             });
-            html += '</div>';
-            container.innerHTML = html;
-            compareBtn.style.display = 'block';
-        }
     }
     
-    function removeFromWishlist(productId) {
-        let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
-        wishlist = wishlist.filter(item => item.id !== productId);
-        localStorage.setItem('wishlist', JSON.stringify(wishlist));
-        loadWishlist();
+    function removeFromWishlist(itemId) {
+        if (!confirm('Remove this item from wishlist?')) return;
+        
+        fetch(`/api/wishlist/remove/${itemId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            loadWishlist();
+            showNotification('Item removed from wishlist', 'success');
+        })
+        .catch(error => {
+            console.error('Error removing from wishlist:', error);
+            showNotification('Error removing item', 'error');
+        });
+    }
+    
+    function showNotification(message, type) {
+        // Simple notification (you can enhance this)
+        alert(message);
     }
     
     // Compare wishlist items
     document.getElementById('compareWishlist').addEventListener('click', function() {
-        const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
-        if (wishlist.length < 2) {
-            alert('Please add at least 2 items to your wishlist to compare');
-            return;
-        }
-        
-        const params = new URLSearchParams();
-        wishlist.forEach(item => params.append('ids[]', item.id));
-        
-        fetch(`/api/compare-products?${params}`)
+        fetch('/api/wishlist')
             .then(response => response.json())
-            .then(data => {
-                let html = '<div class="table-responsive"><table class="table table-bordered">';
-                html += '<thead><tr><th>Metric</th>';
-                data.forEach(p => html += `<th>${p['Product Identifier']}</th>`);
-                html += '</tr></thead><tbody>';
+            .then(wishlistData => {
+                if (wishlistData.items.length < 2) {
+                    alert('Please add at least 2 items to your wishlist to compare');
+                    return;
+                }
                 
-                html += '<tr><td><strong>Price</strong></td>';
-                data.forEach(p => html += `<td>₹${p.Price.toFixed(0)} ${p.is_cheapest ? '🏆' : ''}</td>`);
-                html += '</tr>';
+                const params = new URLSearchParams();
+                wishlistData.items.forEach(item => params.append('ids[]', item.product_identifier));
                 
-                html += '<tr><td><strong>Rating</strong></td>';
-                data.forEach(p => html += `<td>${p.Ratings.toFixed(1)} ⭐ ${p.is_highest_rated ? '🏆' : ''}</td>`);
-                html += '</tr>';
-                
-                html += '<tr><td><strong>Reviews</strong></td>';
-                data.forEach(p => html += `<td>${p.Review} ${p.is_most_reviewed ? '🏆' : ''}</td>`);
-                html += '</tr>';
-                
-                html += '</tbody></table></div>';
-                document.getElementById('wishlistComparisonBody').innerHTML = html;
-                document.getElementById('wishlistComparisonResult').style.display = 'block';
-            })
-            .catch(error => {
-                console.error('Error comparing wishlist:', error);
-                alert('Error comparing wishlist items');
+                fetch(`/api/compare-products?${params}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let html = '<div class="table-responsive"><table class="table table-bordered">';
+                        html += '<thead><tr><th>Metric</th>';
+                        data.forEach(p => html += `<th>${p['Product Identifier']}</th>`);
+                        html += '</tr></thead><tbody>';
+                        
+                        html += '<tr><td><strong>Price</strong></td>';
+                        data.forEach(p => html += `<td>₹${p.Price.toFixed(0)} ${p.is_cheapest ? '🏆' : ''}</td>`);
+                        html += '</tr>';
+                        
+                        html += '<tr><td><strong>Rating</strong></td>';
+                        data.forEach(p => html += `<td>${p.Ratings.toFixed(1)} ⭐ ${p.is_highest_rated ? '🏆' : ''}</td>`);
+                        html += '</tr>';
+                        
+                        html += '<tr><td><strong>Reviews</strong></td>';
+                        data.forEach(p => html += `<td>${p.Review} ${p.is_most_reviewed ? '🏆' : ''}</td>`);
+                        html += '</tr>';
+                        
+                        html += '</tbody></table></div>';
+                        document.getElementById('wishlistComparisonBody').innerHTML = html;
+                        document.getElementById('wishlistComparisonResult').style.display = 'block';
+                    })
+                    .catch(error => {
+                        console.error('Error comparing wishlist:', error);
+                        alert('Error comparing wishlist items');
+                    });
             });
     });
     
@@ -239,8 +295,7 @@
     document.addEventListener('DOMContentLoaded', loadWishlist);
     
     document.getElementById('compareProducts').addEventListener('click', function() {
-        const selected = Array.from(document.getElementById('productSelect').selectedOptions)
-            .map(opt => opt.value).slice(0, 4);
+        const selected = $('.select2-products').val().slice(0, 4);
         
         if (selected.length < 2) {
             alert('Please select at least 2 products');
@@ -308,8 +363,7 @@
     });
     
     document.getElementById('compareSuppliers').addEventListener('click', function() {
-        const selected = Array.from(document.getElementById('supplierSelect').selectedOptions)
-            .map(opt => opt.value).slice(0, 4);
+        const selected = $('.select2-suppliers').val().slice(0, 4);
         
         if (selected.length < 2) {
             alert('Please select at least 2 suppliers');

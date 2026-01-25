@@ -53,6 +53,12 @@ Thumbs.db
 # Logs
 *.log
 
+# Database
+*.db
+*.sqlite
+*.sqlite3
+dashboard.db
+
 # Local data (keep processed data, but not dev files)
 data/Product_Sheet.csv
 data/supplier_results.csv

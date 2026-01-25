@@ -9,6 +9,11 @@ class Config:
     SUPPLIER_CSV = os.path.join(DATA_DIR, 'supplier_results.csv')
     PROCESSED_DIR = os.path.join(DATA_DIR, 'processed')
     
+    # Database settings
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'sqlite:///' + os.path.join(BASE_DIR, 'dashboard.db')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
     # Cache settings
     CACHE_TIMEOUT = 300  # 5 minutes
     

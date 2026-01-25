@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request
+from flask_login import login_required, current_user
 from app.services.data_loader import DataLoader
 from app.services.aggregations import Aggregations
 from app.services.filters import Filters
@@ -8,6 +9,7 @@ bp = Blueprint('dashboard', __name__)
 
 @bp.route('/')
 @bp.route('/overview')
+@login_required
 def overview():
     """Main overview dashboard"""
     stats = Aggregations.get_overview_stats()
@@ -23,6 +25,7 @@ def overview():
                          active_page='overview')
 
 @bp.route('/products')
+@login_required
 def products():
     """Products dashboard with filtering"""
     # Get filter parameters
@@ -51,6 +54,7 @@ def products():
                          active_page='products')
 
 @bp.route('/suppliers')
+@login_required
 def suppliers():
     """Suppliers dashboard with filtering"""
     # Get filter parameters
@@ -81,6 +85,7 @@ def suppliers():
                          active_page='suppliers')
 
 @bp.route('/comparisons')
+@login_required
 def comparisons():
     """Comparison dashboard"""
     products = DataLoader.load_products()
@@ -95,6 +100,7 @@ def comparisons():
                          active_page='comparisons')
 
 @bp.route('/product/<product_id>')
+@login_required
 def product_detail(product_id):
     """Detailed product view"""
     product = DataLoader.get_product_by_identifier(product_id)

@@ -1,9 +1,11 @@
 from flask import Blueprint, jsonify, request
+from flask_login import login_required, current_user
 import pandas as pd
 from app.services.data_loader import DataLoader
 from app.services.aggregations import Aggregations
 from app.services.filters import Filters
 from app.services.comparisons import Comparisons
+from models import db, Wishlist
 
 bp = Blueprint('api', __name__)
 
@@ -273,5 +275,103 @@ def search():
         'products': product_results[['Product Identifier', 'Title', 'Price', 'Ratings', 'Image']].to_dict('records'),
         'suppliers': supplier_results[['Supplier Name', 'Location', 'Rating', 'Price']].to_dict('records')
     })
+
+
+# Wishlist API endpoints
+@bp.route('/wishlist', methods=['GET'])
+@login_required
+def get_wishlist():
+    """Get current user's wishlist"""
+    wishlist_items = Wishlist.query.filter_by(user_id=current_user.id).order_by(Wishlist.added_at.desc()).all()
+    
+    return jsonify({
+        'items': [{
+            'id': item.id,
+            'product_identifier': item.product_identifier,
+            'product_title': item.product_title,
+            'product_price': item.product_price,
+            'product_rating': item.product_rating,
+            'product_image': item.product_image,
+            'added_at': item.added_at.isoformat(),
+            'notes': item.notes
+        } for item in wishlist_items],
+        'count': len(wishlist_items)
+    })
+
+
+@bp.route('/wishlist/add', methods=['POST'])
+@login_required
+def add_to_wishlist():
+    """Add product to wishlist"""
+    data = request.get_json()
+    
+    product_id = data.get('product_identifier')
+    if not product_id:
+        return jsonify({'error': 'Product identifier is required'}), 400
+    
+    # Check if already in wishlist
+    existing = Wishlist.query.filter_by(
+        user_id=current_user.id,
+        product_identifier=product_id
+    ).first()
+    
+    if existing:
+        return jsonify({'error': 'Product already in wishlist'}), 409
+    
+    # Add to wishlist
+    wishlist_item = Wishlist(
+        user_id=current_user.id,
+        product_identifier=product_id,
+        product_title=data.get('product_title'),
+        product_price=data.get('product_price'),
+        product_rating=data.get('product_rating'),
+        product_image=data.get('product_image')
+    )
+    
+    try:
+        db.session.add(wishlist_item)
+        db.session.commit()
+        return jsonify({
+            'message': 'Product added to wishlist',
+            'id': wishlist_item.id
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to add to wishlist'}), 500
+
+
+@bp.route('/wishlist/remove/<int:item_id>', methods=['DELETE'])
+@login_required
+def remove_from_wishlist(item_id):
+    """Remove product from wishlist"""
+    wishlist_item = Wishlist.query.filter_by(
+        id=item_id,
+        user_id=current_user.id
+    ).first()
+    
+    if not wishlist_item:
+        return jsonify({'error': 'Item not found'}), 404
+    
+    try:
+        db.session.delete(wishlist_item)
+        db.session.commit()
+        return jsonify({'message': 'Item removed from wishlist'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to remove item'}), 500
+
+
+@bp.route('/wishlist/clear', methods=['DELETE'])
+@login_required
+def clear_wishlist():
+    """Clear all items from wishlist"""
+    try:
+        Wishlist.query.filter_by(user_id=current_user.id).delete()
+        db.session.commit()
+        return jsonify({'message': 'Wishlist cleared'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to clear wishlist'}), 500
+
 
 import pandas as pd

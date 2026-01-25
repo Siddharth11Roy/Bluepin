@@ -28,18 +28,18 @@
             
             <!-- Quick Actions -->
             <div class="d-grid gap-2 mt-3">
-                <a href="{{ product.Image.split('images/I/')[0] if 'amazon' in product.Image else '#' }}" 
+                <a href="{% if 'amazon' in product.Image.lower() %}{{ product.Image.split('/images/I/')[0] }}dp/{{ product['Product Identifier'].split('-')[0] if '-' in product['Product Identifier'] else product['Product Identifier'] }}{% else %}#{% endif %}" 
                    target="_blank" 
-                   class="btn btn-primary">
+                   class="btn btn-primary {% if 'amazon' not in product.Image.lower() %}disabled{% endif %}">
                     <i class="bi bi-cart"></i> View on Amazon
                 </a>
-                <button class="btn btn-outline-primary add-to-comparison" 
+                <button class="btn btn-outline-primary add-to-wishlist" 
                         data-product-id="{{ product['Product Identifier'] }}"
                         data-product-title="{{ product.Title }}"
                         data-product-price="{{ product.Price }}"
                         data-product-image="{{ product.Image }}"
                         data-product-rating="{{ product.Ratings }}">
-                    <i class="bi bi-plus-circle"></i> Add to Comparison
+                    <i class="bi bi-heart"></i> Add to Wishlist
                 </button>
             </div>
         </div>
@@ -303,38 +303,49 @@
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
 <script>
-    // Add to wishlist functionality
+    // Add to wishlist functionality (using database)
     document.addEventListener('click', function(e) {
         if (e.target.closest('.add-to-wishlist')) {
             const btn = e.target.closest('.add-to-wishlist');
-            const product = {
-                id: btn.dataset.productId,
-                title: btn.dataset.productTitle,
-                price: btn.dataset.productPrice,
-                image: btn.dataset.productImage,
-                rating: btn.dataset.productRating
+            const productData = {
+                product_identifier: btn.dataset.productId,
+                product_title: btn.dataset.productTitle,
+                product_price: parseFloat(btn.dataset.productPrice),
+                product_image: btn.dataset.productImage,
+                product_rating: parseFloat(btn.dataset.productRating)
             };
             
-            let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
-            
-            // Check if already in wishlist
-            if (wishlist.some(item => item.id === product.id)) {
-                alert('This product is already in your wishlist!');
-                return;
-            }
-            
-            wishlist.push(product);
-            localStorage.setItem('wishlist', JSON.stringify(wishlist));
-            
-            // Visual feedback
-            btn.innerHTML = '<i class="bi bi-heart-fill"></i> Added!';
-            btn.classList.remove('btn-outline-danger');
-            btn.classList.add('btn-danger');
-            setTimeout(() => {
-                btn.innerHTML = '<i class="bi bi-heart"></i> Add to Wishlist';
-                btn.classList.remove('btn-danger');
-                btn.classList.add('btn-outline-danger');
-            }, 2000);
+            // Add to database wishlist
+            fetch('/api/wishlist/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(productData)
+            })
+            .then(response => {
+                if (response.status === 409) {
+                    alert('This product is already in your wishlist!');
+                    return null;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data) {
+                    // Visual feedback
+                    btn.innerHTML = '<i class="bi bi-heart-fill"></i> Added!';
+                    btn.classList.remove('btn-outline-primary');
+                    btn.classList.add('btn-success');
+                    setTimeout(() => {
+                        btn.innerHTML = '<i class="bi bi-heart"></i> In Wishlist';
+                        btn.disabled = true;
+                    }, 1500);
+                }
+            })
+            .catch(error => {
+                console.error('Error adding to wishlist:', error);
+                alert('Error adding to wishlist. Please try again.');
+            });
         }
     });
     
