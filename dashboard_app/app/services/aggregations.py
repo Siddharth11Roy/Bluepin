@@ -18,6 +18,8 @@ class Aggregations:
         stats = {
             'total_products': len(products),
             'total_suppliers': len(suppliers['Supplier Name'].unique()),
+            'avg_product_price': float(products['Price'].mean()),
+            'avg_supplier_price': float(suppliers['Price'].mean()),
             'avg_product_rating': float(products['Ratings'].mean()),
             'avg_supplier_rating': float(suppliers['Rating'].mean()),
             'total_reviews': int(products['Review'].sum()),
@@ -103,12 +105,31 @@ class Aggregations:
     def get_price_distribution(bins=10):
         """Get price distribution data for charts"""
         products = DataLoader.load_products()
-        hist, edges = np.histogram(products['Price'], bins=bins)
         
-        return {
-            'bins': [f"₹{int(edges[i])}-{int(edges[i+1])}" for i in range(len(edges)-1)],
-            'counts': hist.tolist()
-        }
+        # Clean price data
+        prices = products['Price'].dropna()
+        prices = prices[prices != float('inf')]
+        prices = prices[prices != float('-inf')]
+        
+        if prices.empty:
+            return {
+                'bins': [],
+                'counts': []
+            }
+            
+        try:
+            hist, edges = np.histogram(prices, bins=bins)
+            
+            return {
+                'bins': [f"₹{int(edges[i])}-{int(edges[i+1])}" for i in range(len(edges)-1)],
+                'counts': hist.tolist()
+            }
+        except Exception as e:
+            print(f"Error calculating price distribution: {e}")
+            return {
+                'bins': [],
+                'counts': []
+            }
     
     @staticmethod
     def get_rating_distribution():

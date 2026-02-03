@@ -32,6 +32,9 @@ def get_products():
         search_term=search
     )
     
+    # Handle NaN values for JSON compatibility
+    filtered = filtered.fillna(0)
+    
     return jsonify({
         'products': filtered.to_dict('records'),
         'count': len(filtered)
@@ -56,6 +59,9 @@ def get_suppliers():
         search_term=search
     )
     
+    # Handle NaN values for JSON compatibility
+    filtered = filtered.fillna(0)
+    
     return jsonify({
         'suppliers': filtered.to_dict('records'),
         'count': len(filtered)
@@ -68,6 +74,8 @@ def get_top_products():
     limit = request.args.get('limit', 5, type=int)
     
     top = Aggregations.get_top_products(limit=limit, sort_by=sort_by)
+    # Recursively clean NaNs in the list of dicts
+    top = pd.DataFrame(top).fillna(0).to_dict('records') if top else []
     return jsonify(top)
 
 @bp.route('/top-suppliers')
@@ -77,6 +85,8 @@ def get_top_suppliers():
     limit = request.args.get('limit', 5, type=int)
     
     top = Aggregations.get_top_suppliers(limit=limit, sort_by=sort_by)
+    # Recursively clean NaNs
+    top = pd.DataFrame(top).fillna(0).to_dict('records') if top else []
     return jsonify(top)
 
 @bp.route('/categories')

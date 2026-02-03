@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_login import LoginManager
+from flask_cors import CORS
 from config import config
 import os
 
@@ -7,6 +8,16 @@ def create_app(config_name='default'):
     """Application factory pattern"""
     app = Flask(__name__)
     app.config.from_object(config[config_name])
+    
+    # Enable CORS for React frontend development
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": ["http://localhost:3000", "http://127.0.0.1:3000"],
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
+            "supports_credentials": True
+        }
+    })
     
     # Initialize extensions
     from models import db
@@ -32,8 +43,9 @@ def create_app(config_name='default'):
         db.create_all()
     
     # Register blueprints
-    from app.routes import dashboard, api, admin, auth
+    from app.routes import dashboard, api, admin, auth, auth_api
     app.register_blueprint(auth.bp)
+    app.register_blueprint(auth_api.bp)  # JWT auth API
     app.register_blueprint(dashboard.bp)
     app.register_blueprint(api.bp, url_prefix='/api')
     app.register_blueprint(admin.bp, url_prefix='/admin')

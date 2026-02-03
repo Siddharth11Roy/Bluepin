@@ -61,7 +61,8 @@ class DataLoader:
             df['Image'] = df['Image'].fillna('').astype(str)
             
             # Clean price
-            df['Price'] = df['Price'].astype(str).str.replace(',', '').str.replace('₹', '').str.strip().astype(float)
+            df['Price'] = df['Price'].astype(str).str.replace(',', '').str.replace('₹', '').str.strip()
+            df['Price'] = pd.to_numeric(df['Price'], errors='coerce').fillna(0)
             
             # Clean ratings
             df['Ratings'] = df['Ratings'].astype(str).str.extract(r'(\d+\.?\d*)').fillna(0).astype(float)

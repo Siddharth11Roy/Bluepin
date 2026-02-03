@@ -1,0 +1,191 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom base styles */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-slate-100 text-slate-900 antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  /* Dark mode */
+  .dark body {
+    @apply bg-slate-900 text-slate-100;
+  }
+}
+
+/* Custom component classes */
+@layer components {
+
+  /* Card styles */
+  .card {
+    @apply bg-white rounded-xl shadow-card transition-shadow duration-300 hover:shadow-card-hover;
+  }
+
+  .dark .card {
+    @apply bg-slate-800 border border-slate-700;
+  }
+
+  /* Metric card */
+  .metric-card {
+    @apply card p-4 relative overflow-hidden;
+  }
+
+  .metric-card::before {
+    content: '';
+    @apply absolute inset-0 opacity-10;
+  }
+
+  .metric-card-primary::before {
+    @apply bg-gradient-to-br from-blue-500 to-blue-600;
+  }
+
+  .metric-card-success::before {
+    @apply bg-gradient-to-br from-emerald-500 to-emerald-600;
+  }
+
+  .metric-card-warning::before {
+    @apply bg-gradient-to-br from-amber-500 to-amber-600;
+  }
+
+  .metric-card-purple::before {
+    @apply bg-gradient-to-br from-purple-500 to-purple-600;
+  }
+
+  /* Button variants */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200;
+  }
+
+  .btn-primary {
+    @apply bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700;
+  }
+
+  .btn-secondary {
+    @apply bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600;
+  }
+
+  .btn-outline {
+    @apply border border-slate-300 bg-transparent hover:bg-slate-50 dark:border-slate-600 dark:hover:bg-slate-800;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800;
+  }
+
+  /* Input styles */
+  .input {
+    @apply w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:placeholder-slate-500;
+  }
+
+  /* Sidebar styles */
+  .sidebar {
+    @apply fixed left-0 top-0 h-screen w-64 bg-slate-900 text-white flex flex-col z-50;
+  }
+
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors;
+  }
+
+  .sidebar-link.active {
+    @apply bg-primary-500/20 text-primary-400 border-l-2 border-primary-500;
+  }
+
+  /* Table styles */
+  .table-modern {
+    @apply w-full text-left;
+  }
+
+  .table-modern thead tr {
+    @apply border-b border-slate-200 dark:border-slate-700;
+  }
+
+  .table-modern th {
+    @apply px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400;
+  }
+
+  .table-modern td {
+    @apply px-4 py-4 text-sm;
+  }
+
+  .table-modern tbody tr {
+    @apply border-b border-slate-100 hover:bg-slate-50 transition-colors dark:border-slate-800 dark:hover:bg-slate-800/50;
+  }
+
+  /* Badge styles */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium;
+  }
+
+  .badge-primary {
+    @apply bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300;
+  }
+
+  .badge-success {
+    @apply bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300;
+  }
+
+  .badge-warning {
+    @apply bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300;
+  }
+
+  /* Chart card */
+  .chart-card {
+    @apply card overflow-hidden;
+  }
+
+  .chart-header {
+    @apply flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-700;
+  }
+
+  .chart-body {
+    @apply p-4;
+  }
+
+  /* Product card */
+  .product-card {
+    @apply card overflow-hidden cursor-pointer;
+  }
+
+  .product-card-image {
+    @apply h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105;
+  }
+
+  .product-card-body {
+    @apply p-3;
+  }
+}
+
+/* Custom utility classes */
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-purple-500;
+  }
+
+  .animate-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.slate.300') transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: theme('colors.slate.300');
+    border-radius: 3px;
+  }
+}
