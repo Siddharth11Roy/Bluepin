@@ -42,7 +42,6 @@ class Comparisons:
         
         # Aggregate by supplier
         agg = compared.groupby('Supplier Name').agg({
-            'Price': 'mean',
             'Rating': 'mean',
             'Reviews': 'sum',
             'Location': 'first',
@@ -50,7 +49,7 @@ class Comparisons:
             'Product Searched': 'count'
         }).reset_index()
         
-        agg.columns = ['name', 'avg_price', 'avg_rating', 'total_reviews', 
+        agg.columns = ['name', 'avg_rating', 'total_reviews', 
                        'location', 'phone', 'product_count']
         
         # Replace NaN values with None before converting to dict
@@ -59,12 +58,10 @@ class Comparisons:
         
         # Add comparison metrics
         if len(result) > 1:
-            prices = [s['avg_price'] for s in result if s['avg_price'] is not None]
             ratings = [s['avg_rating'] for s in result if s['avg_rating'] is not None]
             reviews = [s['total_reviews'] for s in result if s['total_reviews'] is not None]
             
             for supplier in result:
-                supplier['is_cheapest'] = supplier['avg_price'] == min(prices) if prices and supplier['avg_price'] is not None else False
                 supplier['is_highest_rated'] = supplier['avg_rating'] == max(ratings) if ratings and supplier['avg_rating'] is not None else False
                 supplier['is_most_reviewed'] = supplier['total_reviews'] == max(reviews) if reviews and supplier['total_reviews'] is not None else False
         

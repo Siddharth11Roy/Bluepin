@@ -31,9 +31,10 @@ class Filters:
     
     @staticmethod
     def filter_suppliers(price_min=None, price_max=None, rating_min=None,
-                        location=None, product_searched=None, search_term=None):
+                        location=None, category=None, search_term=None):
         """Filter suppliers based on multiple criteria"""
         df = DataLoader.load_suppliers()
+        products = DataLoader.load_products()
         
         # Apply filters
         if price_min is not None:
@@ -48,12 +49,14 @@ class Filters:
         if location and location != 'all':
             df = df[df['Location'].str.contains(location, case=False, na=False)]
         
-        if product_searched and product_searched != 'all':
-            df = df[df['Product Searched'] == product_searched]
+        if category and category != 'all':
+            # Filter suppliers by the category of products they supply
+            category_products = products[products['Category'] == category]['Product Identifier'].unique()
+            df = df[df['Product Searched'].isin(category_products)]
         
         if search_term:
             df = df[df['Supplier Name'].str.contains(search_term, case=False, na=False) | 
-                   df['Listing Title'].str.contains(search_term, case=False, na=False)]
+                   df['Product Searched'].str.contains(search_term, case=False, na=False)]
         
         return df
     

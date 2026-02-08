@@ -44,7 +44,7 @@ def get_suppliers():
     price_max = request.args.get('price_max', type=float)
     rating_min = request.args.get('rating_min', type=float)
     location = request.args.get('location')
-    product = request.args.get('product')
+    category = request.args.get('category')
     search = request.args.get('search')
     
     filtered = Filters.filter_suppliers(
@@ -52,7 +52,7 @@ def get_suppliers():
         price_max=price_max,
         rating_min=rating_min,
         location=location,
-        product_searched=product,
+        category=category,
         search_term=search
     )
     
@@ -211,11 +211,18 @@ def get_supplier_charts():
         'values': location_dist.values.tolist()
     }
     
-    # Categories distribution (based on Product Searched)
-    category_dist = filtered['Product Searched'].value_counts().head(8)
+    
+    # Categories distribution (based on actual product categories from products data)
+    # Load products to get categories
+    products = DataLoader.load_products()
+    
+    # Get categories for products that suppliers are providing
+    supplier_products = filtered['Product Searched'].unique()
+    product_categories = products[products['Product Identifier'].isin(supplier_products)]['Category'].value_counts().head(8)
+    
     category_data = {
-        'labels': [str(cat)[:20] + '...' if len(str(cat)) > 20 else str(cat) for cat in category_dist.index.tolist()],
-        'values': category_dist.values.tolist()
+        'labels': product_categories.index.tolist(),
+        'values': product_categories.values.tolist()
     }
     
     # Price vs Rating - Line chart (average price per rating range)

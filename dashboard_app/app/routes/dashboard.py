@@ -66,7 +66,7 @@ def suppliers():
     price_max = request.args.get('price_max', type=float)
     rating_min = request.args.get('rating_min', type=float)
     location = request.args.get('location')
-    product = request.args.get('product')
+    category = request.args.get('category')
     search = request.args.get('search')
     
     # Apply filters
@@ -75,7 +75,7 @@ def suppliers():
         price_max=price_max,
         rating_min=rating_min,
         location=location,
-        product_searched=product,
+        category=category,
         search_term=search
     )
     

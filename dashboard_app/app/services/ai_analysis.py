@@ -164,19 +164,24 @@ class AIAnalysis:
             missing_data.append('Monthly Sales')
             sales = 0
         else:
-            # Handle if Monthly Sales is a string (e.g., "1.2K", "500")
+            # Handle if Monthly Sales is a string (e.g., "1.2K", "500", "700+ BOUGHT IN PAST MONTH")
             if isinstance(sales, str):
+                import re
                 sales = sales.strip().upper()
-                if 'K' in sales:
-                    sales = float(sales.replace('K', '')) * 1000
-                elif 'M' in sales:
-                    sales = float(sales.replace('M', '')) * 1000000
+                # Extract numeric value with optional decimal and K/M suffix
+                match = re.search(r'(\d+\.?\d*)\s*([KM])?', sales)
+                if match:
+                    number = float(match.group(1))
+                    suffix = match.group(2)
+                    if suffix == 'K':
+                        sales = number * 1000
+                    elif suffix == 'M':
+                        sales = number * 1000000
+                    else:
+                        sales = number
                 else:
-                    try:
-                        sales = float(sales)
-                    except:
-                        missing_data.append('Monthly Sales')
-                        sales = 0
+                    missing_data.append('Monthly Sales')
+                    sales = 0
             else:
                 sales = float(sales) if sales > 0 else 0
                 if sales <= 0:
