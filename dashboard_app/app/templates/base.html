@@ -1,210 +1,192 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Dashboard Analytics{% endblock %}</title>
-    
+
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    
+
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    
+
     <!-- AOS Animation Library -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/product-detail-modern.css') }}">
-    
+
     {% block extra_css %}{% endblock %}
 </head>
+
 <body>
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <a href="{{ url_for('dashboard.overview') }}" class="sidebar-brand">
-                <i class="bi bi-graph-up-arrow"></i>
-                <span class="brand-text">Bluepin</span>
+    <!-- Floating Navbar -->
+    <nav class="floating-navbar" id="floatingNavbar">
+        <div class="navbar-container">
+            <!-- Logo and Brand -->
+            <a href="{{ url_for('dashboard.overview') }}" class="navbar-brand">
+                <img src="{{ url_for('static', filename='images/bluepin_logo.png') }}" alt="Bluepin"
+                    class="navbar-logo">
+                <span class="navbar-brand-text">Bluepin</span>
             </a>
-            <button class="sidebar-toggle d-lg-none" id="sidebarClose">
-                <i class="bi bi-x"></i>
+
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="bi bi-list"></i>
             </button>
-        </div>
-        
-        <div class="sidebar-menu">
-            <div class="menu-section">
-                <span class="menu-section-title">MAIN</span>
-                <ul class="menu-list">
-                    <li class="menu-item">
-                        <a href="{{ url_for('dashboard.overview') }}" class="menu-link {% if active_page == 'overview' %}active{% endif %}">
-                            <i class="bi bi-speedometer2"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="{{ url_for('dashboard.products') }}" class="menu-link {% if active_page == 'products' %}active{% endif %}">
-                            <i class="bi bi-box-seam"></i>
-                            <span>Products</span>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="{{ url_for('dashboard.suppliers') }}" class="menu-link {% if active_page == 'suppliers' %}active{% endif %}">
-                            <i class="bi bi-building"></i>
-                            <span>Suppliers</span>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="{{ url_for('dashboard.comparisons') }}" class="menu-link {% if active_page == 'comparisons' %}active{% endif %}">
-                            <i class="bi bi-bar-chart"></i>
-                            <span>Compare</span>
-                        </a>
-                    </li>
-                </ul>
+
+            <!-- Navigation Links -->
+            <ul class="navbar-nav" id="navbarNav">
+                <li class="nav-item">
+                    <a href="{{ url_for('dashboard.overview') }}"
+                        class="nav-link {% if active_page == 'overview' %}active{% endif %}">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('dashboard.products') }}"
+                        class="nav-link {% if active_page == 'products' %}active{% endif %}">
+                        <i class="bi bi-box-seam"></i>
+                        <span>Products</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('dashboard.suppliers') }}"
+                        class="nav-link {% if active_page == 'suppliers' %}active{% endif %}">
+                        <i class="bi bi-building"></i>
+                        <span>Suppliers</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('dashboard.comparisons') }}"
+                        class="nav-link {% if active_page == 'comparisons' %}active{% endif %}">
+                        <i class="bi bi-bar-chart"></i>
+                        <span>Compare</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('dashboard.ai_analysis') }}"
+                        class="nav-link {% if active_page == 'ai_analysis' %}active{% endif %}">
+                        <i class="bi bi-robot"></i>
+                        <span>AI Analysis</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('university.index') }}"
+                        class="nav-link {% if active_page == 'university' %}active{% endif %}">
+                        <i class="bi bi-mortarboard"></i>
+                        <span>Bluepin University</span>
+                    </a>
+                </li>
+                {% if current_user.is_admin %}
+                <li class="nav-item">
+                    <a href="{{ url_for('admin.admin_dashboard') }}"
+                        class="nav-link {% if active_page == 'admin' %}active{% endif %}">
+                        <i class="bi bi-gear"></i>
+                        <span>Admin Panel</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+
+            <!-- Search Bar -->
+            <div class="navbar-search">
+                <i class="bi bi-search search-icon"></i>
+                <input type="text" class="search-input" id="globalSearch" placeholder="Search anything... (Ctrl+K)"
+                    autocomplete="off">
             </div>
-            
-            <div class="menu-section">
-                <span class="menu-section-title">ANALYTICS</span>
-                <ul class="menu-list">
-                    <li class="menu-item">
-                        <a href="#" class="menu-link">
-                            <i class="bi bi-robot"></i>
-                            <span>AI Analysis</span>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="#" class="menu-link">
-                            <i class="bi bi-graph-up"></i>
-                            <span>Trends</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            
-            <div class="menu-section">
-                <span class="menu-section-title">SETTINGS</span>
-                <ul class="menu-list">
-                    <li class="menu-item">
-                        <a href="{{ url_for('admin.admin_dashboard') }}" class="menu-link {% if active_page == 'admin' %}active{% endif %}">
-                            <i class="bi bi-gear"></i>
-                            <span>Admin Panel</span>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="#" class="menu-link">
-                            <i class="bi bi-question-circle"></i>
-                            <span>Help Center</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        
-        <div class="sidebar-footer">
-            <div class="theme-switcher">
-                <button class="theme-toggle-btn" id="themeToggle" title="Toggle Dark Mode">
-                    <i class="bi bi-moon-fill theme-icon"></i>
-                    <span>Dark Mode</span>
+
+            <!-- Navbar Actions -->
+            <div class="navbar-actions">
+                <!-- Notifications -->
+                <button class="navbar-icon-btn" title="Notifications" id="notificationsBtn">
+                    <i class="bi bi-bell"></i>
+                    <span class="notification-badge">3</span>
                 </button>
+
+                <!-- Comparison Cart -->
+                <button class="navbar-icon-btn" id="comparisonCartBtn" title="Comparison Cart">
+                    <i class="bi bi-collection"></i>
+                    <span class="notification-badge" id="comparisonCount" style="display: none;">0</span>
+                </button>
+
+                <!-- Theme Toggle -->
+                <button class="navbar-icon-btn" id="themeToggle" title="Toggle Dark Mode">
+                    <i class="bi bi-moon-fill"></i>
+                </button>
+
+                <!-- User Profile -->
+                <div class="user-profile dropdown">
+                    <button class="user-profile-btn" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="https://ui-avatars.com/api/?name={{ current_user.full_name or current_user.username }}&background=1e3a8a&color=fff"
+                            alt="User" class="user-avatar">
+                        <div class="user-info d-none d-md-block">
+                            <span class="user-name">{{ current_user.full_name or current_user.username }}</span>
+                            <span class="user-role">{{ 'Administrator' if current_user.is_admin else 'User' }}</span>
+                        </div>
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-end user-dropdown">
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="bi bi-person"></i> My Profile
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="bi bi-gear"></i> Settings
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="bi bi-question-circle"></i> Help
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+                                <i class="bi bi-box-arrow-right"></i> Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
-    </aside>
+    </nav>
 
     <!-- Main Layout -->
     <div class="main-layout">
-        <!-- Top Navbar -->
-        <header class="top-navbar" id="topNavbar">
-            <div class="navbar-content">
-                <div class="navbar-left">
-                    <button class="sidebar-toggle-btn d-lg-none" id="sidebarToggle">
-                        <i class="bi bi-list"></i>
-                    </button>
-                    
-                    <!-- Search Bar -->
-                    <div class="search-bar">
-                        <i class="bi bi-search search-icon"></i>
-                        <input type="text" class="search-input" id="globalSearch" 
-                               placeholder="Search anything... (Ctrl+K)" autocomplete="off">
-                    </div>
-                </div>
-                
-                <div class="navbar-right">
-                    <!-- Notifications -->
-                    <button class="navbar-icon-btn" title="Notifications">
-                        <i class="bi bi-bell"></i>
-                        <span class="notification-badge">3</span>
-                    </button>
-                    
-                    <!-- Comparison Cart -->
-                    <button class="navbar-icon-btn" id="comparisonCartBtn" title="Comparison Cart">
-                        <i class="bi bi-collection"></i>
-                        <span class="notification-badge" id="comparisonCount" style="display: none;">0</span>
-                    </button>
-                    
-                    <!-- User Profile -->
-                    <div class="user-profile dropdown">
-                        <button class="user-profile-btn" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="https://ui-avatars.com/api/?name={{ current_user.full_name or current_user.username }}&background=3b82f6&color=fff" 
-                                 alt="User" class="user-avatar">
-                            <div class="user-info d-none d-md-block">
-                                <span class="user-name">{{ current_user.full_name or current_user.username }}</span>
-                                <span class="user-role">{{ 'Administrator' if current_user.is_admin else 'User' }}</span>
-                            </div>
-                            <i class="bi bi-chevron-down"></i>
-                        </button>
-                        
-                        <ul class="dropdown-menu dropdown-menu-end user-dropdown">
-                            <li>
-                                <a class="dropdown-item" href="#">
-                                    <i class="bi bi-person"></i> My Profile
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="#">
-                                    <i class="bi bi-gear"></i> Settings
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="#">
-                                    <i class="bi bi-question-circle"></i> Help
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
-                                    <i class="bi bi-box-arrow-right"></i> Logout
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Scroll Progress Bar -->
-            <div class="scroll-progress" id="scrollProgress"></div>
-        </header>
 
-        <!-- Main Content Area -->
         <main class="main-content">
             <div class="content-wrapper">
                 {% block content %}{% endblock %}
             </div>
-            
+
             <!-- Footer -->
             <footer class="content-footer">
                 <div class="footer-content">
                     <p class="mb-0">
-                        <i class="bi bi-graph-up"></i> Bluepin Analytics &copy; 2026
+                        <img src="{{ url_for('static', filename='images/bluepin_logo.png') }}" alt="Bluepin"
+                            class="footer-logo">
+                        Bluepin Analytics &copy; 2026
                     </p>
                     <div class="footer-links">
                         <a href="#">Privacy</a>
@@ -215,10 +197,7 @@
             </footer>
         </main>
     </div>
-    
-    <!-- Sidebar Overlay (Mobile) -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    
+
     <!-- Floating Comparison Bar -->
     <div class="floating-comparison-bar" id="comparisonBar" style="display: none;">
         <div class="comparison-bar-content">
@@ -236,7 +215,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Back to Top Button -->
     <button class="back-to-top" id="backToTop" title="Back to top">
         <i class="bi bi-arrow-up"></i>
@@ -247,22 +226,22 @@
 
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- jQuery (for AJAX) -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    
+
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
     <script src="{{ url_for('static', filename='js/search.js') }}"></script>
     <script src="{{ url_for('static', filename='js/comparison.js') }}"></script>
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
     <script src="{{ url_for('static', filename='js/ajax.js') }}"></script>
-    
+
     {% block extra_js %}{% endblock %}
-    
+
     <script>
         // Initialize global features
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Initialize AOS animations
             AOS.init({
                 duration: 800,
@@ -270,41 +249,68 @@
                 once: true,
                 offset: 100
             });
-            
+
             initScrollProgress();
             initBackToTop();
-            initSidebar();
+            initFloatingNavbar();
         });
-        
-        // Sidebar toggle functionality
-        function initSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const sidebarClose = document.getElementById('sidebarClose');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-            
-            if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', () => {
-                    sidebar.classList.add('show');
-                    sidebarOverlay.classList.add('show');
-                    document.body.style.overflow = 'hidden';
+
+        // Floating Navbar functionality
+        function initFloatingNavbar() {
+            const navbar = document.getElementById('floatingNavbar');
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const navbarNav = document.getElementById('navbarNav');
+
+            // Scroll effect
+            let lastScroll = 0;
+            window.addEventListener('scroll', () => {
+                const currentScroll = window.pageYOffset;
+
+                if (currentScroll > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+
+                lastScroll = currentScroll;
+            });
+
+            // Mobile menu toggle
+            if (mobileMenuToggle) {
+                mobileMenuToggle.addEventListener('click', () => {
+                    navbarNav.classList.toggle('show');
+                    const icon = mobileMenuToggle.querySelector('i');
+                    if (navbarNav.classList.contains('show')) {
+                        icon.classList.remove('bi-list');
+                        icon.classList.add('bi-x');
+                    } else {
+                        icon.classList.remove('bi-x');
+                        icon.classList.add('bi-list');
+                    }
                 });
-            }
-            
-            if (sidebarClose) {
-                sidebarClose.addEventListener('click', closeSidebar);
-            }
-            
-            if (sidebarOverlay) {
-                sidebarOverlay.addEventListener('click', closeSidebar);
-            }
-            
-            function closeSidebar() {
-                sidebar.classList.remove('show');
-                sidebarOverlay.classList.remove('show');
-                document.body.style.overflow = '';
+
+                // Close mobile menu when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!navbar.contains(e.target)) {
+                        navbarNav.classList.remove('show');
+                        const icon = mobileMenuToggle.querySelector('i');
+                        icon.classList.remove('bi-x');
+                        icon.classList.add('bi-list');
+                    }
+                });
+
+                // Close mobile menu when clicking a link
+                navbarNav.querySelectorAll('.nav-link').forEach(link => {
+                    link.addEventListener('click', () => {
+                        navbarNav.classList.remove('show');
+                        const icon = mobileMenuToggle.querySelector('i');
+                        icon.classList.remove('bi-x');
+                        icon.classList.add('bi-list');
+                    });
+                });
             }
         }
     </script>
 </body>
+
 </html>

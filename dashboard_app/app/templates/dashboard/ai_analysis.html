@@ -1,0 +1,483 @@
+{% extends "base.html" %}
+
+{% block title %}AI Analysis - Product Potential Scoring{% endblock %}
+
+{% block content %}
+<div class="page-header" data-aos="fade-down">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-robot me-2"></i>AI Product Analysis
+            </h1>
+            <p class="page-subtitle">Intelligent scoring system to identify high-potential products</p>
+        </div>
+        <button class="btn btn-primary" id="refreshAnalysis">
+            <i class="bi bi-arrow-clockwise me-2"></i>Refresh Analysis
+        </button>
+    </div>
+</div>
+
+<!-- Distribution Overview Cards -->
+<div class="row g-4 mb-4" data-aos="fade-up">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-primary">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ distribution.total }}</h3>
+                <p class="stat-label">Total Products</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-success">
+                <i class="bi bi-trophy"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ distribution.high }}</h3>
+                <p class="stat-label">High Potential</p>
+                <small class="text-muted">Score ≥ 24</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-warning">
+                <i class="bi bi-star"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ distribution.moderate }}</h3>
+                <p class="stat-label">Moderate Potential</p>
+                <small class="text-muted">Score ≥ 18</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-danger">
+                <i class="bi bi-dash-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ distribution.low }}</h3>
+                <p class="stat-label">Low Potential</p>
+                <small class="text-muted">Score < 18</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Scoring Formula Info - HIDDEN (Internal AI mechanism)
+<div class="card mb-4" data-aos="fade-up">
+    <div class="card-body">
+        <h5 class="card-title mb-3">
+            <i class="bi bi-info-circle me-2"></i>AI Scoring Formula
+        </h5>
+        <div class="row">
+            <div class="col-md-4">
+                <h6 class="text-primary">Price Scoring</h6>
+                <ul class="list-unstyled small">
+                    <li><span class="badge bg-light text-dark">
+                            < ₹200</span> → 4 points</li>
+                    <li><span class="badge bg-light text-dark">
+                            < ₹250</span> → 6 points</li>
+                    <li><span class="badge bg-success">₹250-550</span> → 10 points</li>
+                    <li><span class="badge bg-light text-dark">> ₹550</span> → 8 points</li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6 class="text-primary">Rating Scoring</h6>
+                <ul class="list-unstyled small">
+                    <li><span class="badge bg-success">> 4.5★</span> → 10 points</li>
+                    <li><span class="badge bg-info">> 4.2★</span> → 8 points</li>
+                    <li><span class="badge bg-warning">> 4.0★</span> → 6 points</li>
+                    <li><span class="badge bg-light text-dark">> 3.6★</span> → 4 points</li>
+                    <li><span class="badge bg-danger">≤ 3.6★</span> → 2 points</li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6 class="text-primary">Sales Scoring</h6>
+                <ul class="list-unstyled small">
+                    <li><span class="badge bg-light text-dark">10K+ reviews</span> → 6 points</li>
+                    <li><span class="badge bg-info">5K+ reviews</span> → 8 points</li>
+                    <li><span class="badge bg-success">500+ reviews</span> → 10 points</li>
+                    <li><span class="badge bg-info">200-500 reviews</span> → 8 points</li>
+                    <li><span class="badge bg-light text-dark">
+                            < 200 reviews</span> → 6 points</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+-->
+
+<!-- Search and Filter Section -->
+<div class="ai-search-section" data-aos="fade-up">
+    <h5><i class="bi bi-search me-2"></i>Search & Filter Products</h5>
+    <div class="ai-search-controls">
+        <input type="text" class="form-control" id="aiProductSearch" placeholder="Search products by name...">
+        <select class="form-select" id="aiCategoryFilter">
+            <option value="">All Categories</option>
+            <option value="high">High Potential Only</option>
+            <option value="moderate">Moderate Potential</option>
+            <option value="low">Low Potential</option>
+        </select>
+        <select class="form-select" id="aiPriceFilter">
+            <option value="">All Prices</option>
+            <option value="0-500">Under ₹500</option>
+            <option value="500-1000">₹500 - ₹1000</option>
+            <option value="1000-2000">₹1000 - ₹2000</option>
+            <option value="2000+">Above ₹2000</option>
+        </select>
+        <button class="btn btn-primary" id="applyAIFilters">
+            <i class="bi bi-funnel"></i> Apply
+        </button>
+    </div>
+</div>
+
+<!-- Top Potential Products -->
+<div class="card" data-aos="fade-up">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <i class="bi bi-graph-up-arrow me-2"></i>Top Potential Products
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-4" id="topProductsContainer">
+            {% for product in top_products %}
+            <div class="col-md-6 col-lg-4">
+                <div class="product-card h-100">
+                    <div class="product-image-container">
+                        {% if product.Image %}
+                        <img src="{{ product.Image }}" alt="{{ product.Title }}" class="product-image">
+                        {% else %}
+                        <div class="product-image-placeholder">
+                            <i class="bi bi-image"></i>
+                        </div>
+                        {% endif %}
+                        <span class="badge bg-{{ product.AI_Potential_Color }} position-absolute top-0 end-0 m-2">
+                            {{ product.AI_Potential }}
+                        </span>
+                    </div>
+                    <div class="product-card-body">
+                        <h6 class="product-title">{{ product.Title[:80] }}{% if product.Title|length > 80 %}...{% endif
+                            %}</h6>
+
+                        <div class="product-meta mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="product-price">₹{{ "%.2f"|format(product.Price) }}</span>
+                                <span class="product-rating">
+                                    <i class="bi bi-star-fill text-warning"></i> {{ "%.1f"|format(product.Ratings) }}
+                                </span>
+                            </div>
+                            <small class="text-muted">
+                                <i class="bi bi-chat-left-text"></i> {{ "{:,}".format(product.Review|default(0)|int) }}
+                                reviews
+                            </small>
+                        </div>
+
+                        <div class="ai-score-breakdown mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong>AI Score: {{ product.AI_Total_Score }}/30</strong>
+                                <div class="progress flex-grow-1 ms-2" style="height: 8px;">
+                                    <div class="progress-bar bg-{{ product.AI_Potential_Color }}"
+                                        style="width: {{ (product.AI_Total_Score / 30 * 100)|round }}%"></div>
+                                </div>
+                            </div>
+                            <div class="small text-muted">
+                                Price: {{ product.AI_Price_Score }} |
+                                Rating: {{ product.AI_Rating_Score }} |
+                                Sales: {{ product.AI_Sales_Score }}
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('dashboard.product_detail', product_id=product['Product Identifier']) }}"
+                                class="btn btn-sm btn-outline-primary flex-grow-1">
+                                <i class="bi bi-eye"></i> View Details
+                            </a>
+                            <button class="btn btn-sm btn-primary analyze-btn"
+                                data-product-id="{{ product['Product Identifier'] }}">
+                                <i class="bi bi-robot"></i> Analyze
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Analysis Modal -->
+<div class="modal fade" id="analysisModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-robot me-2"></i>AI Product Analysis
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="analysisModalBody">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .product-card {
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        background: var(--card-bg);
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .product-image-container {
+        position: relative;
+        height: 200px;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .product-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 10px;
+    }
+
+    .product-image-placeholder {
+        font-size: 3rem;
+        color: #dee2e6;
+    }
+
+    .product-card-body {
+        padding: 1.25rem;
+    }
+
+    .product-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        min-height: 2.7rem;
+        line-height: 1.4;
+    }
+
+    .product-price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    .product-rating {
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .ai-score-breakdown {
+        background: var(--light-bg);
+        padding: 0.75rem;
+        border-radius: 8px;
+    }
+
+    .analysis-detail-card {
+        background: var(--light-bg);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .score-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0 auto;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function () {
+        // Filter products based on search and category
+        function filterProducts() {
+            const searchTerm = $('#aiProductSearch').val().toLowerCase();
+            const category = $('#aiCategoryFilter').val();
+            const priceRange = $('#aiPriceFilter').val();
+
+            $('#topProductsContainer .col-md-6').each(function () {
+                const card = $(this);
+                const title = card.find('.product-title').text().toLowerCase();
+                const badge = card.find('.badge').text().toLowerCase();
+                const priceText = card.find('.product-price').text();
+                const price = parseFloat(priceText.replace(/[₹,]/g, ''));
+
+                let show = true;
+
+                // Search filter
+                if (searchTerm && !title.includes(searchTerm)) {
+                    show = false;
+                }
+
+                // Category filter
+                if (category) {
+                    if (category === 'high' && badge !== 'high') show = false;
+                    if (category === 'moderate' && badge !== 'moderate') show = false;
+                    if (category === 'low' && badge !== 'low') show = false;
+                }
+
+                // Price filter
+                if (priceRange && show) {
+                    if (priceRange === '0-500' && price >= 500) show = false;
+                    if (priceRange === '500-1000' && (price < 500 || price >= 1000)) show = false;
+                    if (priceRange === '1000-2000' && (price < 1000 || price >= 2000)) show = false;
+                    if (priceRange === '2000+' && price < 2000) show = false;
+                }
+
+                card.toggle(show);
+            });
+        }
+
+        // Apply filters button
+        $('#applyAIFilters').on('click', filterProducts);
+
+        // Enter key search
+        $('#aiProductSearch').on('keypress', function (e) {
+            if (e.key === 'Enter') filterProducts();
+        });
+
+        // Analyze button click handler
+        $('.analyze-btn').on('click', function () {
+            const productId = $(this).data('product-id');
+            showAnalysis(productId);
+        });
+
+        // Refresh analysis
+        $('#refreshAnalysis').on('click', function () {
+            location.reload();
+        });
+
+        function showAnalysis(productId) {
+            const modal = new bootstrap.Modal(document.getElementById('analysisModal'));
+            modal.show();
+
+            // Show loading state
+            $('#analysisModalBody').html(`
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3">Analyzing product...</p>
+            </div>
+        `);
+
+            // Fetch analysis
+            $.ajax({
+                url: `/api/ai-analysis/product/${productId}`,
+                method: 'GET',
+                success: function (data) {
+                    displayAnalysis(data);
+                },
+                error: function () {
+                    $('#analysisModalBody').html(`
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Failed to load analysis. Please try again.
+                    </div>
+                `);
+                }
+            });
+        }
+
+        function displayAnalysis(data) {
+            const potentialClass = data.potential_color;
+
+            const html = `
+            <div class="row">
+                <div class="col-md-4 text-center mb-4">
+                    <img src="${data.product_image || '/static/images/placeholder.png'}" 
+                         alt="${data.product_title}" 
+                         class="img-fluid rounded mb-3" 
+                         style="max-height: 200px;">
+                    <h6 class="mb-3">${data.product_title}</h6>
+                </div>
+                <div class="col-md-8">
+                    <div class="mb-4">
+                        <h5>Overall Potential</h5>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="score-circle bg-${potentialClass} text-white">
+                                ${data.total_score}
+                            </div>
+                            <div>
+                                <h4 class="mb-1 text-${potentialClass}">${data.potential}</h4>
+                                <p class="text-muted mb-0">Total Score: ${data.total_score}/30</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="analysis-detail-card">
+                        <h6><i class="bi bi-tag me-2"></i>Price Analysis</h6>
+                        <p class="mb-2">${data.breakdown['Price Analysis']}</p>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-primary" style="width: ${data.price_score * 10}%">
+                                ${data.price_score}/10
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="analysis-detail-card">
+                        <h6><i class="bi bi-star me-2"></i>Rating Analysis</h6>
+                        <p class="mb-2">${data.breakdown['Rating Analysis']}</p>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-warning" style="width: ${data.rating_score * 10}%">
+                                ${data.rating_score}/10
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="analysis-detail-card">
+                        <h6><i class="bi bi-graph-up me-2"></i>Sales Analysis</h6>
+                        <p class="mb-2">${data.breakdown['Sales Analysis']}</p>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-success" style="width: ${data.sales_score * 10}%">
+                                ${data.sales_score}/10
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+            $('#analysisModalBody').html(html);
+        }
+    });
+</script>
+{% endblock %}

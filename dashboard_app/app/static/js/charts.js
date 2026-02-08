@@ -87,7 +87,7 @@ const defaultChartOptions = {
  */
 function createGradient(ctx, chartArea, colorStart, colorEnd) {
     if (!chartArea) return colorStart;
-    
+
     const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
     gradient.addColorStop(0, colorEnd);
     gradient.addColorStop(1, colorStart);
@@ -100,7 +100,7 @@ function createGradient(ctx, chartArea, colorStart, colorEnd) {
 function create3DBarChart(canvasId, labels, data, label, color = modernColors.primary) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return null;
-    
+
     return new Chart(ctx, {
         type: 'bar',
         data: {
@@ -108,11 +108,11 @@ function create3DBarChart(canvasId, labels, data, label, color = modernColors.pr
             datasets: [{
                 label: label,
                 data: data,
-                backgroundColor: function(context) {
+                backgroundColor: function (context) {
                     const chart = context.chart;
-                    const {ctx, chartArea} = chart;
+                    const { ctx, chartArea } = chart;
                     if (!chartArea) return color;
-                    
+
                     const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
                     gradient.addColorStop(0, color + '99');
                     gradient.addColorStop(1, color);
@@ -152,8 +152,12 @@ function create3DBarChart(canvasId, labels, data, label, color = modernColors.pr
                     ticks: {
                         padding: 10,
                         font: {
-                            size: 12
-                        }
+                            size: 11
+                        },
+                        maxRotation: 45,
+                        minRotation: 0,
+                        autoSkip: true,
+                        maxTicksLimit: 10
                     }
                 }
             },
@@ -173,7 +177,7 @@ function create3DBarChart(canvasId, labels, data, label, color = modernColors.pr
 function create3DDoughnutChart(canvasId, labels, data, title) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return null;
-    
+
     const colors = [
         modernColors.primary,
         modernColors.success,
@@ -182,7 +186,7 @@ function create3DDoughnutChart(canvasId, labels, data, title) {
         modernColors.info,
         modernColors.purple
     ];
-    
+
     return new Chart(ctx, {
         type: 'doughnut',
         data: {
@@ -207,7 +211,7 @@ function create3DDoughnutChart(canvasId, labels, data, title) {
                     labels: {
                         ...defaultChartOptions.plugins.legend.labels,
                         padding: 15,
-                        generateLabels: function(chart) {
+                        generateLabels: function (chart) {
                             const data = chart.data;
                             if (data.labels.length && data.datasets.length) {
                                 return data.labels.map((label, i) => {
@@ -215,7 +219,7 @@ function create3DDoughnutChart(canvasId, labels, data, title) {
                                     const value = dataset.data[i];
                                     const total = dataset.data.reduce((a, b) => a + b, 0);
                                     const percentage = ((value / total) * 100).toFixed(1);
-                                    
+
                                     return {
                                         text: `${label} (${percentage}%)`,
                                         fillStyle: dataset.backgroundColor[i],
@@ -239,21 +243,21 @@ function create3DDoughnutChart(canvasId, labels, data, title) {
 function createModernLineChart(canvasId, labels, datasets, title) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return null;
-    
+
     const processedDatasets = datasets.map((dataset, index) => {
         const colorKeys = Object.keys(gradients);
         const gradientKey = colorKeys[index % colorKeys.length];
         const baseColor = gradients[gradientKey][0];
-        
+
         return {
             label: dataset.label,
             data: dataset.data,
             borderColor: baseColor,
-            backgroundColor: function(context) {
+            backgroundColor: function (context) {
                 const chart = context.chart;
-                const {ctx, chartArea} = chart;
+                const { ctx, chartArea } = chart;
                 if (!chartArea) return baseColor + '20';
-                
+
                 const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
                 gradient.addColorStop(0, baseColor + '00');
                 gradient.addColorStop(1, baseColor + '40');
@@ -272,7 +276,7 @@ function createModernLineChart(canvasId, labels, datasets, title) {
             pointHoverBorderWidth: 3
         };
     });
-    
+
     return new Chart(ctx, {
         type: 'line',
         data: {
@@ -312,7 +316,7 @@ function createModernLineChart(canvasId, labels, datasets, title) {
 function createHorizontalBarChart(canvasId, labels, data, label, color = modernColors.primary) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return null;
-    
+
     return new Chart(ctx, {
         type: 'bar',
         data: {
@@ -320,11 +324,11 @@ function createHorizontalBarChart(canvasId, labels, data, label, color = modernC
             datasets: [{
                 label: label,
                 data: data,
-                backgroundColor: function(context) {
+                backgroundColor: function (context) {
                     const chart = context.chart;
-                    const {ctx, chartArea} = chart;
+                    const { ctx, chartArea } = chart;
                     if (!chartArea) return color;
-                    
+
                     const gradient = ctx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
                     gradient.addColorStop(0, color + '99');
                     gradient.addColorStop(1, color);
@@ -359,7 +363,15 @@ function createHorizontalBarChart(canvasId, labels, data, label, color = modernC
                         drawBorder: false
                     },
                     ticks: {
-                        padding: 10
+                        padding: 10,
+                        font: {
+                            size: 11
+                        },
+                        autoSkip: false,
+                        callback: function (value) {
+                            const label = this.getLabelForValue(value);
+                            return label.length > 25 ? label.substring(0, 22) + '...' : label;
+                        }
                     }
                 }
             },
@@ -379,7 +391,7 @@ function createHorizontalBarChart(canvasId, labels, data, label, color = modernC
 function createSparkline(canvasId, data, color = modernColors.primary) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return null;
-    
+
     return new Chart(ctx, {
         type: 'line',
         data: {
@@ -387,11 +399,11 @@ function createSparkline(canvasId, data, color = modernColors.primary) {
             datasets: [{
                 data: data,
                 borderColor: color,
-                backgroundColor: function(context) {
+                backgroundColor: function (context) {
                     const chart = context.chart;
-                    const {ctx, chartArea} = chart;
+                    const { ctx, chartArea } = chart;
                     if (!chartArea) return color + '20';
-                    
+
                     const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
                     gradient.addColorStop(0, color + '00');
                     gradient.addColorStop(1, color + '60');
@@ -432,7 +444,7 @@ function createSparklines() {
         [18, 38, 43, 49, 56, 57, 60],
         [45, 52, 58, 68, 75, 82, 95]  // Units sold trend
     ];
-    
+
     const colors = [
         modernColors.primary,
         modernColors.success,
@@ -440,7 +452,7 @@ function createSparklines() {
         modernColors.info,
         modernColors.purple
     ];
-    
+
     sparklineData.forEach((data, index) => {
         createSparkline(`sparkline${index + 1}`, data, colors[index]);
     });
@@ -464,7 +476,7 @@ function loadOverviewCharts() {
                     modernColors.primary
                 );
             }
-            
+
             // Rating Distribution Chart (3D Doughnut)
             if (data.rating_distribution) {
                 create3DDoughnutChart(
@@ -474,7 +486,7 @@ function loadOverviewCharts() {
                     'Rating Distribution'
                 );
             }
-            
+
             // Location Chart (Horizontal Bar)
             if (data.location_distribution) {
                 createHorizontalBarChart(
@@ -485,7 +497,7 @@ function loadOverviewCharts() {
                     modernColors.danger
                 );
             }
-            
+
             // Category Chart (Doughnut)
             if (data.category_distribution) {
                 create3DDoughnutChart(
@@ -498,7 +510,7 @@ function loadOverviewCharts() {
         })
         .catch(error => {
             console.error('Error loading chart data:', error);
-            
+
             // Fallback demo data
             loadDemoCharts();
         });
@@ -516,7 +528,7 @@ function loadDemoCharts() {
         'Number of Products',
         modernColors.primary
     );
-    
+
     // Rating Distribution
     create3DDoughnutChart(
         'ratingDistChart',
@@ -524,7 +536,7 @@ function loadDemoCharts() {
         [320, 240, 80, 30, 10],
         'Rating Distribution'
     );
-    
+
     // Location Distribution
     createHorizontalBarChart(
         'locationChart',
@@ -533,7 +545,7 @@ function loadDemoCharts() {
         'Number of Suppliers',
         modernColors.danger
     );
-    
+
     // Category Distribution
     create3DDoughnutChart(
         'categoryChart',
@@ -548,13 +560,13 @@ function loadDemoCharts() {
  */
 function animateCounters() {
     const counters = document.querySelectorAll('.counter');
-    
+
     counters.forEach(counter => {
         const target = parseInt(counter.getAttribute('data-target'));
         const duration = 2000;
         const increment = target / (duration / 16);
         let current = 0;
-        
+
         const updateCounter = () => {
             current += increment;
             if (current < target) {
@@ -564,7 +576,7 @@ function animateCounters() {
                 counter.textContent = target.toLocaleString();
             }
         };
-        
+
         updateCounter();
     });
 }
@@ -597,13 +609,13 @@ function createBarChart(canvasId, labels, data, title, color) {
 function createScatterChart(canvasId, pricesArray, ratingsArray, labelsArray) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return null;
-    
+
     // Convert arrays to scatter plot format
     const scatterData = pricesArray.map((price, index) => ({
         x: price,
         y: ratingsArray[index]
     }));
-    
+
     return new Chart(ctx, {
         type: 'scatter',
         data: {
@@ -626,7 +638,7 @@ function createScatterChart(canvasId, pricesArray, ratingsArray, labelsArray) {
                 },
                 tooltip: {
                     callbacks: {
-                        label: function(context) {
+                        label: function (context) {
                             const index = context.dataIndex;
                             const label = labelsArray[index] || '';
                             return [
@@ -674,8 +686,107 @@ function createScatterChart(canvasId, pricesArray, ratingsArray, labelsArray) {
     });
 }
 
+/**
+ * Create Simple Line Chart
+ */
+function createLineChart(canvasId, labels, data, label, color = modernColors.primary) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return null;
+
+    return new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: label,
+                data: data,
+                borderColor: color,
+                backgroundColor: function (context) {
+                    const chart = context.chart;
+                    const { ctx, chartArea } = chart;
+                    if (!chartArea) return color + '20';
+
+                    const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                    gradient.addColorStop(0, color + '00');
+                    gradient.addColorStop(1, color + '40');
+                    return gradient;
+                },
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                pointBackgroundColor: color,
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointHoverBackgroundColor: color,
+                pointHoverBorderColor: '#fff',
+                pointHoverBorderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    ...defaultChartOptions.plugins.tooltip,
+                    callbacks: {
+                        label: function (context) {
+                            return `${label}: ₹${context.parsed.y.toFixed(0)}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Average Price (₹)',
+                        font: {
+                            size: 12,
+                            weight: 'bold'
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        padding: 10,
+                        callback: function (value) {
+                            return '₹' + value.toFixed(0);
+                        }
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Rating Range',
+                        font: {
+                            size: 12,
+                            weight: 'bold'
+                        }
+                    },
+                    grid: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        padding: 10
+                    }
+                }
+            }
+        }
+    });
+}
+
 // Make functions globally available
 window.createPieChart = createPieChart;
 window.createBarChart = createBarChart;
 window.createScatterChart = createScatterChart;
+window.createLineChart = createLineChart;
 window.createHorizontalBarChart = createHorizontalBarChart;

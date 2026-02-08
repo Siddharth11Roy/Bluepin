@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title }} - Bluepin University{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('dashboard.overview') }}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('university.index') }}">Bluepin University</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ article.title }}</li>
+        </ol>
+    </nav>
+
+    <!-- Article Content -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <article class="floating-card p-4 p-md-5" data-aos="fade-up">
+                <!-- Article Header -->
+                <header class="article-header mb-4">
+                    {% if article.category %}
+                    <span class="badge bg-primary mb-3">{{ article.category }}</span>
+                    {% endif %}
+                    <h1 class="article-title display-5 fw-bold mb-4">{{ article.title }}</h1>
+
+                    <div class="article-meta d-flex flex-wrap gap-4 text-muted mb-4">
+                        <div>
+                            <i class="bi bi-person-circle"></i>
+                            <strong>{{ article.author.full_name or article.author.username }}</strong>
+                        </div>
+                        <div>
+                            <i class="bi bi-calendar3"></i>
+                            {{ article.created_at.strftime('%B %d, %Y') }}
+                        </div>
+                        <div>
+                            <i class="bi bi-eye"></i>
+                            {{ article.views }} views
+                        </div>
+                    </div>
+
+                    {% if article.featured_image %}
+                    <div class="article-featured-image mb-4">
+                        <img src="{{ article.featured_image }}" alt="{{ article.title }}"
+                            class="img-fluid rounded shadow">
+                    </div>
+                    {% endif %}
+                </header>
+
+                <!-- Article Body -->
+                <div class="article-body prose">
+                    {{ article.content | safe }}
+                </div>
+
+                <!-- Article Tags -->
+                {% if article.tags %}
+                <div class="article-tags mt-5 pt-4 border-top">
+                    <h6 class="mb-3">Tags:</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for tag in article.tags.split(',') %}
+                        <span class="badge bg-light text-dark border">{{ tag.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </article>
+
+            <!-- Related Articles -->
+            {% if related_articles %}
+            <div class="mt-5">
+                <div class="floating-heading">
+                    <h2 class="h4">Related Articles</h2>
+                </div>
+
+                <div class="row g-4 mt-3">
+                    {% for related in related_articles %}
+                    <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
+                        <div class="floating-card h-100">
+                            {% if related.featured_image %}
+                            <div class="related-article-image">
+                                <img src="{{ related.featured_image }}" alt="{{ related.title }}"
+                                    class="img-fluid rounded-top">
+                            </div>
+                            {% endif %}
+                            <div class="p-3">
+                                <h5 class="h6 mb-2">
+                                    <a href="{{ url_for('university.article_detail', slug=related.slug) }}"
+                                        class="text-decoration-none text-dark">
+                                        {{ related.title }}
+                                    </a>
+                                </h5>
+                                {% if related.excerpt %}
+                                <p class="text-muted small mb-2">{{ related.excerpt[:100] }}...</p>
+                                {% endif %}
+                                <small class="text-muted">
+                                    <i class="bi bi-eye"></i> {{ related.views }} views
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .article-title {
+        text-align: center;
+        line-height: 1.3;
+    }
+
+    .article-meta {
+        justify-content: center;
+        font-size: 0.9rem;
+    }
+
+    .article-featured-image {
+        max-height: 500px;
+        overflow: hidden;
+        border-radius: 12px;
+    }
+
+    .article-featured-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .article-body {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: var(--text-primary);
+    }
+
+    .article-body h2 {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        font-size: 1.75rem;
+    }
+
+    .article-body h3 {
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        font-size: 1.5rem;
+    }
+
+    .article-body p {
+        margin-bottom: 1.5rem;
+    }
+
+    .article-body img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin: 2rem 0;
+    }
+
+    .article-body ul,
+    .article-body ol {
+        margin-bottom: 1.5rem;
+        padding-left: 2rem;
+    }
+
+    .article-body li {
+        margin-bottom: 0.5rem;
+    }
+
+    .article-body blockquote {
+        border-left: 4px solid var(--primary);
+        padding-left: 1.5rem;
+        margin: 2rem 0;
+        font-style: italic;
+        color: var(--text-secondary);
+    }
+
+    .article-body code {
+        background: var(--bg-tertiary);
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        font-size: 0.9em;
+    }
+
+    .article-body pre {
+        background: var(--bg-tertiary);
+        padding: 1rem;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 1.5rem 0;
+    }
+
+    .article-body pre code {
+        background: none;
+        padding: 0;
+    }
+
+    .related-article-image {
+        height: 150px;
+        overflow: hidden;
+    }
+
+    .related-article-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform var(--transition-slow);
+    }
+
+    .floating-card:hover .related-article-image img {
+        transform: scale(1.05);
+    }
+</style>
+{% endblock %}

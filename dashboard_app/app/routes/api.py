@@ -211,24 +211,39 @@ def get_supplier_charts():
         'values': location_dist.values.tolist()
     }
     
-    # Price vs Rating scatter
-    scatter_data = {
-        'prices': filtered['Price'].replace([float('inf'), float('-inf')], 0).tolist(),
-        'ratings': filtered['Rating'].replace([float('inf'), float('-inf')], 0).tolist(),
-        'labels': filtered['Supplier Name'].tolist()
+    # Categories distribution (based on Product Searched)
+    category_dist = filtered['Product Searched'].value_counts().head(8)
+    category_data = {
+        'labels': [str(cat)[:20] + '...' if len(str(cat)) > 20 else str(cat) for cat in category_dist.index.tolist()],
+        'values': category_dist.values.tolist()
     }
     
-    # Round distribution
-    round_dist = filtered['Supplier Round'].value_counts().sort_index()
-    round_data = {
-        'labels': [f'Round {int(r)}' for r in round_dist.index],
-        'values': round_dist.values.tolist()
-    }
+    # Price vs Rating - Line chart (average price per rating range)
+    rating_bins = [0, 3.0, 3.5, 4.0, 4.5, 5.0]
+    rating_labels = ['<3.0★', '3.0-3.5★', '3.5-4.0★', '4.0-4.5★', '4.5-5.0★']
+    
+    # Filter out invalid ratings
+    valid_data = filtered[(filtered['Rating'] > 0) & (filtered['Price'] > 0)].copy()
+    
+    if len(valid_data) > 0:
+        valid_data['Rating_Bin'] = pd.cut(valid_data['Rating'], bins=rating_bins, labels=rating_labels, include_lowest=True)
+        price_by_rating = valid_data.groupby('Rating_Bin', observed=True)['Price'].mean()
+        
+        # Ensure all labels are present
+        price_rating_data = {
+            'labels': rating_labels,
+            'prices': [price_by_rating.get(label, 0) for label in rating_labels]
+        }
+    else:
+        price_rating_data = {
+            'labels': rating_labels,
+            'prices': [0] * len(rating_labels)
+        }
     
     return jsonify({
         'location': location_data,
-        'scatter': scatter_data,
-        'rounds': round_data,
+        'categories': category_data,
+        'price_rating_line': price_rating_data,
         'count': len(filtered)
     })
 
@@ -374,4 +389,60 @@ def clear_wishlist():
         return jsonify({'error': 'Failed to clear wishlist'}), 500
 
 
+
+
 import pandas as pd
+from app.services.ai_analysis import AIAnalysis
+
+
+# AI Analysis API endpoints
+@bp.route('/ai-analysis/product/<product_id>')
+@login_required
+def analyze_product(product_id):
+    """Analyze a single product and return AI scoring"""
+    analysis = AIAnalysis.analyze_product_by_identifier(product_id)
+    
+    if not analysis:
+        return jsonify({'error': 'Product not found'}), 404
+    
+    return jsonify(analysis)
+
+
+@bp.route('/ai-analysis/all')
+@login_required
+def analyze_all_products():
+    """Get AI analysis for all products"""
+    products = AIAnalysis.analyze_all_products()
+    
+    # Convert to records
+    result = products[[
+        'Product Identifier', 'Title', 'Image', 'Price', 'Ratings', 'Review',
+        'AI_Total_Score', 'AI_Potential', 'AI_Potential_Color',
+        'AI_Price_Score', 'AI_Rating_Score', 'AI_Sales_Score', 'Category'
+    ]].to_dict('records')
+    
+    return jsonify({
+        'products': result,
+        'count': len(result)
+    })
+
+
+@bp.route('/ai-analysis/distribution')
+@login_required
+def get_potential_distribution():
+    """Get distribution of products by potential level"""
+    distribution = AIAnalysis.get_potential_distribution()
+    return jsonify(distribution)
+
+
+@bp.route('/ai-analysis/top-products')
+@login_required
+def get_top_potential_products():
+    """Get top products by AI score"""
+    limit = request.args.get('limit', 10, type=int)
+    top_products = AIAnalysis.get_top_potential_products(limit=limit)
+    
+    return jsonify({
+        'products': top_products,
+        'count': len(top_products)
+    })

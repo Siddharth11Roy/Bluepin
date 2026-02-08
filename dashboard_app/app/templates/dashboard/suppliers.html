@@ -15,232 +15,255 @@
     <div class="compact-dashboard-content">
         <!-- Sidebar Filters (Amazon Style) -->
         <aside class="filter-sidebar">
-        <div class="filter-sidebar-header">
-            <h5><i class="bi bi-funnel-fill"></i> Filters</h5>
-            <button class="btn-filter-reset" id="resetFilters">Clear</button>
-        </div>
-        
-        <form id="supplierFilterForm" class="filter-form">
-            <!-- Price Range -->
-            <div class="filter-section">
-                <h6 class="filter-section-title">Price Range</h6>
-                <div class="filter-inputs">
-                    <input type="number" class="form-control form-control-sm" name="price_min" 
-                           placeholder="Min" value="{{ active_filters.get('price_min', '') }}">
-                    <span class="filter-separator">to</span>
-                    <input type="number" class="form-control form-control-sm" name="price_max" 
-                           placeholder="Max" value="{{ active_filters.get('price_max', '') }}">
-                </div>
+            <div class="filter-sidebar-header">
+                <h5><i class="bi bi-funnel-fill"></i> Filters</h5>
+                <button class="btn-filter-reset" id="resetFilters">Clear</button>
             </div>
 
-            <!-- Rating -->
-            <div class="filter-section">
-                <h6 class="filter-section-title">Supplier Rating</h6>
-                <div class="filter-options">
-                    <label class="filter-option">
-                        <input type="radio" name="rating_min" value="4" {% if active_filters.get('rating_min') == '4' %}checked{% endif %}>
-                        <span><i class="bi bi-star-fill text-warning"></i> 4 & Up</span>
-                    </label>
-                    <label class="filter-option">
-                        <input type="radio" name="rating_min" value="3" {% if active_filters.get('rating_min') == '3' %}checked{% endif %}>
-                        <span><i class="bi bi-star-fill text-warning"></i> 3 & Up</span>
-                    </label>
-                    <label class="filter-option">
-                        <input type="radio" name="rating_min" value="" {% if not active_filters.get('rating_min') %}checked{% endif %}>
-                        <span>All Ratings</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Location -->
-            <div class="filter-section">
-                <h6 class="filter-section-title">Location</h6>
-                <select class="form-select form-select-sm" name="location" aria-label="Select location">
-                    <option value="">All Locations</option>
-                    {% for loc in filter_options.locations %}
-                    <option value="{{ loc }}" {% if active_filters.get('location') == loc %}selected{% endif %}>{{ loc }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <!-- Product -->
-            <div class="filter-section">
-                <h6 class="filter-section-title">Product Type</h6>
-                <select class="form-select form-select-sm" name="product" aria-label="Select product type">
-                    <option value="">All Products</option>
-                    {% for prod in filter_options.products[:20] %}
-                    <option value="{{ prod }}" {% if active_filters.get('product') == prod %}selected{% endif %}>{{ prod[:35] }}...</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <!-- Search -->
-            <div class="filter-section">
-                <h6 class="filter-section-title">Search</h6>
-                <input type="text" class="form-control form-control-sm" name="search" 
-                       placeholder="Search suppliers..." value="{{ active_filters.get('search', '') }}">
-            </div>
-
-            <button type="button" class="btn btn-success btn-sm w-100 mt-3" id="applyFilters">
-                <i class="bi bi-check2"></i> Apply Filters
-            </button>
-        </form>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="dashboard-main">
-        <!-- KPI Metrics Cards (Dashboard Style) -->
-        <div class="row g-3 mb-4">
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
-                <div class="metric-card metric-card-success">
-                    <div class="metric-icon">
-                        <i class="bi bi-building"></i>
+            <form id="supplierFilterForm" class="filter-form">
+                <!-- Price Range -->
+                <div class="filter-section">
+                    <h6 class="filter-section-title">Price Range</h6>
+                    <div class="filter-inputs">
+                        <input type="number" class="form-control form-control-sm" name="price_min" placeholder="Min"
+                            value="{{ active_filters.get('price_min', '') }}">
+                        <span class="filter-separator">to</span>
+                        <input type="number" class="form-control form-control-sm" name="price_max" placeholder="Max"
+                            value="{{ active_filters.get('price_max', '') }}">
                     </div>
-                    <div class="metric-content">
-                        <h6 class="metric-label">Total Suppliers</h6>
-                        <h2 class="metric-value counter" data-target="{{ suppliers|length }}">0</h2>
-                        <div class="metric-trend trend-up">
-                            <i class="bi bi-arrow-up"></i> 5.8% vs last month
+                </div>
+
+                <!-- Rating -->
+                <div class="filter-section">
+                    <h6 class="filter-section-title">Supplier Rating</h6>
+                    <div class="filter-options">
+                        <label class="filter-option">
+                            <input type="radio" name="rating_min" value="4" {% if active_filters.get('rating_min')=='4'
+                                %}checked{% endif %}>
+                            <span><i class="bi bi-star-fill text-warning"></i> 4 & Up</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="radio" name="rating_min" value="3" {% if active_filters.get('rating_min')=='3'
+                                %}checked{% endif %}>
+                            <span><i class="bi bi-star-fill text-warning"></i> 3 & Up</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="radio" name="rating_min" value="" {% if not active_filters.get('rating_min')
+                                %}checked{% endif %}>
+                            <span>All Ratings</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Location -->
+                <div class="filter-section">
+                    <h6 class="filter-section-title">Location</h6>
+                    <select class="form-select form-select-sm" name="location" aria-label="Select location">
+                        <option value="">All Locations</option>
+                        {% for loc in filter_options.locations %}
+                        <option value="{{ loc }}" {% if active_filters.get('location')==loc %}selected{% endif %}>{{ loc
+                            }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Product -->
+                <div class="filter-section">
+                    <h6 class="filter-section-title">Product Type</h6>
+                    <select class="form-select form-select-sm" name="product" aria-label="Select product type">
+                        <option value="">All Products</option>
+                        {% for prod in filter_options.products[:20] %}
+                        <option value="{{ prod }}" {% if active_filters.get('product')==prod %}selected{% endif %}>{{
+                            prod[:35] }}...</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Search -->
+                <div class="filter-section">
+                    <h6 class="filter-section-title">Search</h6>
+                    <input type="text" class="form-control form-control-sm" name="search"
+                        placeholder="Search suppliers..." value="{{ active_filters.get('search', '') }}">
+                </div>
+
+                <button type="button" class="btn btn-success btn-sm w-100 mt-3" id="applyFilters">
+                    <i class="bi bi-check2"></i> Apply Filters
+                </button>
+            </form>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- KPI Metrics Cards (Dashboard Style) -->
+            <div class="row g-3 mb-4">
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="metric-card metric-card-success">
+                        <div class="metric-icon">
+                            <i class="bi bi-building"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h6 class="metric-label">Total Suppliers</h6>
+                            <h2 class="metric-value counter" data-target="{{ suppliers|length }}">0</h2>
+                            <div class="metric-trend trend-up">
+                                <i class="bi bi-arrow-up"></i> 5.8% vs last month
+                            </div>
+                        </div>
+                        <div class="metric-sparkline">
+                            <canvas id="sparklineSuppliers" height="50"></canvas>
                         </div>
                     </div>
-                    <div class="metric-sparkline">
-                        <canvas id="sparklineSuppliers" height="50"></canvas>
-                    </div>
                 </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
-                <div class="metric-card metric-card-primary">
-                    <div class="metric-icon">
-                        <i class="bi bi-currency-rupee"></i>
-                    </div>
-                    <div class="metric-content">
-                        <h6 class="metric-label">Avg Price</h6>
-                        <h2 class="metric-value">₹{{ "%.0f"|format(suppliers|map(attribute='Price')|sum / suppliers|length if suppliers|length > 0 else 0) }}</h2>
-                        <div class="metric-trend trend-down">
-                            <i class="bi bi-arrow-down"></i> 3.1% vs last month
+
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="metric-card metric-card-primary">
+                        <div class="metric-icon">
+                            <i class="bi bi-reply-fill"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h6 class="metric-label">Response Rate</h6>
+                            <h2 class="metric-value">87%</h2>
+                            <div class="metric-trend trend-up">
+                                <i class="bi bi-arrow-up"></i> 2.3% vs last month
+                            </div>
+                        </div>
+                        <div class="metric-sparkline">
+                            <canvas id="sparklineSupplierPrice" height="50"></canvas>
                         </div>
                     </div>
-                    <div class="metric-sparkline">
-                        <canvas id="sparklineSupplierPrice" height="50"></canvas>
-                    </div>
                 </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
-                <div class="metric-card metric-card-warning">
-                    <div class="metric-icon">
-                        <i class="bi bi-star-fill"></i>
-                    </div>
-                    <div class="metric-content">
-                        <h6 class="metric-label">Avg Rating</h6>
-                        <h2 class="metric-value">{{ "%.1f"|format(suppliers|map(attribute='Rating')|sum / suppliers|length if suppliers|length > 0 else 0) }}</h2>
-                        <div class="metric-trend trend-up">
-                            <i class="bi bi-arrow-up"></i> 0.4 vs last month
+
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                    <div class="metric-card metric-card-warning">
+                        <div class="metric-icon">
+                            <i class="bi bi-star-fill"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h6 class="metric-label">Avg Rating</h6>
+                            <h2 class="metric-value">{{ "%.1f"|format(suppliers|map(attribute='Rating')|sum /
+                                suppliers|length if suppliers|length > 0 else 0) }}</h2>
+                            <div class="metric-trend trend-up">
+                                <i class="bi bi-arrow-up"></i> 0.4 vs last month
+                            </div>
+                        </div>
+                        <div class="metric-sparkline">
+                            <canvas id="sparklineSupplierRating" height="50"></canvas>
                         </div>
                     </div>
-                    <div class="metric-sparkline">
-                        <canvas id="sparklineSupplierRating" height="50"></canvas>
-                    </div>
                 </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
-                <div class="metric-card metric-card-info">
-                    <div class="metric-icon">
-                        <i class="bi bi-geo-alt-fill"></i>
-                    </div>
-                    <div class="metric-content">
-                        <h6 class="metric-label">Locations</h6>
-                        <h2 class="metric-value">{{ filter_options.locations|length }}</h2>
-                        <div class="metric-trend trend-up">
-                            <i class="bi bi-arrow-up"></i> 3 new this month
+
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                    <div class="metric-card metric-card-info">
+                        <div class="metric-icon">
+                            <i class="bi bi-geo-alt-fill"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h6 class="metric-label">Locations</h6>
+                            <h2 class="metric-value">{{ filter_options.locations|length }}</h2>
+                            <div class="metric-trend trend-up">
+                                <i class="bi bi-arrow-up"></i> 3 new this month
+                            </div>
+                        </div>
+                        <div class="metric-sparkline">
+                            <canvas id="sparklineLocations" height="50"></canvas>
                         </div>
                     </div>
-                    <div class="metric-sparkline">
-                        <canvas id="sparklineLocations" height="50"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Charts Grid (Cafe Dashboard Style) -->
-        <div class="charts-compact-grid">
-            <div class="chart-compact-card chart-compact-wide">
-                <div class="chart-compact-header">
-                    <h6><i class="bi bi-geo-alt-fill"></i> Top Locations</h6>
-                </div>
-                <div class="chart-compact-body">
-                    <canvas id="supplierLocationChart" height="200"></canvas>
                 </div>
             </div>
 
-            <div class="chart-compact-card">
-                <div class="chart-compact-header">
-                    <h6><i class="bi bi-pie-chart-fill"></i> Rounds</h6>
+            <!-- Charts Grid (Cafe Dashboard Style) -->
+            <div class="charts-compact-grid">
+                <div class="chart-compact-card chart-compact-wide">
+                    <div class="chart-compact-header">
+                        <h6><i class="bi bi-geo-alt-fill"></i> Top Locations</h6>
+                    </div>
+                    <div class="chart-compact-body">
+                        <canvas id="supplierLocationChart" height="200"></canvas>
+                    </div>
                 </div>
-                <div class="chart-compact-body">
-                    <canvas id="supplierRoundChart" height="200"></canvas>
+
+                <div class="chart-compact-card">
+                    <div class="chart-compact-header">
+                        <h6><i class="bi bi-grid-3x3-gap-fill"></i> Product Categories</h6>
+                    </div>
+                    <div class="chart-compact-body">
+                        <canvas id="supplierCategoryChart" height="200"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Search Bar for Suppliers -->
+            <div class="search-filter-bar">
+                <div class="search-box">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0" id="supplierSearch"
+                            placeholder="Search suppliers by name, location, or product...">
+                    </div>
+                </div>
+                <div class="filter-controls">
+                    <select class="form-select" id="quickLocationFilter">
+                        <option value="">All Locations</option>
+                        {% for loc in filter_options.locations[:10] %}
+                        <option value="{{ loc }}">{{ loc }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-primary" onclick="quickSearchSuppliers()">
+                        <i class="bi bi-search"></i> Search
+                    </button>
                 </div>
             </div>
 
-            <div class="chart-compact-card">
-                <div class="chart-compact-header">
-                    <h6><i class="bi bi-graph-up"></i> Price vs Rating</h6>
+            <!-- Suppliers Grid (More Compact) -->
+            <div class="suppliers-compact-grid">
+                {% for supplier in suppliers %}
+                <div class="supplier-compact-card">
+                    <div class="supplier-compact-header">
+                        <div class="supplier-compact-avatar">
+                            <i class="bi bi-building-fill"></i>
+                        </div>
+                        <div class="supplier-compact-main">
+                            <h6 class="supplier-compact-name">{{ supplier['Supplier Name'] }}</h6>
+                            <span class="supplier-compact-location"><i class="bi bi-geo-alt"></i> {{ supplier.Location
+                                }}</span>
+                        </div>
+                        <div class="supplier-compact-rating">
+                            <i class="bi bi-star-fill"></i> {{ "%.1f"|format(supplier.Rating) }}
+                        </div>
+                    </div>
+                    <div class="supplier-compact-body">
+                        <div class="supplier-compact-row">
+                            <i class="bi bi-box"></i>
+                            <span>{{ supplier['Product Searched'][:35] }}...</span>
+                        </div>
+                        <div class="supplier-compact-row">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>{{ supplier.Location }}</span>
+                        </div>
+                        <div class="supplier-compact-row">
+                            <i class="bi bi-telephone-fill"></i>
+                            <span>{{ supplier['Contact Phone'] }}</span>
+                        </div>
+                        <div class="supplier-compact-row">
+                            <i class="bi bi-chat-left-text-fill"></i>
+                            <span>{{ supplier.Reviews }} reviews</span>
+                        </div>
+                    </div>
+                    <div class="supplier-compact-footer">
+                        <div class="supplier-compact-price">
+                            <span class="price-label">Price</span>
+                            <span class="price-value">₹{{ "%.0f"|format(supplier.Price) }}</span>
+                        </div>
+                        <a href="{{ supplier['IndiaMART Link'] }}" target="_blank" class="btn btn-supplier-compact">
+                            View <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="chart-compact-body">
-                    <canvas id="supplierScatterChart" height="200"></canvas>
-                </div>
+                {% endfor %}
             </div>
-        </div>
-
-        <!-- Suppliers Grid (More Compact) -->
-        <div class="suppliers-compact-grid">
-            {% for supplier in suppliers %}
-            <div class="supplier-compact-card">
-                <div class="supplier-compact-header">
-                    <div class="supplier-compact-avatar">
-                        <i class="bi bi-building-fill"></i>
-                    </div>
-                    <div class="supplier-compact-main">
-                        <h6 class="supplier-compact-name">{{ supplier['Supplier Name'] }}</h6>
-                        <span class="supplier-compact-round">Round {{ supplier['Supplier Round'] }}</span>
-                    </div>
-                    <div class="supplier-compact-rating">
-                        <i class="bi bi-star-fill"></i> {{ "%.1f"|format(supplier.Rating) }}
-                    </div>
-                </div>
-                <div class="supplier-compact-body">
-                    <div class="supplier-compact-row">
-                        <i class="bi bi-box"></i>
-                        <span>{{ supplier['Product Searched'][:35] }}...</span>
-                    </div>
-                    <div class="supplier-compact-row">
-                        <i class="bi bi-geo-alt-fill"></i>
-                        <span>{{ supplier.Location }}</span>
-                    </div>
-                    <div class="supplier-compact-row">
-                        <i class="bi bi-telephone-fill"></i>
-                        <span>{{ supplier['Contact Phone'] }}</span>
-                    </div>
-                    <div class="supplier-compact-row">
-                        <i class="bi bi-chat-left-text-fill"></i>
-                        <span>{{ supplier.Reviews }} reviews</span>
-                    </div>
-                </div>
-                <div class="supplier-compact-footer">
-                    <div class="supplier-compact-price">
-                        <span class="price-label">Price</span>
-                        <span class="price-value">₹{{ "%.0f"|format(supplier.Price) }}</span>
-                    </div>
-                    <a href="{{ supplier['IndiaMART Link'] }}" target="_blank" class="btn btn-supplier-compact">
-                        View <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </main>
+        </main>
     </div> <!-- End compact-dashboard-content -->
 </div> <!-- End compact-dashboard -->
 {% endblock %}
@@ -251,62 +274,72 @@
 <script src="{{ url_for('static', filename='js/product_supplier.js') }}"></script>
 <script>
     let supplierCharts = {};
-    
+
     function loadSupplierCharts() {
         const formData = new FormData(document.getElementById('supplierFilterForm'));
         const params = new URLSearchParams(formData);
-        
+
         fetch(`/api/charts/suppliers?${params}`)
             .then(response => response.json())
             .then(data => {
                 console.log('Chart data received:', data);
-                
+
                 // Location chart
                 if (supplierCharts.location) supplierCharts.location.destroy();
                 if (data.location && data.location.labels && data.location.labels.length > 0) {
-                    supplierCharts.location = createBarChart('supplierLocationChart', 
+                    supplierCharts.location = createBarChart('supplierLocationChart',
                         data.location.labels, data.location.values, 'Suppliers', '#10b981');
                 }
-                
-                // Round chart
-                if (supplierCharts.round) supplierCharts.round.destroy();
-                if (data.rounds && data.rounds.labels && data.rounds.labels.length > 0) {
-                    supplierCharts.round = createPieChart('supplierRoundChart', 
-                        data.rounds.labels, data.rounds.values, 'Rounds');
-                }
-                
-                // Scatter chart
-                if (supplierCharts.scatter) supplierCharts.scatter.destroy();
-                if (data.scatter && data.scatter.prices && data.scatter.prices.length > 0) {
-                    supplierCharts.scatter = createScatterChart('supplierScatterChart',
-                        data.scatter.prices, data.scatter.ratings, data.scatter.labels);
+
+                // Categories chart
+                if (supplierCharts.categories) supplierCharts.categories.destroy();
+                if (data.categories && data.categories.labels && data.categories.labels.length > 0) {
+                    supplierCharts.categories = createBarChart('supplierCategoryChart',
+                        data.categories.labels, data.categories.values, 'Products', '#8b5cf6');
                 }
             })
             .catch(error => {
                 console.error('Error loading charts:', error);
             });
     }
-    
-    document.getElementById('applyFilters').addEventListener('click', function() {
+
+    document.getElementById('applyFilters').addEventListener('click', function () {
         const formData = new FormData(document.getElementById('supplierFilterForm'));
         const params = new URLSearchParams(formData);
         window.location.href = `/suppliers?${params}`;
     });
-    
-    document.getElementById('resetFilters').addEventListener('click', function() {
+
+    document.getElementById('resetFilters').addEventListener('click', function () {
         window.location.href = '/suppliers';
     });
-    
-    document.addEventListener('DOMContentLoaded', function() {
+
+    // Quick search function
+    function quickSearchSuppliers() {
+        const searchTerm = document.getElementById('supplierSearch').value;
+        const location = document.getElementById('quickLocationFilter').value;
+        const params = new URLSearchParams();
+        if (searchTerm) params.set('search', searchTerm);
+        if (location) params.set('location', location);
+        window.location.href = `/suppliers?${params}`;
+    }
+
+    // Enter key search
+    document.getElementById('supplierSearch').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            quickSearchSuppliers();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
         loadSupplierCharts();
-        
+
         // Counter animation
         const counters = document.querySelectorAll('.counter');
         counters.forEach(counter => {
             const target = +counter.getAttribute('data-target');
             const increment = target / 50;
             let current = 0;
-            
+
             const updateCounter = () => {
                 if (current < target) {
                     current += increment;
@@ -318,29 +351,29 @@
             };
             updateCounter();
         });
-        
+
         // Create sparklines for metric cards
         const sparklineData = [
             [45, 48, 52, 55, 58, 62, 65],  // Suppliers trend
-            [180, 175, 170, 165, 162, 160, 158],  // Price trend (decreasing)
+            [82, 83, 84, 85, 86, 86, 87],  // Response rate trend (increasing)
             [3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.1],  // Rating trend (increasing)
             [12, 13, 13, 14, 15, 16, 18]  // Locations trend
         ];
-        
+
         const sparklineColors = [
             '#10b981',  // success green
             '#3b82f6',  // primary blue
             '#f59e0b',  // warning orange
             '#06b6d4'   // info cyan
         ];
-        
+
         const sparklineIds = [
             'sparklineSuppliers',
-            'sparklineSupplierPrice',
+            'sparklineResponseRate',
             'sparklineSupplierRating',
             'sparklineLocations'
         ];
-        
+
         sparklineData.forEach((data, index) => {
             if (typeof createSparkline !== 'undefined') {
                 createSparkline(sparklineIds[index], data, sparklineColors[index]);

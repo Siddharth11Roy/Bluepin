@@ -15,322 +15,330 @@
     <div class="compact-dashboard-content">
         <!-- Sidebar Filters (Amazon Style) -->
         <aside class="filter-sidebar">
-        <div class="filter-sidebar-header">
-            <h5><i class="bi bi-funnel-fill"></i> Filters</h5>
-            <button class="btn-filter-reset" id="resetFilters">Clear</button>
-        </div>
-        
-        <form id="productFilterForm" class="filter-form">
-            <!-- Price Range -->
-            <div class="filter-section">
-                <h6 class="filter-section-title">Price Range</h6>
-                <div class="filter-inputs">
-                    <input type="number" class="form-control form-control-sm" name="price_min" 
-                           placeholder="Min" value="{{ active_filters.get('price_min', '') }}">
-                    <span class="filter-separator">to</span>
-                    <input type="number" class="form-control form-control-sm" name="price_max" 
-                           placeholder="Max" value="{{ active_filters.get('price_max', '') }}">
-                </div>
+            <div class="filter-sidebar-header">
+                <h5><i class="bi bi-funnel-fill"></i> Filters</h5>
+                <button class="btn-filter-reset" id="resetFilters">Clear</button>
             </div>
 
-            <!-- Rating -->
-            <div class="filter-section">
-                <h6 class="filter-section-title">Customer Rating</h6>
-                <div class="filter-options">
-                    <label class="filter-option">
-                        <input type="radio" name="rating_min" value="4" {% if active_filters.get('rating_min') == '4' %}checked{% endif %}>
-                        <span><i class="bi bi-star-fill text-warning"></i> 4 & Up</span>
-                    </label>
-                    <label class="filter-option">
-                        <input type="radio" name="rating_min" value="3" {% if active_filters.get('rating_min') == '3' %}checked{% endif %}>
-                        <span><i class="bi bi-star-fill text-warning"></i> 3 & Up</span>
-                    </label>
-                    <label class="filter-option">
-                        <input type="radio" name="rating_min" value="2" {% if active_filters.get('rating_min') == '2' %}checked{% endif %}>
-                        <span><i class="bi bi-star-fill text-warning"></i> 2 & Up</span>
-                    </label>
-                    <label class="filter-option">
-                        <input type="radio" name="rating_min" value="" {% if not active_filters.get('rating_min') %}checked{% endif %}>
-                        <span>All Ratings</span>
-                    </label>
+            <form id="productFilterForm" class="filter-form">
+                <!-- Price Range -->
+                <div class="filter-section">
+                    <h6 class="filter-section-title">Price Range</h6>
+                    <div class="filter-inputs">
+                        <input type="number" class="form-control form-control-sm" name="price_min" placeholder="Min"
+                            value="{{ active_filters.get('price_min', '') }}">
+                        <span class="filter-separator">to</span>
+                        <input type="number" class="form-control form-control-sm" name="price_max" placeholder="Max"
+                            value="{{ active_filters.get('price_max', '') }}">
+                    </div>
                 </div>
-            </div>
 
-            <!-- Category -->
-            <div class="filter-section">
-                <h6 class="filter-section-title">Category</h6>
-                <select class="form-select form-select-sm" name="category" aria-label="Select category">
-                    <option value="">All Categories</option>
-                    {% for cat in filter_options.categories %}
-                    <option value="{{ cat }}" {% if active_filters.get('category') == cat %}selected{% endif %}>
-                        {{ cat }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
+                <!-- Rating -->
+                <div class="filter-section">
+                    <h6 class="filter-section-title">Customer Rating</h6>
+                    <div class="filter-options">
+                        <label class="filter-option">
+                            <input type="radio" name="rating_min" value="4" {% if active_filters.get('rating_min')=='4'
+                                %}checked{% endif %}>
+                            <span><i class="bi bi-star-fill text-warning"></i> 4 & Up</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="radio" name="rating_min" value="3" {% if active_filters.get('rating_min')=='3'
+                                %}checked{% endif %}>
+                            <span><i class="bi bi-star-fill text-warning"></i> 3 & Up</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="radio" name="rating_min" value="2" {% if active_filters.get('rating_min')=='2'
+                                %}checked{% endif %}>
+                            <span><i class="bi bi-star-fill text-warning"></i> 2 & Up</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="radio" name="rating_min" value="" {% if not active_filters.get('rating_min')
+                                %}checked{% endif %}>
+                            <span>All Ratings</span>
+                        </label>
+                    </div>
+                </div>
 
-            <!-- Search -->
-            <div class="filter-section">
-                <h6 class="filter-section-title">Search</h6>
-                <input type="text" class="form-control form-control-sm" name="search" 
-                       placeholder="Search products..." value="{{ active_filters.get('search', '') }}">
-            </div>
+                <!-- Category -->
+                <div class="filter-section">
+                    <h6 class="filter-section-title">Category</h6>
+                    <select class="form-select form-select-sm" name="category" aria-label="Select category">
+                        <option value="">All Categories</option>
+                        {% for cat in filter_options.categories %}
+                        <option value="{{ cat }}" {% if active_filters.get('category')==cat %}selected{% endif %}>
+                            {{ cat }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-            <button type="button" class="btn btn-primary btn-sm w-100 mt-3" id="applyFilters">
-                <i class="bi bi-check2"></i> Apply Filters
-            </button>
-        </form>
-    </aside>
+                <!-- Search -->
+                <div class="filter-section">
+                    <h6 class="filter-section-title">Search</h6>
+                    <input type="text" class="form-control form-control-sm" name="search"
+                        placeholder="Search products..." value="{{ active_filters.get('search', '') }}">
+                </div>
 
-    <!-- Main Content -->
-    <main class="dashboard-main">
-        <!-- KPI Metrics Cards (Dashboard Style) -->
-        <div class="row g-3 mb-4">
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
-                <div class="metric-card metric-card-primary">
-                    <div class="metric-icon">
-                        <i class="bi bi-box-seam"></i>
-                    </div>
-                    <div class="metric-content">
-                        <h6 class="metric-label">Total Products</h6>
-                        <h2 class="metric-value counter" data-target="{{ products|length }}">0</h2>
-                        <div class="metric-trend trend-up">
-                            <i class="bi bi-arrow-up"></i> 8.2% vs last month
-                        </div>
-                    </div>
-                    <div class="metric-sparkline">
-                        <canvas id="sparklineProducts" height="50"></canvas>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
-                <div class="metric-card metric-card-success">
-                    <div class="metric-icon">
-                        <i class="bi bi-cart-check-fill"></i>
-                    </div>
-                    <div class="metric-content">
-                        <h6 class="metric-label">Unit Sold</h6>
-                        <h2 class="metric-value">{{ products|map(attribute='Monthly Sales')|select('string')|map('replace', '+', '')|map('replace', 'K', '')|map('float')|sum|round|int }}K</h2>
-                        <div class="metric-trend trend-up">
-                            <i class="bi bi-arrow-up"></i> 15.3% vs last month
-                        </div>
-                    </div>
-                    <div class="metric-sparkline">
-                        <canvas id="sparklineSales" height="50"></canvas>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
-                <div class="metric-card metric-card-warning">
-                    <div class="metric-icon">
-                        <i class="bi bi-currency-rupee"></i>
-                    </div>
-                    <div class="metric-content">
-                        <h6 class="metric-label">Total Sales (₹)</h6>
-                        <h2 class="metric-value">{{ "{:,}".format((products|map(attribute='Price')|map('int')|sum)) }}</h2>
-                        <div class="metric-trend trend-up">
-                            <i class="bi bi-arrow-up"></i> 12.5% vs last month
-                        </div>
-                    </div>
-                    <div class="metric-sparkline">
-                        <canvas id="sparklineSalesTotal" height="50"></canvas>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
-                <div class="metric-card metric-card-info">
-                    <div class="metric-icon">
-                        <i class="bi bi-grid-3x3-gap-fill"></i>
-                    </div>
-                    <div class="metric-content">
-                        <h6 class="metric-label">Categories</h6>
-                        <h2 class="metric-value">{{ filter_options.categories|length }}</h2>
-                        <div class="metric-trend trend-up">
-                            <i class="bi bi-arrow-up"></i> 2 new this month
-                        </div>
-                    </div>
-                    <div class="metric-sparkline">
-                        <canvas id="sparklineCategories" height="50"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Charts Grid (Cafe Dashboard Style) -->
-        <div class="charts-compact-grid">
-            <div class="chart-compact-card">
-                <div class="chart-compact-header">
-                    <h6><i class="bi bi-bar-chart-fill"></i> Category Mix</h6>
-                </div>
-                <div class="chart-compact-body">
-                    <canvas id="productCategoryChart" height="300"></canvas>
-                </div>
-            </div>
-
-            <div class="chart-compact-card">
-                <div class="chart-compact-header">
-                    <h6><i class="bi bi-bar-chart-fill"></i> Reviews</h6>
-                </div>
-                <div class="chart-compact-body">
-                    <canvas id="productReviewChart" height="200"></canvas>
-                </div>
-            </div>
-
-            <div class="chart-compact-card">
-                <div class="chart-compact-header">
-                    <h6><i class="bi bi-star-fill"></i> Ratings Distribution</h6>
-                </div>
-                <div class="chart-compact-body">
-                    <canvas id="productRatingsChart" height="200"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Top Products Lists (4 cards in a row) -->
-        <div class="row g-3 mb-4">
-            <!-- Top Rated Products -->
-            <div class="col-lg-3 col-md-6">
-                <div class="chart-compact-card">
-                    <div class="chart-compact-header">
-                        <h6><i class="bi bi-star-fill text-warning"></i> Top Rated</h6>
-                        <button class="btn-expand-list" data-target="topRatedList">
-                            <i class="bi bi-chevron-down"></i>
-                        </button>
-                    </div>
-                    <div class="chart-compact-body">
-                        <div class="top-items-list collapsible-list" id="topRatedList">
-                            {% set sorted_products = products|sort(attribute='Ratings', reverse=True) %}
-                            {% for product in sorted_products[:10] %}
-                            <div class="top-item {% if loop.index > 5 %}hidden-item{% endif %}">
-                                <img src="{{ product.Image }}" alt="{{ product.Title }}">
-                                <div class="top-item-info">
-                                    <span class="top-item-name">{{ product.Title[:30] }}...</span>
-                                    <span class="top-item-meta">⭐{{ "%.1f"|format(product.Ratings) }} • {{ product.Review }} reviews</span>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Best Sellers -->
-            <div class="col-lg-3 col-md-6">
-                <div class="chart-compact-card">
-                    <div class="chart-compact-header">
-                        <h6><i class="bi bi-fire text-danger"></i> Best Sellers</h6>
-                        <button class="btn-expand-list" data-target="bestSellersList">
-                            <i class="bi bi-chevron-down"></i>
-                        </button>
-                    </div>
-                    <div class="chart-compact-body">
-                        <div class="top-items-list collapsible-list" id="bestSellersList">
-                            {% set sorted_by_sales = products|sort(attribute='Monthly Sales', reverse=True) %}
-                            {% for product in sorted_by_sales[:10] %}
-                            <div class="top-item {% if loop.index > 5 %}hidden-item{% endif %}">
-                                <img src="{{ product.Image }}" alt="{{ product.Title }}">
-                                <div class="top-item-info">
-                                    <span class="top-item-name">{{ product.Title[:30] }}...</span>
-                                    <span class="top-item-meta">{{ product['Monthly Sales'] }} • ₹{{ "%.0f"|format(product.Price) }}</span>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Most Profitable -->
-            <div class="col-lg-3 col-md-6">
-                <div class="chart-compact-card">
-                    <div class="chart-compact-header">
-                        <h6><i class="bi bi-graph-up-arrow text-success"></i> Most Profitable</h6>
-                        <button class="btn-expand-list" data-target="mostProfitableList">
-                            <i class="bi bi-chevron-down"></i>
-                        </button>
-                    </div>
-                    <div class="chart-compact-body">
-                        <div class="top-items-list collapsible-list" id="mostProfitableList">
-                            {% set sorted_by_price = products|sort(attribute='Price', reverse=True) %}
-                            {% for product in sorted_by_price[:10] %}
-                            <div class="top-item {% if loop.index > 5 %}hidden-item{% endif %}">
-                                <img src="{{ product.Image }}" alt="{{ product.Title }}">
-                                <div class="top-item-info">
-                                    <span class="top-item-name">{{ product.Title[:30] }}...</span>
-                                    <span class="top-item-meta">₹{{ "%.0f"|format(product.Price) }} • ⭐{{ "%.1f"|format(product.Ratings) }}</span>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Top Products (Balanced) -->
-            <div class="col-lg-3 col-md-6">
-                <div class="chart-compact-card">
-                    <div class="chart-compact-header">
-                        <h6><i class="bi bi-trophy-fill text-primary"></i> Top Products</h6>
-                        <button class="btn-expand-list" data-target="topProductsList">
-                            <i class="bi bi-chevron-down"></i>
-                        </button>
-                    </div>
-                    <div class="chart-compact-body">
-                        <div class="top-items-list collapsible-list" id="topProductsList">
-                            {% for product in products[:10] %}
-                            <div class="top-item {% if loop.index > 5 %}hidden-item{% endif %}">
-                                <img src="{{ product.Image }}" alt="{{ product.Title }}">
-                                <div class="top-item-info">
-                                    <span class="top-item-name">{{ product.Title[:30] }}...</span>
-                                    <span class="top-item-meta">₹{{ "%.0f"|format(product.Price) }} • ⭐{{ "%.1f"|format(product.Ratings) }}</span>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Products Grid (More Compact) -->
-        <div class="products-compact-grid">
-            {% for product in products %}
-            <div class="product-compact-card">
-                <a href="{{ url_for('dashboard.product_detail', product_id=product['Product Identifier']) }}" class="product-compact-link">
-                    <div class="product-compact-image">
-                        <img src="{{ product.Image }}" alt="{{ product.Title }}">
-                        {% if product.Ratings >= 4.5 %}
-                        <span class="product-compact-badge">Top</span>
-                        {% endif %}
-                    </div>
-                    <div class="product-compact-info">
-                        <h6 class="product-compact-title">{{ product.Title[:40] }}...</h6>
-                        <div class="product-compact-rating">
-                            <i class="bi bi-star-fill"></i> {{ "%.1f"|format(product.Ratings) }}
-                            <span class="product-compact-reviews">({{ product.Review }})</span>
-                        </div>
-                        <div class="product-compact-price">₹{{ "%.0f"|format(product.Price) }}</div>
-                        {% if product['Monthly Sales'] %}
-                        <div class="product-compact-sales">{{ product['Monthly Sales'] }}</div>
-                        {% endif %}
-                    </div>
-                </a>
-                <button class="btn-compact-compare add-to-comparison" 
-                        data-product-id="{{ product['Product Identifier'] }}"
-                        data-product-title="{{ product.Title }}"
-                        data-product-price="{{ product.Price }}"
-                        data-product-image="{{ product.Image }}"
-                        data-product-rating="{{ product.Ratings }}"
-                        title="Add to compare">
-                    <i class="bi bi-plus-lg"></i>
+                <button type="button" class="btn btn-primary btn-sm w-100 mt-3" id="applyFilters">
+                    <i class="bi bi-check2"></i> Apply Filters
                 </button>
+            </form>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- KPI Metrics Cards (Dashboard Style) -->
+            <div class="row g-3 mb-4">
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="metric-card metric-card-primary">
+                        <div class="metric-icon">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h6 class="metric-label">Total Products</h6>
+                            <h2 class="metric-value counter" data-target="{{ products|length }}">0</h2>
+                            <div class="metric-trend trend-up">
+                                <i class="bi bi-arrow-up"></i> 8.2% vs last month
+                            </div>
+                        </div>
+                        <div class="metric-sparkline">
+                            <canvas id="sparklineProducts" height="50"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="metric-card metric-card-success">
+                        <div class="metric-icon">
+                            <i class="bi bi-cart-check-fill"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h6 class="metric-label">Units Sold</h6>
+                            <h2 class="metric-value">{{ (products|map(attribute='Sales_Number')|sum / 1000)|round(1) }}K
+                            </h2>
+                            <div class="metric-trend trend-up">
+                                <i class="bi bi-arrow-up"></i> 15.3% vs last month
+                            </div>
+                        </div>
+                        <div class="metric-sparkline">
+                            <canvas id="sparklineSales" height="50"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                    <div class="metric-card metric-card-warning">
+                        <div class="metric-icon">
+                            <i class="bi bi-currency-rupee"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h6 class="metric-label">Total Sales (₹)</h6>
+                            <h2 class="metric-value">{{ "{:,}".format((products|map(attribute='Price')|map('int')|sum))
+                                }}</h2>
+                            <div class="metric-trend trend-up">
+                                <i class="bi bi-arrow-up"></i> 12.5% vs last month
+                            </div>
+                        </div>
+                        <div class="metric-sparkline">
+                            <canvas id="sparklineSalesTotal" height="50"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                    <div class="metric-card metric-card-info">
+                        <div class="metric-icon">
+                            <i class="bi bi-grid-3x3-gap-fill"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h6 class="metric-label">Categories</h6>
+                            <h2 class="metric-value">{{ filter_options.categories|length }}</h2>
+                            <div class="metric-trend trend-up">
+                                <i class="bi bi-arrow-up"></i> 2 new this month
+                            </div>
+                        </div>
+                        <div class="metric-sparkline">
+                            <canvas id="sparklineCategories" height="50"></canvas>
+                        </div>
+                    </div>
+                </div>
             </div>
-            {% endfor %}
-        </div>
-    </main>
+
+            <!-- Charts Grid (Cafe Dashboard Style) -->
+            <div class="charts-compact-grid">
+                <div class="chart-compact-card">
+                    <div class="chart-compact-header">
+                        <h6><i class="bi bi-bar-chart-fill"></i> Category Mix</h6>
+                    </div>
+                    <div class="chart-compact-body">
+                        <canvas id="productCategoryChart" height="300"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-compact-card">
+                    <div class="chart-compact-header">
+                        <h6><i class="bi bi-bar-chart-fill"></i> Reviews</h6>
+                    </div>
+                    <div class="chart-compact-body">
+                        <canvas id="productReviewChart" height="200"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-compact-card">
+                    <div class="chart-compact-header">
+                        <h6><i class="bi bi-star-fill"></i> Ratings Distribution</h6>
+                    </div>
+                    <div class="chart-compact-body">
+                        <canvas id="productRatingsChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Products Lists (4 cards in a row) -->
+            <div class="row g-3 mb-4">
+                <!-- Top Rated Products -->
+                <div class="col-lg-3 col-md-6">
+                    <div class="chart-compact-card">
+                        <div class="chart-compact-header">
+                            <h6><i class="bi bi-star-fill text-warning"></i> Top Rated</h6>
+                            <button class="btn-expand-list" data-target="topRatedList">
+                                <i class="bi bi-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div class="chart-compact-body">
+                            <div class="top-items-list collapsible-list" id="topRatedList">
+                                {% set sorted_products = products|sort(attribute='Ratings', reverse=True) %}
+                                {% for product in sorted_products[:10] %}
+                                <div class="top-item {% if loop.index > 5 %}hidden-item{% endif %}">
+                                    <img src="{{ product.Image }}" alt="{{ product.Title }}">
+                                    <div class="top-item-info">
+                                        <span class="top-item-name">{{ product.Title[:30] }}...</span>
+                                        <span class="top-item-meta">⭐{{ "%.1f"|format(product.Ratings) }} • {{
+                                            product.Review }} reviews</span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Best Sellers -->
+                <div class="col-lg-3 col-md-6">
+                    <div class="chart-compact-card">
+                        <div class="chart-compact-header">
+                            <h6><i class="bi bi-fire text-danger"></i> Best Sellers</h6>
+                            <button class="btn-expand-list" data-target="bestSellersList">
+                                <i class="bi bi-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div class="chart-compact-body">
+                            <div class="top-items-list collapsible-list" id="bestSellersList">
+                                {% set sorted_by_sales = products|sort(attribute='Monthly Sales', reverse=True) %}
+                                {% for product in sorted_by_sales[:10] %}
+                                <div class="top-item {% if loop.index > 5 %}hidden-item{% endif %}">
+                                    <img src="{{ product.Image }}" alt="{{ product.Title }}">
+                                    <div class="top-item-info">
+                                        <span class="top-item-name">{{ product.Title[:30] }}...</span>
+                                        <span class="top-item-meta">{{ product['Monthly Sales'] }} • ₹{{
+                                            "%.0f"|format(product.Price) }}</span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Most Profitable -->
+                <div class="col-lg-3 col-md-6">
+                    <div class="chart-compact-card">
+                        <div class="chart-compact-header">
+                            <h6><i class="bi bi-graph-up-arrow text-success"></i> Most Profitable</h6>
+                            <button class="btn-expand-list" data-target="mostProfitableList">
+                                <i class="bi bi-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div class="chart-compact-body">
+                            <div class="top-items-list collapsible-list" id="mostProfitableList">
+                                {% set sorted_by_price = products|sort(attribute='Price', reverse=True) %}
+                                {% for product in sorted_by_price[:10] %}
+                                <div class="top-item {% if loop.index > 5 %}hidden-item{% endif %}">
+                                    <img src="{{ product.Image }}" alt="{{ product.Title }}">
+                                    <div class="top-item-info">
+                                        <span class="top-item-name">{{ product.Title[:30] }}...</span>
+                                        <span class="top-item-meta">₹{{ "%.0f"|format(product.Price) }} • ⭐{{
+                                            "%.1f"|format(product.Ratings) }}</span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Products (Balanced) -->
+                <div class="col-lg-3 col-md-6">
+                    <div class="chart-compact-card">
+                        <div class="chart-compact-header">
+                            <h6><i class="bi bi-trophy-fill text-primary"></i> Top Products</h6>
+                            <button class="btn-expand-list" data-target="topProductsList">
+                                <i class="bi bi-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div class="chart-compact-body">
+                            <div class="top-items-list collapsible-list" id="topProductsList">
+                                {% for product in products[:10] %}
+                                <div class="top-item {% if loop.index > 5 %}hidden-item{% endif %}">
+                                    <img src="{{ product.Image }}" alt="{{ product.Title }}">
+                                    <div class="top-item-info">
+                                        <span class="top-item-name">{{ product.Title[:30] }}...</span>
+                                        <span class="top-item-meta">₹{{ "%.0f"|format(product.Price) }} • ⭐{{
+                                            "%.1f"|format(product.Ratings) }}</span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Grid (More Compact) -->
+            <div class="products-compact-grid">
+                {% for product in products %}
+                <div class="product-compact-card">
+                    <a href="{{ url_for('dashboard.product_detail', product_id=product['Product Identifier']) }}"
+                        class="product-compact-link">
+                        <div class="product-compact-image">
+                            <img src="{{ product.Image }}" alt="{{ product.Title }}">
+                            {% if product.Ratings >= 4.5 %}
+                            <span class="product-compact-badge">Top</span>
+                            {% endif %}
+                        </div>
+                        <div class="product-compact-info">
+                            <h6 class="product-compact-title">{{ product.Title[:40] }}...</h6>
+                            <div class="product-compact-rating">
+                                <i class="bi bi-star-fill"></i> {{ "%.1f"|format(product.Ratings) }}
+                                <span class="product-compact-reviews">({{ product.Review }})</span>
+                            </div>
+                            <div class="product-compact-price">₹{{ "%.0f"|format(product.Price) }}</div>
+                            {% if product['Monthly Sales'] %}
+                            <div class="product-compact-sales">{{ product['Monthly Sales'] }}</div>
+                            {% endif %}
+                        </div>
+                    </a>
+                    <div class="product-compact-actions">
+                        <button class="btn-compact-analyze analyze-product-btn"
+                            data-product-id="{{ product['Product Identifier'] }}" title="AI Analysis">
+                            <i class="bi bi-robot"></i>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </main>
     </div> <!-- End compact-dashboard-content -->
 </div> <!-- End compact-dashboard -->
 {% endblock %}
@@ -341,42 +349,42 @@
 <script src="{{ url_for('static', filename='js/product_supplier.js') }}"></script>
 <script>
     let productCharts = {};
-    
+
     // Load product charts
     function loadProductCharts() {
         const formData = new FormData(document.getElementById('productFilterForm'));
         const params = new URLSearchParams(formData);
-        
+
         fetch(`/api/charts/products?${params}`)
             .then(response => response.json())
             .then(data => {
                 console.log('Chart data received:', data);
-                
+
                 // Category chart (use horizontal bar for many categories)
                 if (productCharts.category) productCharts.category.destroy();
                 if (data.category && data.category.labels && data.category.labels.length > 0) {
                     console.log('Creating horizontal bar chart with', data.category.labels.length, 'categories');
-                    productCharts.category = createHorizontalBarChart('productCategoryChart', 
+                    productCharts.category = createHorizontalBarChart('productCategoryChart',
                         data.category.labels, data.category.values, 'Products', '#3b82f6');
                 } else {
                     console.warn('No category data available');
                 }
-                
+
                 // Review chart
                 if (productCharts.review) productCharts.review.destroy();
                 if (data.reviews && data.reviews.labels && data.reviews.labels.length > 0) {
                     console.log('Creating review bar chart');
-                    productCharts.review = createBarChart('productReviewChart', 
+                    productCharts.review = createBarChart('productReviewChart',
                         data.reviews.labels, data.reviews.values, 'Reviews', '#3b82f6');
                 } else {
                     console.warn('No review data available');
                 }
-                
+
                 // Ratings distribution chart
                 if (productCharts.ratings) productCharts.ratings.destroy();
                 if (data.ratings && data.ratings.labels && data.ratings.labels.length > 0) {
                     console.log('Creating ratings bar chart');
-                    productCharts.ratings = createBarChart('productRatingsChart', 
+                    productCharts.ratings = createBarChart('productRatingsChart',
                         data.ratings.labels, data.ratings.values, 'Products', '#f59e0b');
                 } else {
                     console.warn('No ratings data available');
@@ -386,30 +394,30 @@
                 console.error('Error loading charts:', error);
             });
     }
-    
+
     // Apply filters
-    document.getElementById('applyFilters').addEventListener('click', function() {
+    document.getElementById('applyFilters').addEventListener('click', function () {
         const formData = new FormData(document.getElementById('productFilterForm'));
         const params = new URLSearchParams(formData);
         window.location.href = `/products?${params}`;
     });
-    
+
     // Reset filters
-    document.getElementById('resetFilters').addEventListener('click', function() {
+    document.getElementById('resetFilters').addEventListener('click', function () {
         window.location.href = '/products';
     });
-    
+
     // Initial load
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         loadProductCharts();
-        
+
         // Counter animation
         const counters = document.querySelectorAll('.counter');
         counters.forEach(counter => {
             const target = +counter.getAttribute('data-target');
             const increment = target / 50;
             let current = 0;
-            
+
             const updateCounter = () => {
                 if (current < target) {
                     current += increment;
@@ -421,7 +429,7 @@
             };
             updateCounter();
         });
-        
+
         // Create sparklines for metric cards
         const sparklineData = [
             [65, 59, 80, 81, 76, 85, 92],  // Products trend
@@ -429,35 +437,35 @@
             [3.8, 3.9, 4.0, 4.1, 4.2, 4.3, 4.4],  // Rating trend (increasing)
             [8, 8, 9, 9, 10, 11, 12]  // Categories trend
         ];
-        
+
         const sparklineColors = [
             '#3b82f6',  // primary blue
             '#10b981',  // success green
             '#f59e0b',  // warning orange
             '#06b6d4'   // info cyan
         ];
-        
+
         const sparklineIds = [
             'sparklineProducts',
             'sparklineSales',
             'sparklineRating',
             'sparklineCategories'
         ];
-        
+
         sparklineData.forEach((data, index) => {
             if (typeof createSparkline !== 'undefined') {
                 createSparkline(sparklineIds[index], data, sparklineColors[index]);
             }
         });
-        
+
         // Collapsible lists functionality
         document.querySelectorAll('.btn-expand-list').forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 const targetId = this.getAttribute('data-target');
                 const listContainer = document.getElementById(targetId);
                 const icon = this.querySelector('i');
                 const hiddenItems = listContainer.querySelectorAll('.hidden-item');
-                
+
                 if (listContainer.classList.contains('expanded')) {
                     // Collapse
                     hiddenItems.forEach(item => {
@@ -487,6 +495,146 @@
                 }
             });
         });
+
+        // AI Analysis functionality
+        document.querySelectorAll('.analyze-product-btn').forEach(button => {
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const productId = this.getAttribute('data-product-id');
+                showProductAnalysis(productId);
+            });
+        });
+
+        function showProductAnalysis(productId) {
+            // Create modal if it doesn't exist
+            let modal = document.getElementById('aiAnalysisModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.className = 'modal fade';
+                modal.id = 'aiAnalysisModal';
+                modal.innerHTML = `
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="bi bi-robot me-2"></i>AI Product Analysis
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body" id="aiAnalysisModalBody">
+                                <div class="text-center py-5">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+
+            const bsModal = new bootstrap.Modal(modal);
+            bsModal.show();
+
+            // Fetch analysis
+            fetch(`/api/ai-analysis/product/${productId}`)
+                .then(response => response.json())
+                .then(data => {
+                    displayProductAnalysis(data);
+                })
+                .catch(error => {
+                    document.getElementById('aiAnalysisModalBody').innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Failed to load analysis. Please try again.
+                        </div>
+                    `;
+                });
+        }
+
+        function displayProductAnalysis(data) {
+            const potentialClass = data.potential_color;
+
+            // Build missing data warning if applicable
+            let missingDataWarning = '';
+            if (data.has_missing_data && data.missing_data.length > 0) {
+                missingDataWarning = `
+                    <div class="alert alert-warning mb-3">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Missing Data Points:</strong> ${data.missing_data.join(', ')}
+                        <br><small>Scores calculated with available data only.</small>
+                    </div>
+                `;
+            }
+
+            const html = `
+                <div class="row">
+                    <div class="col-md-4 text-center mb-4">
+                        <img src="${data.product_image || '/static/images/placeholder.png'}" 
+                             alt="${data.product_title}" 
+                             class="img-fluid rounded mb-3" 
+                             style="max-height: 200px; object-fit: contain;">
+                        <h6 class="mb-3">${data.product_title}</h6>
+                    </div>
+                    <div class="col-md-8">
+                        ${missingDataWarning}
+                        
+                        <div class="mb-4">
+                            <h5>Overall Potential</h5>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="score-circle bg-${potentialClass} text-white" style="width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700;">
+                                    ${data.total_score}
+                                </div>
+                                <div>
+                                    <h4 class="mb-1 text-${potentialClass}">${data.potential}</h4>
+                                    <p class="text-muted mb-0">Total Score: ${data.total_score}/30</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3 p-3 rounded" style="background: var(--light-bg, #f8f9fa);">
+                            <h6><i class="bi bi-tag me-2"></i>Price Analysis</h6>
+                            <p class="mb-2">${data.breakdown['Price Analysis']}</p>
+                            ${!data.missing_data || !data.missing_data.includes('Price') ? `
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar bg-primary" style="width: ${data.price_score * 10}%">
+                                    ${data.price_score}/10
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="mb-3 p-3 rounded" style="background: var(--light-bg, #f8f9fa);">
+                            <h6><i class="bi bi-star me-2"></i>Rating Analysis</h6>
+                            <p class="mb-2">${data.breakdown['Rating Analysis']}</p>
+                            ${!data.missing_data || !data.missing_data.includes('Ratings') ? `
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar bg-warning" style="width: ${data.rating_score * 10}%">
+                                    ${data.rating_score}/10
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="mb-3 p-3 rounded" style="background: var(--light-bg, #f8f9fa);">
+                            <h6><i class="bi bi-graph-up me-2"></i>Sales Analysis</h6>
+                            <p class="mb-2">${data.breakdown['Sales Analysis']}</p>
+                            ${!data.missing_data || !data.missing_data.includes('Monthly Sales') ? `
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar bg-success" style="width: ${data.sales_score * 10}%">
+                                    ${data.sales_score}/10
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('aiAnalysisModalBody').innerHTML = html;
+        }
     });
 </script>
 {% endblock %}

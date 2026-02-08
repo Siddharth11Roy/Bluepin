@@ -18,6 +18,8 @@ class Aggregations:
         stats = {
             'total_products': len(products),
             'total_suppliers': len(suppliers['Supplier Name'].unique()),
+            'avg_product_price': float(products['Price'].mean()),
+            'avg_supplier_price': float(suppliers['Price'].mean()),
             'avg_product_rating': float(products['Ratings'].mean()),
             'avg_supplier_rating': float(suppliers['Rating'].mean()),
             'total_reviews': int(products['Review'].sum()),

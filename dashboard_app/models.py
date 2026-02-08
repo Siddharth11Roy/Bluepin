@@ -73,3 +73,46 @@ class UserPreference(db.Model):
     
     def __repr__(self):
         return f'<UserPreference User:{self.user_id}>'
+
+
+class Article(db.Model):
+    """Article model for Bluepin University section"""
+    __tablename__ = 'articles'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    slug = db.Column(db.String(250), unique=True, nullable=False, index=True)
+    content = db.Column(db.Text, nullable=False)
+    excerpt = db.Column(db.String(500))
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    published = db.Column(db.Boolean, default=False)
+    featured_image = db.Column(db.Text)
+    views = db.Column(db.Integer, default=0)
+    category = db.Column(db.String(100))
+    tags = db.Column(db.String(500))  # Comma-separated tags
+    
+    # Relationship
+    author = db.relationship('User', backref='articles')
+    
+    def __repr__(self):
+        return f'<Article {self.title}>'
+    
+    def to_dict(self):
+        """Convert article to dictionary"""
+        return {
+            'id': self.id,
+            'title': self.title,
+            'slug': self.slug,
+            'content': self.content,
+            'excerpt': self.excerpt,
+            'author': self.author.full_name or self.author.username if self.author else 'Unknown',
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'published': self.published,
+            'featured_image': self.featured_image,
+            'views': self.views,
+            'category': self.category,
+            'tags': self.tags.split(',') if self.tags else []
+        }

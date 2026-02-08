@@ -4,12 +4,14 @@ from app.services.data_loader import DataLoader
 from app.services.aggregations import Aggregations
 from app.services.filters import Filters
 from app.services.comparisons import Comparisons
+from app import cache
 
 bp = Blueprint('dashboard', __name__)
 
 @bp.route('/')
 @bp.route('/overview')
 @login_required
+@cache.cached(timeout=300, query_string=True)  # Cache for 5 minutes
 def overview():
     """Main overview dashboard"""
     stats = Aggregations.get_overview_stats()
@@ -26,6 +28,7 @@ def overview():
 
 @bp.route('/products')
 @login_required
+@cache.cached(timeout=300, query_string=True)  # Cache for 5 minutes based on query params
 def products():
     """Products dashboard with filtering"""
     # Get filter parameters
@@ -55,6 +58,7 @@ def products():
 
 @bp.route('/suppliers')
 @login_required
+@cache.cached(timeout=300, query_string=True)  # Cache for 5 minutes based on query params
 def suppliers():
     """Suppliers dashboard with filtering"""
     # Get filter parameters
@@ -98,6 +102,23 @@ def comparisons():
                          product_list=product_list,
                          supplier_list=supplier_list,
                          active_page='comparisons')
+
+@bp.route('/ai-analysis')
+@login_required
+def ai_analysis():
+    """AI Analysis dashboard"""
+    from app.services.ai_analysis import AIAnalysis
+    
+    # Get distribution stats
+    distribution = AIAnalysis.get_potential_distribution()
+    
+    # Get top potential products
+    top_products = AIAnalysis.get_top_potential_products(limit=12)
+    
+    return render_template('dashboard/ai_analysis.html',
+                         distribution=distribution,
+                         top_products=top_products,
+                         active_page='ai_analysis')
 
 @bp.route('/product/<product_id>')
 @login_required

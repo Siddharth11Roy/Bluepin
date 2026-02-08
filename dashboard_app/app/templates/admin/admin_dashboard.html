@@ -36,21 +36,21 @@
                     </tr>
                     <tr>
                         <td><strong>Total Products:</strong></td>
-                        <td>{{ stats.total_products }}</td>
+                        <td>{{ stats['total_products'] }}</td>
                     </tr>
                     <tr>
                         <td><strong>Total Suppliers:</strong></td>
-                        <td>{{ stats.total_suppliers }}</td>
+                        <td>{{ stats['total_suppliers'] }}</td>
                     </tr>
                 </table>
-                
+
                 <button class="btn btn-primary" id="refreshDataBtn">
                     <i class="bi bi-arrow-clockwise"></i> Refresh Data
                 </button>
             </div>
         </div>
     </div>
-    
+
     <!-- Quick Actions -->
     <div class="col-lg-6">
         <div class="card animate-slide-up" style="animation-delay: 0.1s">
@@ -67,6 +67,9 @@
                     </a>
                     <a href="{{ url_for('dashboard.suppliers') }}" class="btn btn-outline-success">
                         <i class="bi bi-building"></i> Manage Suppliers
+                    </a>
+                    <a href="{{ url_for('admin.manage_articles') }}" class="btn btn-outline-warning">
+                        <i class="bi bi-journal-text"></i> Manage Articles
                     </a>
                     <button class="btn btn-outline-info" onclick="window.location.reload()">
                         <i class="bi bi-arrow-clockwise"></i> Refresh Page
@@ -89,25 +92,25 @@
                     <div class="col-md-3">
                         <div class="metric-box">
                             <h6>Avg Product Price</h6>
-                            <h3>₹{{ "%.0f"|format(stats.avg_product_price) }}</h3>
+                            <h3>₹{{ "%.0f"|format(stats['avg_product_price']) }}</h3>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="metric-box">
                             <h6>Avg Supplier Price</h6>
-                            <h3>₹{{ "%.0f"|format(stats.avg_supplier_price) }}</h3>
+                            <h3>₹{{ "%.0f"|format(stats['avg_supplier_price']) }}</h3>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="metric-box">
                             <h6>Avg Product Rating</h6>
-                            <h3>{{ "%.1f"|format(stats.avg_product_rating) }} ⭐</h3>
+                            <h3>{{ "%.1f"|format(stats['avg_product_rating']) }} ⭐</h3>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="metric-box">
                             <h6>Total Reviews</h6>
-                            <h3>{{ "{:,}".format(stats.total_reviews) }}</h3>
+                            <h3>{{ "{:,}".format(stats['total_reviews']) }}</h3>
                         </div>
                     </div>
                 </div>
@@ -118,40 +121,40 @@
 
 <div class="alert alert-info mt-4">
     <i class="bi bi-info-circle"></i>
-    <strong>Note:</strong> This admin panel allows you to monitor the dashboard system. 
+    <strong>Note:</strong> This admin panel allows you to monitor the dashboard system.
     Future updates will include data upload, user management, and custom report generation.
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    document.getElementById('refreshDataBtn').addEventListener('click', function() {
+    document.getElementById('refreshDataBtn').addEventListener('click', function () {
         const btn = this;
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Refreshing...';
-        
+
         fetch('/admin/refresh-data', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('✅ ' + data.message);
-                window.location.reload();
-            } else {
-                alert('❌ Error: ' + data.message);
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                    window.location.reload();
+                } else {
+                    alert('❌ Error: ' + data.message);
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Refresh Data';
+                }
+            })
+            .catch(error => {
+                alert('❌ Error: ' + error);
                 btn.disabled = false;
                 btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Refresh Data';
-            }
-        })
-        .catch(error => {
-            alert('❌ Error: ' + error);
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Refresh Data';
-        });
+            });
     });
 </script>
 {% endblock %}
