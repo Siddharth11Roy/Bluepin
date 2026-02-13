@@ -15,13 +15,22 @@ bp = Blueprint('dashboard', __name__)
 def overview():
     """Main overview dashboard"""
     stats = Aggregations.get_overview_stats()
-    top_products = Aggregations.get_top_products(limit=6, sort_by='ratings')
+    
+    # Get different product lists for dashboard sections
+    top_products = Aggregations.get_top_products(limit=8, sort_by='ratings')
+    top_rated_products = Aggregations.get_top_rated_products(limit=8, min_rating=4.5)
+    most_profitable_products = Aggregations.get_top_products(limit=8, sort_by='price')
+    best_sellers = Aggregations.get_best_sellers(limit=8)
+    
     top_suppliers = Aggregations.get_top_suppliers(limit=6, sort_by='rating')
     categories = Aggregations.get_category_breakdown()
     
     return render_template('dashboard/overview.html',
                          stats=stats,
                          top_products=top_products,
+                         top_rated_products=top_rated_products,
+                         most_profitable_products=most_profitable_products,
+                         best_sellers=best_sellers,
                          top_suppliers=top_suppliers,
                          categories=categories,
                          active_page='overview')

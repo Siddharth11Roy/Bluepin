@@ -44,10 +44,61 @@ class Aggregations:
             top = products.nlargest(limit, 'Review')
         elif sort_by == 'sales':
             top = products.nlargest(limit, 'Sales_Number')
+        elif sort_by == 'price':
+            top = products.nlargest(limit, 'Price')
         elif sort_by == 'price_low':
             top = products.nsmallest(limit, 'Price')
         else:
             top = products.head(limit)
+        
+        return top.to_dict('records')
+    
+    @staticmethod
+    def get_top_rated_products(limit=5, min_rating=4.5):
+        """Get top rated products above a minimum rating threshold"""
+        products = DataLoader.load_products()
+        
+        # Filter products by minimum rating
+        filtered = products[products['Ratings'] >= min_rating]
+        
+        # Sort by ratings and return top N
+        top = filtered.nlargest(limit, 'Ratings')
+        
+        return top.to_dict('records')
+    
+    @staticmethod
+    def get_best_sellers(limit=5):
+        """Get best selling products by monthly sales"""
+        products = DataLoader.load_products()
+        
+        # Helper function to parse sales values (handles K, M notations)
+        def parse_sales(value):
+            if pd.isna(value) or value is None:
+                return 0
+            if isinstance(value, str):
+                value = value.strip().upper()
+                try:
+                    if 'K' in value:
+                        return float(value.replace('K', '').replace(',', '')) * 1000
+                    elif 'M' in value:
+                        return float(value.replace('M', '').replace(',', '')) * 1000000
+                    else:
+                        # Remove any text and extract numbers
+                        import re
+                        match = re.search(r'\d+', value)
+                        if match:
+                            return float(match.group())
+                        return 0
+                except (ValueError, AttributeError):
+                    return 0
+            try:
+                return float(value) if value > 0 else 0
+            except (ValueError, TypeError):
+                return 0
+        
+        # Parse monthly sales and sort
+        products['Sales_Parsed'] = products['Monthly Sales'].apply(parse_sales)
+        top = products.nlargest(limit, 'Sales_Parsed')
         
         return top.to_dict('records')
     

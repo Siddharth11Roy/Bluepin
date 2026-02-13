@@ -45,7 +45,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
             <div class="metric-card metric-card-success">
                 <div class="metric-icon">
@@ -63,7 +63,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
             <div class="metric-card metric-card-warning">
                 <div class="metric-icon">
@@ -81,9 +81,10 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
-            <div class="metric-card metric-card-purple" style="--card-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="metric-card metric-card-purple"
+                style="--card-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                 <div class="metric-icon">
                     <i class="bi bi-box2-heart-fill"></i>
                 </div>
@@ -126,7 +127,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- 3D Doughnut Chart -->
         <div class="col-xl-4" data-aos="fade-left">
             <div class="chart-card">
@@ -172,7 +173,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Product Categories -->
         <div class="col-xl-4" data-aos="fade-up" data-aos-delay="100">
             <div class="chart-card">
@@ -191,16 +192,156 @@
         </div>
     </div>
 
-    <!-- Top Products Section -->
-    <div class="row g-4 mb-4" data-aos="fade-up">
-        <div class="col-12">
+    <!-- Product Sections -->
+    <div class="row g-4 mb-4">
+        <!-- Top Rated Products -->
+        <div class="col-12" data-aos="fade-up">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h5 class="chart-title">
+                            <i class="bi bi-star-fill text-warning"></i> Top Rated Products
+                        </h5>
+                        <p class="chart-subtitle">Products with ratings 4.5★ and above</p>
+                    </div>
+                    <a href="{{ url_for('dashboard.products') }}" class="btn btn-sm btn-outline-primary">
+                        View All <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="chart-body">
+                    <div class="product-grid">
+                        {% for product in top_rated_products %}
+                        <div class="product-item" data-aos="zoom-in" data-aos-delay="{{ loop.index * 50 }}">
+                            <a href="{{ url_for('dashboard.product_detail', product_id=product['Product Identifier']) }}"
+                                class="product-link">
+                                <div class="product-image-wrapper">
+                                    <img src="{{ product.Image }}" alt="{{ product.Title }}" class="product-img"
+                                        onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
+                                    <div class="product-overlay">
+                                        <span class="view-details">View Details</span>
+                                    </div>
+                                </div>
+                                <div class="product-details">
+                                    <h6 class="product-name" title="{{ product.Title }}">{{ product.Title[:40] }}{% if
+                                        product.Title|length > 40 %}...{% endif %}</h6>
+                                    <div class="product-meta">
+                                        <span class="product-price">₹{{ "%.0f"|format(product.Price) }}</span>
+                                        <span class="product-rating">
+                                            <i class="bi bi-star-fill"></i> {{ "%.1f"|format(product.Ratings) }}
+                                        </span>
+                                    </div>
+                                    <div class="product-reviews">{{ product.Review }} reviews</div>
+                                </div>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Most Profitable Products -->
+        <div class="col-12" data-aos="fade-up">
             <div class="chart-card">
                 <div class="chart-header">
                     <div>
                         <h5 class="chart-title">
                             <i class="bi bi-currency-dollar text-success"></i> Most Profitable Products
                         </h5>
-                        <p class="chart-subtitle">Highest margin products this month</p>
+                        <p class="chart-subtitle">Highest priced products</p>
+                    </div>
+                    <a href="{{ url_for('dashboard.products') }}" class="btn btn-sm btn-outline-primary">
+                        View All <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="chart-body">
+                    <div class="product-grid">
+                        {% for product in most_profitable_products %}
+                        <div class="product-item" data-aos="zoom-in" data-aos-delay="{{ loop.index * 50 }}">
+                            <a href="{{ url_for('dashboard.product_detail', product_id=product['Product Identifier']) }}"
+                                class="product-link">
+                                <div class="product-image-wrapper">
+                                    <img src="{{ product.Image }}" alt="{{ product.Title }}" class="product-img"
+                                        onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
+                                    <div class="product-overlay">
+                                        <span class="view-details">View Details</span>
+                                    </div>
+                                </div>
+                                <div class="product-details">
+                                    <h6 class="product-name" title="{{ product.Title }}">{{ product.Title[:40] }}{% if
+                                        product.Title|length > 40 %}...{% endif %}</h6>
+                                    <div class="product-meta">
+                                        <span class="product-price">₹{{ "%.0f"|format(product.Price) }}</span>
+                                        <span class="product-rating">
+                                            <i class="bi bi-star-fill"></i> {{ "%.1f"|format(product.Ratings) }}
+                                        </span>
+                                    </div>
+                                    <div class="product-reviews">{{ product.Review }} reviews</div>
+                                </div>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Best Sellers -->
+        <div class="col-12" data-aos="fade-up">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h5 class="chart-title">
+                            <i class="bi bi-fire text-danger"></i> Best Sellers
+                        </h5>
+                        <p class="chart-subtitle">Top selling products by monthly sales</p>
+                    </div>
+                    <a href="{{ url_for('dashboard.products') }}" class="btn btn-sm btn-outline-primary">
+                        View All <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="chart-body">
+                    <div class="product-grid">
+                        {% for product in best_sellers %}
+                        <div class="product-item" data-aos="zoom-in" data-aos-delay="{{ loop.index * 50 }}">
+                            <a href="{{ url_for('dashboard.product_detail', product_id=product['Product Identifier']) }}"
+                                class="product-link">
+                                <div class="product-image-wrapper">
+                                    <img src="{{ product.Image }}" alt="{{ product.Title }}" class="product-img"
+                                        onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
+                                    <div class="product-overlay">
+                                        <span class="view-details">View Details</span>
+                                    </div>
+                                </div>
+                                <div class="product-details">
+                                    <h6 class="product-name" title="{{ product.Title }}">{{ product.Title[:40] }}{% if
+                                        product.Title|length > 40 %}...{% endif %}</h6>
+                                    <div class="product-meta">
+                                        <span class="product-price">₹{{ "%.0f"|format(product.Price) }}</span>
+                                        <span class="product-rating">
+                                            <i class="bi bi-star-fill"></i> {{ "%.1f"|format(product.Ratings) }}
+                                        </span>
+                                    </div>
+                                    <div class="product-reviews">{{ product.Review }} reviews | {{ product['Monthly
+                                        Sales'] }}</div>
+                                </div>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Products Overall -->
+        <div class="col-12" data-aos="fade-up">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h5 class="chart-title">
+                            <i class="bi bi-trophy-fill text-primary"></i> Top Products
+                        </h5>
+                        <p class="chart-subtitle">Overall best products by customer ratings</p>
                     </div>
                     <a href="{{ url_for('dashboard.products') }}" class="btn btn-sm btn-outline-primary">
                         View All <i class="bi bi-arrow-right"></i>
@@ -210,15 +351,18 @@
                     <div class="product-grid">
                         {% for product in top_products %}
                         <div class="product-item" data-aos="zoom-in" data-aos-delay="{{ loop.index * 50 }}">
-                            <a href="{{ url_for('dashboard.product_detail', product_id=product['Product Identifier']) }}" class="product-link">
+                            <a href="{{ url_for('dashboard.product_detail', product_id=product['Product Identifier']) }}"
+                                class="product-link">
                                 <div class="product-image-wrapper">
-                                    <img src="{{ product.Image }}" alt="{{ product.Title }}" class="product-img">
+                                    <img src="{{ product.Image }}" alt="{{ product.Title }}" class="product-img"
+                                        onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
                                     <div class="product-overlay">
                                         <span class="view-details">View Details</span>
                                     </div>
                                 </div>
                                 <div class="product-details">
-                                    <h6 class="product-name" title="{{ product.Title }}">{{ product.Title[:40] }}{% if product.Title|length > 40 %}...{% endif %}</h6>
+                                    <h6 class="product-name" title="{{ product.Title }}">{{ product.Title[:40] }}{% if
+                                        product.Title|length > 40 %}...{% endif %}</h6>
                                     <div class="product-meta">
                                         <span class="product-price">₹{{ "%.0f"|format(product.Price) }}</span>
                                         <span class="product-rating">
@@ -270,13 +414,13 @@
                                     <td>
                                         <span class="rank-badge rank-{{ loop.index }}">
                                             {% if loop.index == 1 %}
-                                                <i class="bi bi-trophy-fill"></i>
+                                            <i class="bi bi-trophy-fill"></i>
                                             {% elif loop.index == 2 %}
-                                                <i class="bi bi-award-fill"></i>
+                                            <i class="bi bi-award-fill"></i>
                                             {% elif loop.index == 3 %}
-                                                <i class="bi bi-gem"></i>
+                                            <i class="bi bi-gem"></i>
                                             {% else %}
-                                                {{ loop.index }}
+                                            {{ loop.index }}
                                             {% endif %}
                                         </span>
                                     </td>
@@ -313,18 +457,18 @@
 <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
 <script>
     // Initialize charts and animations on page load
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // Counter animation
         animateCounters();
-        
+
         // Load chart data with 3D effects
         loadOverviewCharts();
-        
+
         // Create sparklines
         createSparklines();
-        
+
         // Refresh data button
-        document.getElementById('refreshData')?.addEventListener('click', function() {
+        document.getElementById('refreshData')?.addEventListener('click', function () {
             this.classList.add('rotating');
             setTimeout(() => {
                 this.classList.remove('rotating');
