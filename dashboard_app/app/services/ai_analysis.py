@@ -1,15 +1,40 @@
 """
 AI Analysis Service for Product Scoring
 
-Scoring Formula:
-- Price: <200=4, <250=6, 250-550=10, >550=8
-- Ratings: >4.5=10, >4.2=8, >4.0=6, >3.6=4, <3.6=2
-- Sales: 10k+=6, 5k+=8, 500+=10, 200-500=8, <200=6
+Bluepin Scoring Formula:
+
+1. SELLING PRICE (SP) – Margin Possibility (Max 25 points)
+   ₹999 - ₹2,500 → 25 points
+   ₹599 - ₹999 → 22 points
+   ₹299 - ₹599 → 20 points
+   ₹249 - ₹299 → 18 points
+   > ₹2,500 → 15 points
+   < ₹249 → 10 points
+
+2. RATINGS – Post-Sale Risk (Max 30 points)
+   > 4.3 → 30 points
+   4.0 - 4.29 → 22 points
+   3.7 - 3.99 → 12 points
+   < 3.7 → 0 points
+
+3. REVIEWS COUNT – Competition Density (Max 20 points)
+   < 200 → 20 points
+   200 - 800 → 14 points
+   800 - 2,000 → 8 points
+   > 2,000 → 0 points
+
+4. MONTHLY SALES – Demand vs Competition (Max 25 points)
+   300 - 1,500 → 25 points
+   150 - 300 → 20 points
+   1,500 - 3,000 → 18 points
+   > 3,000 → 12 points
+   < 150 → 10 points
 
 Total Score Classification:
-- >= 24: High Potential
-- >= 18: Moderate Potential
-- < 18: Low Potential
+- 75 - 100 → High Potential
+- 60 - 74 → Moderate Potential
+- 45 - 59 → Low Potential
+- Below 45 → Avoid
 """
 
 import pandas as pd
@@ -22,25 +47,29 @@ class AIAnalysis:
     @staticmethod
     def calculate_price_score(price):
         """
-        Calculate price score based on product price
+        Calculate price score based on product selling price
         
         Args:
             price (float): Product price
             
         Returns:
-            int: Price score (4, 6, 8, or 10)
+            int: Price score (10, 15, 18, 20, 22, or 25)
         """
         if pd.isna(price) or price < 0:
             return 0
         
-        if price < 200:
-            return 4
-        elif price < 250:
-            return 6
-        elif 250 <= price <= 550:
+        if 999 <= price <= 2500:
+            return 25
+        elif 599 <= price < 999:
+            return 22
+        elif 299 <= price < 599:
+            return 20
+        elif 249 <= price < 299:
+            return 18
+        elif price > 2500:
+            return 15
+        else:  # price < 249
             return 10
-        else:  # price > 550
-            return 8
     
     @staticmethod
     def calculate_rating_score(rating):
@@ -51,46 +80,67 @@ class AIAnalysis:
             rating (float): Product rating (0-5 scale)
             
         Returns:
-            int: Rating score (2, 4, 6, 8, or 10)
+            int: Rating score (0, 12, 22, or 30)
         """
         if pd.isna(rating) or rating < 0:
             return 0
         
-        if rating > 4.5:
-            return 10
-        elif rating > 4.2:
+        if rating > 4.3:
+            return 30
+        elif 4.0 <= rating <= 4.29:
+            return 22
+        elif 3.7 <= rating <= 3.99:
+            return 12
+        else:  # rating < 3.7
+            return 0
+    
+    @staticmethod
+    def calculate_reviews_score(reviews):
+        """
+        Calculate reviews count score based on competition density
+        
+        Args:
+            reviews (int): Number of reviews
+            
+        Returns:
+            int: Reviews score (0, 8, 14, or 20)
+        """
+        if pd.isna(reviews) or reviews < 0:
+            return 0
+        
+        if reviews < 200:
+            return 20
+        elif 200 <= reviews <= 800:
+            return 14
+        elif 800 < reviews <= 2000:
             return 8
-        elif rating > 4.0:
-            return 6
-        elif rating > 3.6:
-            return 4
-        else:  # rating <= 3.6
-            return 2
+        else:  # reviews > 2000
+            return 0
     
     @staticmethod
     def calculate_sales_score(sales):
         """
-        Calculate sales score based on monthly sales/reviews
+        Calculate sales score based on monthly sales demand vs competition
         
         Args:
-            sales (int): Number of sales or reviews
+            sales (int): Number of monthly sales
             
         Returns:
-            int: Sales score (6, 8, or 10)
+            int: Sales score (10, 12, 18, 20, or 25)
         """
         if pd.isna(sales) or sales < 0:
             return 0
         
-        if sales >= 10000:
-            return 6
-        elif sales >= 5000:
-            return 8
-        elif sales >= 500:
+        if 300 <= sales <= 1500:
+            return 25
+        elif 150 <= sales < 300:
+            return 20
+        elif 1500 < sales <= 3000:
+            return 18
+        elif sales > 3000:
+            return 12
+        else:  # sales < 150
             return 10
-        elif sales >= 200:
-            return 8
-        else:  # sales < 200
-            return 6
     
     @staticmethod
     def classify_potential(total_score):
@@ -98,17 +148,19 @@ class AIAnalysis:
         Classify product potential based on total score
         
         Args:
-            total_score (int): Sum of all scores
+            total_score (int): Sum of all scores (max 100)
             
         Returns:
             str: Potential classification
         """
-        if total_score >= 24:
+        if total_score >= 75:
             return "High Potential"
-        elif total_score >= 18:
+        elif total_score >= 60:
             return "Moderate Potential"
-        else:
+        elif total_score >= 45:
             return "Low Potential"
+        else:
+            return "Avoid"
     
     @staticmethod
     def get_potential_color(potential):
@@ -124,7 +176,8 @@ class AIAnalysis:
         color_map = {
             "High Potential": "success",
             "Moderate Potential": "warning",
-            "Low Potential": "danger"
+            "Low Potential": "info",
+            "Avoid": "danger"
         }
         return color_map.get(potential, "secondary")
     
@@ -158,7 +211,15 @@ class AIAnalysis:
         else:
             rating = float(rating)
         
-        # Sales - Use Monthly Sales field instead of Review
+        # Reviews Count
+        reviews = product_data.get('Review')
+        if pd.isna(reviews) or reviews is None:
+            missing_data.append('Review')
+            reviews = 0
+        else:
+            reviews = int(reviews) if reviews > 0 else 0
+        
+        # Sales - Use Monthly Sales field
         sales = product_data.get('Monthly Sales')
         if pd.isna(sales) or sales is None:
             missing_data.append('Monthly Sales')
@@ -190,10 +251,11 @@ class AIAnalysis:
         # Calculate individual scores
         price_score = cls.calculate_price_score(price)
         rating_score = cls.calculate_rating_score(rating)
+        reviews_score = cls.calculate_reviews_score(reviews)
         sales_score = cls.calculate_sales_score(sales)
         
         # Calculate total score
-        total_score = price_score + rating_score + sales_score
+        total_score = price_score + rating_score + reviews_score + sales_score
         
         # Classify potential
         potential = cls.classify_potential(total_score)
@@ -204,6 +266,8 @@ class AIAnalysis:
             'price_score': price_score,
             'rating': rating,
             'rating_score': rating_score,
+            'reviews': reviews,
+            'reviews_score': reviews_score,
             'sales': sales,
             'sales_score': sales_score,
             'total_score': total_score,
@@ -212,9 +276,10 @@ class AIAnalysis:
             'missing_data': missing_data,
             'has_missing_data': len(missing_data) > 0,
             'breakdown': {
-                'Price Analysis': f'₹{price:.2f} → Score: {price_score}/10' if 'Price' not in missing_data else 'Data Missing',
-                'Rating Analysis': f'{rating:.1f}★ → Score: {rating_score}/10' if 'Ratings' not in missing_data else 'Data Missing',
-                'Sales Analysis': f'{int(sales):,} sales → Score: {sales_score}/10' if 'Monthly Sales' not in missing_data else 'Data Missing'
+                'Selling Price': f'₹{price:.2f} → Score: {price_score}/25' if 'Price' not in missing_data else 'Data Missing',
+                'Ratings': f'{rating:.1f}★ → Score: {rating_score}/30' if 'Ratings' not in missing_data else 'Data Missing',
+                'Reviews Count': f'{int(reviews):,} reviews → Score: {reviews_score}/20' if 'Review' not in missing_data else 'Data Missing',
+                'Monthly Sales': f'{int(sales):,} sales → Score: {sales_score}/25' if 'Monthly Sales' not in missing_data else 'Data Missing'
             }
         }
         
@@ -272,13 +337,15 @@ class AIAnalysis:
             except (ValueError, TypeError):
                 return 0
         
-        # Calculate scores for all products using Monthly Sales
+        # Calculate scores for all products
         products['AI_Price_Score'] = products['Price'].apply(cls.calculate_price_score)
         products['AI_Rating_Score'] = products['Ratings'].apply(cls.calculate_rating_score)
+        products['AI_Reviews_Score'] = products['Review'].apply(cls.calculate_reviews_score)
         products['AI_Sales_Score'] = products['Monthly Sales'].apply(lambda x: cls.calculate_sales_score(parse_sales(x)))
         products['AI_Total_Score'] = (
             products['AI_Price_Score'] + 
             products['AI_Rating_Score'] + 
+            products['AI_Reviews_Score'] +
             products['AI_Sales_Score']
         )
         products['AI_Potential'] = products['AI_Total_Score'].apply(cls.classify_potential)
@@ -301,6 +368,7 @@ class AIAnalysis:
             'high': distribution.get('High Potential', 0),
             'moderate': distribution.get('Moderate Potential', 0),
             'low': distribution.get('Low Potential', 0),
+            'avoid': distribution.get('Avoid', 0),
             'total': len(products)
         }
     
@@ -319,7 +387,7 @@ class AIAnalysis:
         top_products = products.nlargest(limit, 'AI_Total_Score')
         
         return top_products[[
-            'Product Identifier', 'Title', 'Image', 'Price', 'Ratings', 'Monthly Sales',
+            'Product Identifier', 'Title', 'Image', 'Price', 'Ratings', 'Review', 'Monthly Sales',
             'AI_Total_Score', 'AI_Potential', 'AI_Potential_Color',
-            'AI_Price_Score', 'AI_Rating_Score', 'AI_Sales_Score'
+            'AI_Price_Score', 'AI_Rating_Score', 'AI_Reviews_Score', 'AI_Sales_Score'
         ]].to_dict('records')

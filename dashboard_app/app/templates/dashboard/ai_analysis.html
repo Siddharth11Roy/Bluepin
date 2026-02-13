@@ -183,16 +183,17 @@
 
                         <div class="ai-score-breakdown mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <strong>AI Score: {{ product.AI_Total_Score }}/30</strong>
+                                <strong>AI Score: {{ product.AI_Total_Score }}/100</strong>
                                 <div class="progress flex-grow-1 ms-2" style="height: 8px;">
                                     <div class="progress-bar bg-{{ product.AI_Potential_Color }}"
-                                        style="width: {{ (product.AI_Total_Score / 30 * 100)|round }}%"></div>
+                                        style="width: {{ (product.AI_Total_Score / 100 * 100)|round }}%"></div>
                                 </div>
                             </div>
                             <div class="small text-muted">
-                                Price: {{ product.AI_Price_Score }} |
-                                Rating: {{ product.AI_Rating_Score }} |
-                                Sales: {{ product.AI_Sales_Score }}
+                                Price: {{ product.AI_Price_Score }}/25 |
+                                Rating: {{ product.AI_Rating_Score }}/30 |
+                                Reviews: {{ product.AI_Reviews_Score }}/20 |
+                                Sales: {{ product.AI_Sales_Score }}/25
                             </div>
                         </div>
 
@@ -438,37 +439,47 @@
                             </div>
                             <div>
                                 <h4 class="mb-1 text-${potentialClass}">${data.potential}</h4>
-                                <p class="text-muted mb-0">Total Score: ${data.total_score}/30</p>
+                                <p class="text-muted mb-0">Total Score: ${data.total_score}/100</p>
                             </div>
                         </div>
                     </div>
                     
                     <div class="analysis-detail-card">
-                        <h6><i class="bi bi-tag me-2"></i>Price Analysis</h6>
-                        <p class="mb-2">${data.breakdown['Price Analysis']}</p>
+                        <h6><i class="bi bi-tag me-2"></i>Selling Price</h6>
+                        <p class="mb-2">${data.breakdown['Selling Price']}</p>
                         <div class="progress" style="height: 20px;">
-                            <div class="progress-bar bg-primary" style="width: ${data.price_score * 10}%">
-                                ${data.price_score}/10
+                            <div class="progress-bar bg-primary" style="width: ${(data.price_score / 25 * 100)}%">
+                                ${data.price_score}/25
                             </div>
                         </div>
                     </div>
                     
                     <div class="analysis-detail-card">
-                        <h6><i class="bi bi-star me-2"></i>Rating Analysis</h6>
-                        <p class="mb-2">${data.breakdown['Rating Analysis']}</p>
+                        <h6><i class="bi bi-star me-2"></i>Ratings</h6>
+                        <p class="mb-2">${data.breakdown['Ratings']}</p>
                         <div class="progress" style="height: 20px;">
-                            <div class="progress-bar bg-warning" style="width: ${data.rating_score * 10}%">
-                                ${data.rating_score}/10
+                            <div class="progress-bar bg-warning" style="width: ${(data.rating_score / 30 * 100)}%">
+                                ${data.rating_score}/30
                             </div>
                         </div>
                     </div>
                     
                     <div class="analysis-detail-card">
-                        <h6><i class="bi bi-graph-up me-2"></i>Sales Analysis</h6>
-                        <p class="mb-2">${data.breakdown['Sales Analysis']}</p>
+                        <h6><i class="bi bi-chat-text me-2"></i>Reviews Count</h6>
+                        <p class="mb-2">${data.breakdown['Reviews Count']}</p>
                         <div class="progress" style="height: 20px;">
-                            <div class="progress-bar bg-success" style="width: ${data.sales_score * 10}%">
-                                ${data.sales_score}/10
+                            <div class="progress-bar bg-info" style="width: ${(data.reviews_score / 20 * 100)}%">
+                                ${data.reviews_score}/20
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="analysis-detail-card">
+                        <h6><i class="bi bi-graph-up me-2"></i>Monthly Sales</h6>
+                        <p class="mb-2">${data.breakdown['Monthly Sales']}</p>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-success" style="width: ${(data.sales_score / 25 * 100)}%">
+                                ${data.sales_score}/25
                             </div>
                         </div>
                     </div>

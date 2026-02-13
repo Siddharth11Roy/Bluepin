@@ -47,25 +47,32 @@
                     <!-- Trust Badges Section -->
                     <div class="trust-badges-section mt-4">
                         <div class="row g-3">
-                            <div class="col-4">
+                            <div class="col-12">
                                 <div class="trust-badge-item">
                                     <i class="bi bi-shield-check trust-icon"></i>
                                     <span class="trust-text">Verified Supplier</span>
                                 </div>
                             </div>
-                            <div class="col-4">
-                                <div class="trust-badge-item">
-                                    <i class="bi bi-truck trust-icon"></i>
-                                    <span class="trust-text">Fast Delivery</span>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="trust-badge-item">
-                                    <i class="bi bi-arrow-return-left trust-icon"></i>
-                                    <span class="trust-text">Easy Returns</span>
-                                </div>
-                            </div>
                         </div>
+                    </div>
+
+                    <!-- CTA Buttons -->
+                    <div class="cta-buttons-modern mt-4">
+                        <a href="{% if product.Link and product.Link|string != 'nan' and 'amazon' in product.Link|string|lower %}{{ product.Link }}{% elif product['data-page-selector'] and product['data-page-selector']|string != 'nan' and 'amazon' in product['data-page-selector']|string|lower %}{{ product['data-page-selector'] }}{% else %}#{% endif %}"
+                            target="_blank"
+                            class="btn btn-primary-modern btn-lg w-100 mb-3 {% if not ((product.Link and product.Link|string != 'nan' and 'amazon' in product.Link|string|lower) or (product['data-page-selector'] and product['data-page-selector']|string != 'nan' and 'amazon' in product['data-page-selector']|string|lower)) %}disabled{% endif %}">
+                            <i class="bi bi-bag-check"></i> View on Amazon
+                        </a>
+                        <button class="btn btn-outline-modern btn-lg w-100 mb-3 add-to-wishlist"
+                            data-product-id="{{ product['Product Identifier'] }}"
+                            data-product-title="{{ product.Title }}" data-product-price="{{ product.Price }}"
+                            data-product-image="{{ product.Image }}" data-product-rating="{{ product.Ratings }}">
+                            <i class="bi bi-heart"></i> Save to Wishlist
+                        </button>
+                        <button class="btn btn-ai-analysis btn-lg w-100" id="aiAnalysisBtn"
+                            data-product-id="{{ product['Product Identifier'] }}">
+                            <i class="bi bi-robot"></i> AI Analysis
+                        </button>
                     </div>
                 </div>
             </div>
@@ -151,24 +158,7 @@
                         </div>
                     </div>
 
-                    <!-- CTA Buttons -->
-                    <div class="cta-buttons-modern mb-4">
-                        <a href="{% if 'amazon' in product.Image.lower() %}{{ product.Image.split('/images/I/')[0] }}dp/{{ product['Product Identifier'].split('-')[0] if '-' in product['Product Identifier'] else product['Product Identifier'] }}{% else %}#{% endif %}"
-                            target="_blank"
-                            class="btn btn-primary-modern btn-lg w-100 mb-3 {% if 'amazon' not in product.Image.lower() %}disabled{% endif %}">
-                            <i class="bi bi-bag-check"></i> View on Amazon
-                        </a>
-                        <button class="btn btn-outline-modern btn-lg w-100 mb-3 add-to-wishlist"
-                            data-product-id="{{ product['Product Identifier'] }}"
-                            data-product-title="{{ product.Title }}" data-product-price="{{ product.Price }}"
-                            data-product-image="{{ product.Image }}" data-product-rating="{{ product.Ratings }}">
-                            <i class="bi bi-heart"></i> Save to Wishlist
-                        </button>
-                        <button class="btn btn-ai-analysis btn-lg w-100" id="aiAnalysisBtn"
-                            data-product-id="{{ product['Product Identifier'] }}">
-                            <i class="bi bi-robot"></i> AI Analysis
-                        </button>
-                    </div>
+
 
                     <!-- Product Details Accordion -->
                     <div class="product-details-accordion">
@@ -622,7 +612,7 @@
                             </div>
                             <div>
                                 <h4 class="mb-1 text-${potentialClass}">${data.potential}</h4>
-                                <p class="text-muted mb-0">Total Score: ${data.total_score}/30</p>
+                                <p class="text-muted mb-0">Total Score: ${data.total_score}/100</p>
                             </div>
                         </div>
                     </div>
