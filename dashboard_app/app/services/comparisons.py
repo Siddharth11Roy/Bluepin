@@ -18,16 +18,25 @@ class Comparisons:
         compared = compared.replace({np.nan: None, np.inf: None, -np.inf: None})
         result = compared.to_dict('records')
         
+        # Add AI analysis scores for each product
+        from app.services.ai_analysis import AIAnalysis
+        for product in result:
+            ai_result = AIAnalysis.analyze_product(product)
+            product['ai_score'] = ai_result.get('total_score', 0)
+            product['ai_potential'] = ai_result.get('potential', 'Unknown')
+        
         # Add comparison metrics
         if len(result) > 1:
             prices = [p['Price'] for p in result if p['Price'] is not None]
             ratings = [p['Ratings'] for p in result if p['Ratings'] is not None]
             reviews = [p['Review'] for p in result if p['Review'] is not None]
+            ai_scores = [p['ai_score'] for p in result if p['ai_score'] is not None]
             
             for i, product in enumerate(result):
                 product['is_cheapest'] = product['Price'] == min(prices) if prices and product['Price'] is not None else False
                 product['is_highest_rated'] = product['Ratings'] == max(ratings) if ratings and product['Ratings'] is not None else False
                 product['is_most_reviewed'] = product['Review'] == max(reviews) if reviews and product['Review'] is not None else False
+                product['is_best_ai_score'] = product['ai_score'] == max(ai_scores) if ai_scores and product['ai_score'] is not None else False
         
         return result
     

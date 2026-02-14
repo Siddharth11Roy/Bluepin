@@ -285,6 +285,10 @@
                         data.forEach(p => html += `<td>${p.Review} ${p.is_most_reviewed ? '🏆' : ''}</td>`);
                         html += '</tr>';
 
+                        html += '<tr><td><strong>AI Analysis</strong></td>';
+                        data.forEach(p => html += `<td>${p.ai_score}/100 (${p.ai_potential}) ${p.is_best_ai_score ? '🏆' : ''}</td>`);
+                        html += '</tr>';
+
                         html += '</tbody></table></div>';
                         document.getElementById('wishlistComparisonBody').innerHTML = html;
                         document.getElementById('wishlistComparisonResult').style.display = 'block';
@@ -328,6 +332,10 @@
 
                 html += '<tr><td><strong>Reviews</strong></td>';
                 data.forEach(p => html += `<td>${p.Review} ${p.is_most_reviewed ? '🏆' : ''}</td>`);
+                html += '</tr>';
+
+                html += '<tr><td><strong>AI Analysis</strong></td>';
+                data.forEach(p => html += `<td>${p.ai_score}/100 (${p.ai_potential}) ${p.is_best_ai_score ? '🏆' : ''}</td>`);
                 html += '</tr>';
 
                 html += '</tbody></table></div>';

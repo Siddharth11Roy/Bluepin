@@ -619,11 +619,11 @@
                     
                     <div class="mb-3 p-3 rounded" style="background: var(--light-bg, #f8f9fa);">
                         <h6><i class="bi bi-tag me-2"></i>Price Analysis</h6>
-                        <p class="mb-2">${data.breakdown['Price Analysis']}</p>
+                        <p class="mb-2">${data.breakdown['Selling Price']}</p>
                         ${!data.missing_data || !data.missing_data.includes('Price') ? `
                         <div class="progress" style="height: 20px;">
-                            <div class="progress-bar bg-primary" style="width: ${data.price_score * 10}%">
-                                ${data.price_score}/10
+                            <div class="progress-bar bg-primary" style="width: ${(data.price_score / 25) * 100}%">
+                                ${data.price_score}/25
                             </div>
                         </div>
                         ` : ''}
@@ -631,11 +631,11 @@
                     
                     <div class="mb-3 p-3 rounded" style="background: var(--light-bg, #f8f9fa);">
                         <h6><i class="bi bi-star me-2"></i>Rating Analysis</h6>
-                        <p class="mb-2">${data.breakdown['Rating Analysis']}</p>
+                        <p class="mb-2">${data.breakdown['Ratings']}</p>
                         ${!data.missing_data || !data.missing_data.includes('Ratings') ? `
                         <div class="progress" style="height: 20px;">
-                            <div class="progress-bar bg-warning" style="width: ${data.rating_score * 10}%">
-                                ${data.rating_score}/10
+                            <div class="progress-bar bg-warning" style="width: ${(data.rating_score / 30) * 100}%">
+                                ${data.rating_score}/30
                             </div>
                         </div>
                         ` : ''}
@@ -643,11 +643,11 @@
                     
                     <div class="mb-3 p-3 rounded" style="background: var(--light-bg, #f8f9fa);">
                         <h6><i class="bi bi-graph-up me-2"></i>Sales Analysis</h6>
-                        <p class="mb-2">${data.breakdown['Sales Analysis']}</p>
+                        <p class="mb-2">${data.breakdown['Monthly Sales']}</p>
                         ${!data.missing_data || !data.missing_data.includes('Monthly Sales') ? `
                         <div class="progress" style="height: 20px;">
-                            <div class="progress-bar bg-success" style="width: ${data.sales_score * 10}%">
-                                ${data.sales_score}/10
+                            <div class="progress-bar bg-success" style="width: ${(data.sales_score / 25) * 100}%">
+                                ${data.sales_score}/25
                             </div>
                         </div>
                         ` : ''}

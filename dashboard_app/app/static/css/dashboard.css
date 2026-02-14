@@ -1997,3 +1997,16 @@ h6 {
     font-size: 0.75rem;
     color: var(--text-secondary);
 }
+
+/* ================= HIDE AI ANALYSIS BUTTON ON PRODUCT CARDS ================= */
+.product-item::before,
+.product-item::after {
+    display: none !important;
+}
+
+/* Hide any AI Analysis badges/buttons positioned on product cards */
+.product-item .btn-ai-analysis,
+.product-item [class*="ai-"],
+.product-image-wrapper .btn-ai-analysis {
+    display: none !important;
+}
