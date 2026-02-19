@@ -35,7 +35,10 @@ class DataLoader:
             # Load each CSV and extract category from filename
             for csv_file in csv_files:
                 try:
-                    df = pd.read_csv(csv_file)
+                    df = pd.read_csv(csv_file, encoding='utf-8-sig')
+                    
+                    # Strip whitespace from column names (handles invisible chars on Linux)
+                    df.columns = df.columns.str.strip()
                     
                     # Extract category from filename (e.g., "Car and Automobiles - P C.csv" -> "Car and Automobiles")
                     filename = os.path.basename(csv_file)
@@ -56,9 +59,16 @@ class DataLoader:
             df = pd.concat(all_products, ignore_index=True)
             
             # Clean and process data
+            # Normalize column names one more time after concat (defensive)
+            df.columns = df.columns.str.strip()
+            
             # Handle text fields - convert to string and fill NaN
-            df['Title'] = df['Title'].fillna('Unknown Product').astype(str)
-            df['Image'] = df['Image'].fillna('').astype(str)
+            # Use case-insensitive column lookup to handle any encoding variation
+            title_col = next((c for c in df.columns if c.lower().strip() == 'title'), 'Title')
+            image_col = next((c for c in df.columns if c.lower().strip() == 'image'), 'Image')
+            df['Title'] = df[title_col].fillna('').astype(str).str.strip()
+            df['Title'] = df['Title'].replace('', 'Unknown Product')  # only truly empty titles
+            df['Image'] = df[image_col].fillna('').astype(str)
             
             # Clean price
             df['Price'] = df['Price'].astype(str).str.replace(',', '').str.replace('₹', '').str.strip().astype(float)
@@ -94,7 +104,8 @@ class DataLoader:
         """Load suppliers from CSV with caching"""
         if cls._suppliers_cache is None or force_reload:
             csv_path = current_app.config['SUPPLIER_CSV']
-            df = pd.read_csv(csv_path)
+            df = pd.read_csv(csv_path, encoding='utf-8-sig')
+            df.columns = df.columns.str.strip()
             
             # Clean and process data
             df['Price'] = df['Price'].fillna('₹ 0').astype(str).str.replace('₹', '').str.replace(',', '').str.split('/').str[0].astype(float)
