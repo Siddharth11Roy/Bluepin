@@ -1,0 +1,11 @@
+Flask
+Flask-SQLAlchemy
+Flask-Login
+Flask-Caching
+Flask-CORS
+pandas
+openpyxl
+gunicorn
+python-dotenv
+setuptools
+wheel
