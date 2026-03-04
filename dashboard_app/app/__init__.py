@@ -10,6 +10,7 @@ cache = Cache()
 def create_app(config_name='default'):
     """Application factory pattern"""
     app = Flask(__name__)
+    app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql://postgres:postgres@localhost:5432/database_name'
     app.config.from_object(config[config_name])
     
     # Configure caching
